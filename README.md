@@ -1,6 +1,6 @@
 # AI RPG Agent — Multi-Agent Architecture
 
-This project implements a robust, multi-agent RPG chat interface using Chainlit, LangChain, and SQLModel. It relies on three specialized agents with strictly enforced API boundaries to handle narrative orchestration, NPC dialogue generation, and a Tarot-based energy economy.
+This project implements a Multi-Agent RPG game using Chainlit, LangChain, and SQLModel. It relies on three specialized agents with strictly enforced API boundaries to handle narrative orchestration, NPC dialogue generation, and a Tarot-based energy economy.
 
 ---
 
@@ -14,16 +14,16 @@ The application routes player input through a 3-agent orchestration pipeline. Ea
 - **Role**: The frontend-facing orchestrator. It executes in two phases:
   1. **Analysis Phase**: Evaluates the player's action and generates a structured JSON payload (`GMDecision`) to determine if the Persona Agent or Arbiter Agent needs to be invoked.
   2. **Narrative Phase**: Streams the final vivid story response back to the player, incorporating dialogue from the Persona and outcomes from the Arbiter.
-- **Constraints**: Read-only access to locations and characters. Can only write narrative events to the `CharacterHistory`. It **cannot** directly mutate the energy economy.
+- **Constraints**: Read-only access to locations, characters, and lore. Can only write narrative events to the `CharacterHistory`. It **cannot** directly mutate the energy economy.
 - **Prompts**:
-  - *Analysis*: "You are the decision engine of an RPG Game Master. Analyze the player action and return ONLY a valid JSON object..."
-  - *Narrative*: "You are an immersive RPG Game Master narrating outcomes vividly... Do NOT invent energy values — use only what is provided in the context."
+  - *Analysis*: "You are the decision engine of an RPG Game Master. Analyze the player action and return ONLY a valid JSON object..." (Injects active scene location, characters, and Tarot Lore dynamically).
+  - *Narrative*: "You are an immersive RPG Game Master narrating outcomes vividly... Do NOT invent energy values — use only what is provided in the context. When a character uses magic, strictly align their abilities with their Tarot Magic Style."
 
 ### 🎭 The Persona Agent (NPC Voice)
 - **Model**: `Steelskull/L3.3-Nevoria-R1-70b`
 - **Role**: Whenever an NPC speaks, the Game Master delegates dialogue generation to the Persona Agent to ensure character authenticity.
 - **Constraints**: 100% read-only. It receives a read-only dictionary of context from the GM and returns purely in-character dialogue.
-- **Prompt**: Dynamically built from the NPC's `CharacterPersona` database record: "You are the Persona Agent. You speak exclusively as the character described below... React authentically to the situation given." (Injects Risk Tolerance, Loyalty, and Aggression metrics).
+- **Prompt**: Dynamically built from the NPC's `CharacterPersona` database record: "You are the Persona Agent. You speak exclusively as the character described below... React authentically to the situation given." (Injects Risk Tolerance, Loyalty, Aggression metrics, and their Tarot Affinity lore block).
 
 ### ⚖️ The Arbiter (Logic & Economy)
 - **Model**: `Groq/Llama-3-Groq-8B-Tool-Use`
@@ -42,7 +42,10 @@ The application uses **SQLModel** (built on SQLAlchemy) for its data layer.
 - **`GlobalConfig`**: Stores hard invariants (e.g., `TOTAL_UPRIGHT_ENERGY` at genesis).
 - **`TarotEntity`**: Any entity (player, NPC, the ROOT) that holds Tarot energy. Its `upright_energy` and `reversed_energy` are cached balances. *Never mutated directly.*
 - **`TarotTransaction`**: The absolute source of truth. An immutable, append-only ledger of every energy transfer.
-- **`TarotShard`**: Represents discrete, named arcana shards (e.g., "The Fool").
+- **`TarotShard`**: Represents discrete arcana shards, linked via foreign key directly to the `TarotCardLore` that names and defines them.
+
+### Static Lore (Reference Data)
+- **`TarotCardLore`**: Static reference table for Tarot meanings and magical themes (e.g., upright/reversed meanings, magical manifestation, and personality archetypes). Seeded once and used dynamically as JIT context by the agents.
 
 ### Narrative Tables
 - **`Location`**: Physical places in the world. Includes semantic state rules:
@@ -50,17 +53,22 @@ The application uses **SQLModel** (built on SQLAlchemy) for its data layer.
   - `is_magic_restricted`: The GM knows to limit magical narrative outcomes here.
 - **`SideCharacter`**: Narrative characters linked to a `TarotEntity` wallet, a `Location`, and a `CharacterPersona`.
 - **`CharacterHistory`**: An append-only log of roleplay memory. Includes an `event_type` ("dialogue", "combat", "transfer", "movement") to allow agents to selectively recall relevant past events.
-- **`CharacterPersona`**: The "NPC Brain." Contains static personality data (`motivation`, `hidden_secret`, `speaking_style`) and numerical behavioral profiles (`risk_tolerance`, `loyalty`, `aggression` on a scale of 0-100) injected directly into the Persona Agent's system prompt.
+- **`CharacterPersona`**: The "NPC Brain." Contains static personality data (`motivation`, `hidden_secret`, `speaking_style`), numerical behavioral profiles (`risk_tolerance`, `loyalty`, `aggression`), and a relationship to `TarotCardLore` that dictates their magic style.
 
 ---
 
-## 3. Core Services (`app/db/service.py`)
+## 3. Core Services
 
-### `TarotService`
+### `TarotService` (`app/db/service.py`)
 Handles all atomic interactions with the economy to ensure data integrity and prevent corruption.
 - **Conservation Law**: The total amount of energy in the system must remain constant. The service calculates total balances before and after operations to verify this.
 - **`mint_energy`**: Used *only* at genesis (bootstrapping the `ROOT` entity).
 - **`transfer_energy`**: The core mechanic used by the Arbiter. Atomically debits the sender, credits the receiver, and writes a `TarotTransaction` ledger entry. Uses strict `try/except` blocks with `session.rollback()` to prevent corrupted states on failure.
+
+### JIT Context Builder (`app/db/context.py`)
+Prevents token-limit exhaustion by dynamically assembling context strings only for the active scene.
+- **`build_gm_context`**: Assembles location details, current occupants, and active Tarot lore into a single string injected into the GM's prompts.
+- **`get_character_lore_block`**: Fetches a single character's archetype ("Your soul is bound to the archetype of...") to inject directly into the Persona Agent's prompt.
 
 ---
 

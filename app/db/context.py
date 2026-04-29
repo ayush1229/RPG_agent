@@ -4,27 +4,23 @@ from typing import Optional
 
 from sqlmodel import Session, select
 
-from app.db.models import Location, SideCharacter
+from app.db.models import Location, SideCharacter, TarotShard
+from app.db.service import tarot_service
 
 
 def build_gm_context(session: Session, location_id: Optional[int] = None) -> str:
     """
     Just-In-Time (JIT) context builder for the Game Master agent.
 
-    Dynamically assembles a context string containing:
+    Injects ONLY active scene data to avoid token limit exhaustion:
       - Location name, description, and mechanic flags
-      - Characters currently in the location
-      - Each character's Tarot affinity (card name, magic style, upright/reversed meaning)
-
-    This is injected into the GM's analysis and narrative prompts without
-    hitting the token limit by only pulling lore for *active scene* characters.
+      - Characters present and their current status
+      - Each character's held Tarot cards (name + magic style)
+      - Each character's upright/reversed mana (NOT all global lore)
 
     Args:
         session: Read-only SQLModel session.
-        location_id: If None, returns a brief world overview (all locations).
-
-    Returns:
-        A formatted string ready to embed in an LLM system prompt.
+        location_id: If None, returns a brief world overview.
     """
     if location_id is not None:
         return _build_location_context(session, location_id)
@@ -40,26 +36,42 @@ def _build_location_context(session: Session, location_id: int) -> str:
         f"LOCATION: {loc.name}",
         f"Description: {loc.description}",
         f"Safe Zone: {loc.is_safe_zone} | Magic Restricted: {loc.is_magic_restricted}",
+        "",
+        "CHARACTERS PRESENT:",
     ]
 
-    lore_lines: list[str] = []
     for char in loc.occupants:
-        char_line = f"\n  Character: {char.name} ({char.position}) — {char.current_status}"
-        lines.append(char_line)
+        entity = char.tarot_wallet
+        mana_line = ""
+        card_line = ""
 
-        if char.persona and char.persona.tarot_affinity:
-            lore = char.persona.tarot_affinity
-            lore_lines.append(
-                f"[{char.name}'s Affinity: {lore.name}]\n"
-                f"  Magic Style: {lore.magical_manifestation}\n"
-                f"  Upright: {lore.upright_meaning}\n"
-                f"  Reversed: {lore.reversed_meaning}\n"
-                f"  Archetype: {lore.personality_archetype}"
+        if entity:
+            # Lazy mana regen before injecting context
+            tarot_service._regen_mana(entity)
+            mana_line = (
+                f"    Mana: ↑{entity.current_upright_mana}/{entity.upright_capacity} "
+                f"↓{entity.current_reversed_mana}/{entity.reversed_capacity}"
             )
 
-    if lore_lines:
-        lines.append("\nACTIVE LORE THEMES:")
-        lines.extend(lore_lines)
+            cards = tarot_service.get_held_cards(session, entity.id)
+            if cards:
+                card_parts = []
+                for c in cards:
+                    card_parts.append(f"{c['card_name']} ({c['arcana_type']}): {c['magic_style']}")
+                card_line = "    Cards: " + " | ".join(card_parts)
+
+        lines.append(f"  • {char.name} [{char.position}] — {char.current_status}")
+        if mana_line:
+            lines.append(mana_line)
+        if card_line:
+            lines.append(card_line)
+
+        # Tarot affinity (archetype, not full lore dump)
+        if char.persona and char.persona.tarot_affinity:
+            lore = char.persona.tarot_affinity
+            lines.append(
+                f"    Affinity: {lore.name} — {lore.magical_manifestation}"
+            )
 
     return "\n".join(lines)
 
@@ -99,5 +111,8 @@ def get_character_lore_block(character_name: str, session: Session) -> str:
         f"Your soul is bound to the archetype of {lore.name}. "
         f"Subtly weave themes of {lore.upright_meaning} (upright) or "
         f"{lore.reversed_meaning} (reversed) into your dialogue and decisions.\n"
-        f"Your magical nature manifests as: {lore.magical_manifestation}"
+        f"Your magical nature manifests as: {lore.magical_manifestation}\n"
+        f"Core themes you embody: {lore.core_themes}\n"
+        f"Power domains: {lore.power_domains}\n"
+        f"Behavioral bias: {lore.behavioral_bias}"
     )

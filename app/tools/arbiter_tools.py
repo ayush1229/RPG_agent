@@ -4,13 +4,19 @@ from langchain_core.tools import tool
 from sqlmodel import Session, select
 
 from app.db.database import engine
-from app.db.models import CharacterHistory, Location, SideCharacter, TarotEntity
+from app.db.models import (
+    Location,
+    TarotAbility,
+    TarotCardLore,
+    TarotEntity,
+    TarotShard,
+)
 from app.db.service import tarot_service
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Arbiter Tools — ONLY callable by the ArbiterAgent.
-# All functions use their own DB session and commit atomically.
-# The GM never imports or calls these directly.
+# All functions open their own session and return structured strings.
+# The GM NEVER imports or calls these directly.
 # ─────────────────────────────────────────────────────────────────────────────
 
 
@@ -18,18 +24,22 @@ from app.db.service import tarot_service
 def get_entity_info(entity_name: str) -> str:
     """
     Look up a TarotEntity by name.
-    Returns its id, upright_energy, and reversed_energy.
-    Call this before any transfer to confirm the entity exists and check balance.
+    Returns its id, upright_capacity, reversed_capacity, and current mana values.
+    Call this first to confirm the entity exists and check its balances.
     """
     with Session(engine) as session:
         entity = tarot_service.get_entity_by_name(session, entity_name)
         if not entity:
-            return f"ERROR: Entity '{entity_name}' not found in the database."
+            return f"ERROR: Entity '{entity_name}' not found."
+        cards = tarot_service.get_held_cards(session, entity.id)
+        card_names = ", ".join(c["card_name"] for c in cards) or "none"
         return (
-            f"Entity '{entity.entity_name}': "
-            f"id={entity.id}, "
-            f"upright={entity.upright_energy}, "
-            f"reversed={entity.reversed_energy}"
+            f"Entity '{entity.entity_name}': id={entity.id} | "
+            f"upright_capacity={entity.upright_capacity}, "
+            f"reversed_capacity={entity.reversed_capacity} | "
+            f"upright_mana={entity.current_upright_mana}, "
+            f"reversed_mana={entity.current_reversed_mana} | "
+            f"held_cards=[{card_names}]"
         )
 
 
@@ -42,8 +52,8 @@ def transfer_energy(
     reason: str,
 ) -> str:
     """
-    Transfer energy between two entities.
-    Validates balances, inserts a TarotTransaction, and updates both entities atomically.
+    Transfer permanent capacity between two entities.
+    Capacity is zero-sum (sovereignty resource). Validates balances atomically.
     Returns a confirmation string or an error message.
     """
     with Session(engine) as session:
@@ -55,31 +65,88 @@ def transfer_energy(
         if not to_e:
             return f"ERROR: Target entity '{to_entity_name}' not found."
 
-        try:
-            tx = tarot_service.transfer_energy(
-                session=session,
-                from_id=from_e.id,
-                to_id=to_e.id,
-                upright=upright_amount,
-                reversed=reversed_amount,
-                reason=reason,
-            )
+        result = tarot_service.transfer_energy(
+            session=session,
+            from_id=from_e.id,
+            to_id=to_e.id,
+            upright=upright_amount,
+            reversed=reversed_amount,
+            reason=reason,
+        )
+
+        if result["success"]:
             return (
-                f"SUCCESS: Transferred upright={tx.upright_amount}, "
-                f"reversed={tx.reversed_amount} "
-                f"from '{from_entity_name}' to '{to_entity_name}'. "
-                f"Transaction id={tx.id}."
+                f"SUCCESS: {result['message']} Transaction id={result['tx_id']}."
             )
-        except (ValueError, RuntimeError) as e:
-            return f"ERROR: {e}"
+        return f"REJECTED: {result['message']}"
+
+
+@tool
+def transfer_card(
+    from_entity_name: str,
+    to_entity_name: str,
+    shard_id: int,
+    reason: str,
+) -> str:
+    """
+    Transfer ownership of a Tarot card shard between entities.
+    Enforces loadout limits: max 1 Major Arcana, max 2 Minor Arcana.
+    Writes a TarotCardTransaction ledger entry.
+    """
+    with Session(engine) as session:
+        from_e = tarot_service.get_entity_by_name(session, from_entity_name)
+        to_e = tarot_service.get_entity_by_name(session, to_entity_name)
+
+        if not from_e:
+            return f"ERROR: Source entity '{from_entity_name}' not found."
+        if not to_e:
+            return f"ERROR: Target entity '{to_entity_name}' not found."
+
+        result = tarot_service.transfer_card(
+            session=session,
+            from_id=from_e.id,
+            to_id=to_e.id,
+            shard_id=shard_id,
+            reason=reason,
+        )
+
+        if result["success"]:
+            return f"SUCCESS: Card '{result['card']}' transferred. Reason: {reason}."
+        return f"REJECTED: {result['reason']}"
+
+
+@tool
+def cast_spell(entity_name: str, ability_id: int) -> str:
+    """
+    Cast a TarotAbility for an entity. Applies lazy mana regen first,
+    then deducts mana cost. Entity must hold the card granting this ability.
+    Returns success or detailed failure reason.
+    """
+    with Session(engine) as session:
+        entity = tarot_service.get_entity_by_name(session, entity_name)
+        if not entity:
+            return f"ERROR: Entity '{entity_name}' not found."
+
+        result = tarot_service.cast_spell(
+            session=session,
+            entity_id=entity.id,
+            ability_id=ability_id,
+        )
+
+        if result["success"]:
+            return (
+                f"SUCCESS: '{entity_name}' cast '{result['ability']}' "
+                f"(cost: {result['cost']} mana)."
+            )
+        return f"REJECTED: {result['reason']}"
 
 
 @tool
 def check_location_rules(location_name: str) -> str:
     """
-    Check whether energy transfers are permitted in a location.
+    Check whether energy transfers or magic are permitted at a location.
     Returns is_safe_zone and is_magic_restricted flags.
-    Use this before approving any transfer in a named location.
+    Always call this before approving a transfer in a named location.
     """
     with Session(engine) as session:
         loc = session.exec(
@@ -97,8 +164,8 @@ def check_location_rules(location_name: str) -> str:
 @tool
 def get_transaction_log(entity_name: str, limit: int = 5) -> str:
     """
-    Return the last N transactions for an entity (sent + received).
-    Useful for detecting recent activity or verifying a prior transfer.
+    Return the last N capacity transactions for an entity (sent + received).
+    Useful for verifying prior transfers or detecting recent activity.
     """
     with Session(engine) as session:
         entity = tarot_service.get_entity_by_name(session, entity_name)
@@ -107,20 +174,43 @@ def get_transaction_log(entity_name: str, limit: int = 5) -> str:
         txs = tarot_service.get_transaction_history(session, entity.id)
         recent = txs[-limit:]
         if not recent:
-            return f"No transactions found for '{entity_name}'."
-        lines = []
-        for tx in recent:
-            lines.append(
-                f"  tx#{tx.id} | upright={tx.upright_amount} reversed={tx.reversed_amount} "
-                f"| from={tx.from_entity_id} → to={tx.to_entity_id} | reason='{tx.reason}'"
-            )
+            return f"No capacity transactions found for '{entity_name}'."
+        lines = [
+            f"  tx#{tx.id} | up={tx.upright_amount} rev={tx.reversed_amount} "
+            f"| from={tx.from_entity_id} → to={tx.to_entity_id} | '{tx.reason}'"
+            for tx in recent
+        ]
         return "\n".join(lines)
 
 
-# ─── Convenience list for AgentExecutor ──────────────────────────────────────
+@tool
+def get_card_abilities(card_name: str) -> str:
+    """
+    List all abilities unlocked by a specific Tarot card.
+    Returns ability ids, names, mana costs, and energy types.
+    """
+    with Session(engine) as session:
+        lore = session.exec(
+            select(TarotCardLore).where(TarotCardLore.name == card_name)
+        ).first()
+        if not lore:
+            return f"ERROR: Card '{card_name}' not found in TarotCardLore."
+        if not lore.abilities:
+            return f"Card '{card_name}' has no abilities defined yet."
+        lines = [
+            f"  ability#{a.id}: '{a.name}' | cost={a.mana_cost} {a.energy_type} mana"
+            for a in lore.abilities
+        ]
+        return f"Abilities for '{card_name}':\n" + "\n".join(lines)
+
+
+# ─── Tool registry ────────────────────────────────────────────────────────────
 ARBITER_TOOLS = [
     get_entity_info,
     transfer_energy,
+    transfer_card,
+    cast_spell,
     check_location_rules,
     get_transaction_log,
+    get_card_abilities,
 ]

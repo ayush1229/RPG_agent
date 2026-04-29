@@ -1,25 +1,20 @@
 from __future__ import annotations
 
-from sqlmodel import Session, create_engine
+from sqlmodel import Session, create_engine, select
 
 from app.db.models import (
-    CharacterHistory,
     GlobalConfig,
-    SideCharacter,
     SQLModel,
     TarotEntity,
-    TarotShard,
-    TarotTransaction,
 )
 
 # ─── Engine ───────────────────────────────────────────────────────────────────
-# SQLite for local dev. Swap the URL via DATABASE_URL env var for production.
 DATABASE_URL = "sqlite:///./tarot.db"
 
 engine = create_engine(
     DATABASE_URL,
-    echo=False,  # Set to True to log all SQL statements (debug mode)
-    connect_args={"check_same_thread": False},  # Required for SQLite + async
+    echo=False,
+    connect_args={"check_same_thread": False},
 )
 
 
@@ -29,37 +24,33 @@ def create_db_and_tables() -> None:
 
 
 def get_session() -> Session:
-    """Return a Session that can be used as a context manager: `with get_session() as s:`"""
+    """Return a Session usable as a context manager: `with get_session() as s:`"""
     return Session(engine)
 
 
 # ---------------------------------------------------------
-# Initialization Blueprint
-# Seeds the database on first run with root totals + ROOT entity.
-# Safe to call multiple times (checks for existing records first).
+# Genesis Constants
 # ---------------------------------------------------------
-TOTAL_UPRIGHT_ENERGY = 1_000_000_000
-TOTAL_REVERSED_ENERGY = 1_000_000_000
+TOTAL_UPRIGHT_CAPACITY = 1_000_000_000
+TOTAL_REVERSED_CAPACITY = 1_000_000_000
 
 
 def init_root(session: Session) -> TarotEntity:
     """
     Idempotent root initialization:
-      1. Write GlobalConfig constants if not already present.
-      2. Create the ROOT entity if it doesn't exist.
+      1. Write GlobalConfig capacity constants if not already present.
+      2. Create the ROOT entity with full capacity + mana if it doesn't exist.
     Returns the ROOT entity.
     """
-    # 1 — Global totals
+    # 1 — Global capacity totals
     for key, value in [
-        ("TOTAL_UPRIGHT_ENERGY", TOTAL_UPRIGHT_ENERGY),
-        ("TOTAL_REVERSED_ENERGY", TOTAL_REVERSED_ENERGY),
+        ("TOTAL_UPRIGHT_CAPACITY", TOTAL_UPRIGHT_CAPACITY),
+        ("TOTAL_REVERSED_CAPACITY", TOTAL_REVERSED_CAPACITY),
     ]:
         if not session.get(GlobalConfig, key):
             session.add(GlobalConfig(key=key, value=value))
 
-    # 2 — ROOT entity (holds all energy at genesis)
-    from sqlmodel import select
-
+    # 2 — ROOT entity (holds all capacity at genesis)
     existing = session.exec(
         select(TarotEntity).where(TarotEntity.entity_name == "ROOT")
     ).first()
@@ -70,8 +61,10 @@ def init_root(session: Session) -> TarotEntity:
 
     root = TarotEntity(
         entity_name="ROOT",
-        upright_energy=TOTAL_UPRIGHT_ENERGY,
-        reversed_energy=TOTAL_REVERSED_ENERGY,
+        upright_capacity=TOTAL_UPRIGHT_CAPACITY,
+        reversed_capacity=TOTAL_REVERSED_CAPACITY,
+        current_upright_mana=TOTAL_UPRIGHT_CAPACITY,
+        current_reversed_mana=TOTAL_REVERSED_CAPACITY,
     )
     session.add(root)
     session.commit()

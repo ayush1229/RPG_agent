@@ -16,3 +16,6 @@ wheels/
 .chainlit/translations/
 chainlit.db
 .files/
+
+# SQLite Databases
+*.db

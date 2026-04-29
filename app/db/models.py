@@ -1,4 +1,4 @@
-from __future__ import annotations
+
 
 from datetime import datetime, timezone
 from typing import List, Optional
@@ -6,40 +6,52 @@ from typing import List, Optional
 from sqlmodel import Field, Relationship, SQLModel
 
 
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+
 # ---------------------------------------------------------
-# 1. STATIC LORE (REFERENCE DATA — no FK dependencies)
+# 1. STATIC LORE (no FK dependencies — defined first)
 # ---------------------------------------------------------
 class TarotCardLore(SQLModel, table=True):
     """
     Static reference table for Tarot card meanings and magical themes.
-    Seeded once and used as JIT context by the GM and Persona agents.
+    Seeded once. Used as JIT context by GM and Persona agents.
     """
     __table_args__ = {'extend_existing': True}
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    name: str = Field(index=True, unique=True)     # e.g. "The Fool", "Three of Swords"
-    arcana_type: str                                # "Major" | "Minor"
-    suit: Optional[str] = Field(default=None)      # None for Major Arcana
+    name: str = Field(index=True, unique=True)   # "The Fool", "Three of Swords"
+    arcana_type: str                              # "Major" | "Minor"
+    suit: Optional[str] = Field(default=None)    # None for Major Arcana
 
     # Core meanings
     upright_meaning: str
     reversed_meaning: str
 
-    # RPG-specific hooks injected into agent prompts
-    magical_manifestation: str     # e.g. "Lightning strikes that arc unpredictably"
-    personality_archetype: str     # e.g. "The reckless visionary who leaps before looking"
+    # RPG-specific prompt hooks
+    magical_manifestation: str      # "Lightning arcs that strike unpredictably"
+    personality_archetype: str      # "The reckless visionary"
 
-    # Relationships
+    # Structured thematic fields (for richer JIT context)
+    core_themes: str                # "beginnings, freedom, spontaneity"
+    power_domains: str              # "air, wind, chaos, chance"
+    behavioral_bias: str            # "acts before thinking, trusts fate"
+
+    # Relationships (back-populated from dependents)
     affiliated_personas: List["CharacterPersona"] = Relationship(
         back_populates="tarot_affinity"
     )
     affiliated_shards: List["TarotShard"] = Relationship(
         back_populates="lore"
     )
+    abilities: List["TarotAbility"] = Relationship(
+        back_populates="card"
+    )
 
 
 # ---------------------------------------------------------
-# 2. GLOBAL CONFIGURATION (HARD INVARIANTS)
+# 2. GLOBAL CONFIGURATION (hard invariants)
 # ---------------------------------------------------------
 class GlobalConfig(SQLModel, table=True):
     __table_args__ = {'extend_existing': True}
@@ -49,21 +61,35 @@ class GlobalConfig(SQLModel, table=True):
 
 # ---------------------------------------------------------
 # 3. CORE ENERGY HOLDERS
+#    Capacity = permanent, zero-sum, used for sovereignty
+#    Mana     = temporary, regenerates, used for casting
 # ---------------------------------------------------------
 class TarotEntity(SQLModel, table=True):
     """
-    Any entity that can hold Tarot energy (player, NPC, ROOT, etc.).
-    Never mutate balances directly — use TarotService only.
+    Any entity that can hold Tarot energy (player, NPC, ROOT).
+    - Capacity is ONLY modified via TarotService.transfer_energy()
+    - Mana is ONLY modified via regeneration and spell casting
     """
     __table_args__ = {'extend_existing': True}
 
     id: Optional[int] = Field(default=None, primary_key=True)
     entity_name: str = Field(index=True)
-    upright_energy: int = Field(default=0, ge=0)
-    reversed_energy: int = Field(default=0, ge=0)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    side_character: Optional["SideCharacter"] = Relationship(back_populates="tarot_wallet")
+    # ── PERMANENT (zero-sum, conserved) ──────────────────
+    upright_capacity: int = Field(default=0, ge=0)
+    reversed_capacity: int = Field(default=0, ge=0)
+
+    # ── TEMPORARY (spendable mana) ────────────────────────
+    current_upright_mana: int = Field(default=0, ge=0)
+    current_reversed_mana: int = Field(default=0, ge=0)
+    last_mana_update: datetime = Field(default_factory=utcnow)
+
+    created_at: datetime = Field(default_factory=utcnow)
+
+    # Relationships
+    side_character: Optional["SideCharacter"] = Relationship(
+        back_populates="tarot_wallet"
+    )
     outgoing_transactions: List["TarotTransaction"] = Relationship(
         back_populates="from_entity",
         sa_relationship_kwargs={"foreign_keys": "[TarotTransaction.from_entity_id]"},
@@ -72,13 +98,14 @@ class TarotEntity(SQLModel, table=True):
         back_populates="to_entity",
         sa_relationship_kwargs={"foreign_keys": "[TarotTransaction.to_entity_id]"},
     )
+    held_cards: List["TarotShard"] = Relationship(back_populates="owner")
 
 
 # ---------------------------------------------------------
-# 4. TRANSACTION LEDGER
+# 4. CAPACITY TRANSACTION LEDGER (immutable)
 # ---------------------------------------------------------
 class TarotTransaction(SQLModel, table=True):
-    """Immutable append-only ledger. from_entity_id=None means genesis mint."""
+    """Immutable append-only ledger for capacity (sovereignty) transfers."""
     __table_args__ = {'extend_existing': True}
 
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -86,7 +113,7 @@ class TarotTransaction(SQLModel, table=True):
     to_entity_id: Optional[int] = Field(default=None, foreign_key="tarotentity.id")
     upright_amount: int = Field(default=0, ge=0)
     reversed_amount: int = Field(default=0, ge=0)
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=utcnow)
     reason: str
 
     from_entity: Optional[TarotEntity] = Relationship(
@@ -100,13 +127,12 @@ class TarotTransaction(SQLModel, table=True):
 
 
 # ---------------------------------------------------------
-# 5. WORLD GEOGRAPHY (Game Master Agent)
+# 5. WORLD GEOGRAPHY
 # ---------------------------------------------------------
 class Location(SQLModel, table=True):
     """
-    A physical place in the world.
-    is_safe_zone: Arbiter rejects energy transfers here.
-    is_magic_restricted: GM shapes encounter possibilities.
+    is_safe_zone: Arbiter rejects capacity transfers here.
+    is_magic_restricted: GM limits magical outcomes here.
     """
     __table_args__ = {'extend_existing': True}
 
@@ -120,10 +146,10 @@ class Location(SQLModel, table=True):
 
 
 # ---------------------------------------------------------
-# 6. NARRATIVE LAYER (CHARACTERS)
+# 6. NARRATIVE CHARACTERS
 # ---------------------------------------------------------
 class SideCharacter(SQLModel, table=True):
-    """A narrative character with a TarotEntity wallet, location, and persona."""
+    """Narrative character with energy wallet, location, and persona."""
     __table_args__ = {'extend_existing': True}
 
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -141,19 +167,19 @@ class SideCharacter(SQLModel, table=True):
 
 
 # ---------------------------------------------------------
-# 7. CHARACTER HISTORY (Roleplay Memory)
+# 7. CHARACTER HISTORY (roleplay memory)
 # ---------------------------------------------------------
 class CharacterHistory(SQLModel, table=True):
     """
     Append-only event log. event_type allows filtered recall:
-    'dialogue' | 'combat' | 'transfer' | 'movement'
+    'dialogue' | 'combat' | 'transfer' | 'movement' | 'spell'
     """
     __table_args__ = {'extend_existing': True}
 
     id: Optional[int] = Field(default=None, primary_key=True)
     event_type: str
     event_description: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=utcnow)
 
     character_id: int = Field(foreign_key="sidecharacter.id")
     character: SideCharacter = Relationship(back_populates="history_logs")
@@ -165,8 +191,7 @@ class CharacterHistory(SQLModel, table=True):
 class CharacterPersona(SQLModel, table=True):
     """
     Static personality data injected into the Persona Agent's system prompt.
-    Behavioral attributes (0–100) make NPC responses numerically consistent.
-    tarot_affinity links to the card archetype that defines their magic style.
+    tarot_affinity links to the card archetype defining their magic style.
     """
     __table_args__ = {'extend_existing': True}
 
@@ -181,7 +206,6 @@ class CharacterPersona(SQLModel, table=True):
     character_id: int = Field(foreign_key="sidecharacter.id")
     character: Optional[SideCharacter] = Relationship(back_populates="persona")
 
-    # Tarot affinity — links to the card whose archetype defines this NPC's magic
     tarot_affinity_id: Optional[int] = Field(default=None, foreign_key="tarotcardlore.id")
     tarot_affinity: Optional[TarotCardLore] = Relationship(
         back_populates="affiliated_personas"
@@ -189,22 +213,60 @@ class CharacterPersona(SQLModel, table=True):
 
 
 # ---------------------------------------------------------
-# 9. ARCANA SHARD SYSTEM
+# 9. TAROT SHARD INVENTORY (physical card ownership)
+#    Loadout enforced at service layer:
+#    - Max 1 Major Arcana
+#    - Max 2 Minor Arcana
 # ---------------------------------------------------------
 class TarotShard(SQLModel, table=True):
     """
-    A discrete arcana shard. energy_type validated at service layer.
-    lore links to the TarotCardLore that names and defines this shard.
+    A physical Tarot card held by an entity.
+    energy_type and value are gone — abilities on the card define those.
+    lore_id is mandatory (normalized, no arcana_name string).
     """
     __table_args__ = {'extend_existing': True}
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    energy_type: str   # "upright" | "reversed"
-    value: int         # must be > 0
-
-    # Normalized: card name comes from lore.name, not a denormalized string field
-    lore_id: Optional[int] = Field(default=None, foreign_key="tarotcardlore.id")
-    lore: Optional[TarotCardLore] = Relationship(back_populates="affiliated_shards")
+    created_at: datetime = Field(default_factory=utcnow)
 
     owner_id: int = Field(foreign_key="tarotentity.id")
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    owner: Optional[TarotEntity] = Relationship(back_populates="held_cards")
+
+    lore_id: int = Field(foreign_key="tarotcardlore.id")
+    lore: Optional[TarotCardLore] = Relationship(back_populates="affiliated_shards")
+
+
+# ---------------------------------------------------------
+# 10. CARD OWNERSHIP LEDGER (mandatory)
+# ---------------------------------------------------------
+class TarotCardTransaction(SQLModel, table=True):
+    """Immutable ledger tracking every card ownership change."""
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    shard_id: int = Field(foreign_key="tarotshard.id")
+    from_entity_id: int = Field(foreign_key="tarotentity.id")
+    to_entity_id: int = Field(foreign_key="tarotentity.id")
+    timestamp: datetime = Field(default_factory=utcnow)
+    reason: str
+
+
+# ---------------------------------------------------------
+# 11. ABILITY SYSTEM
+# ---------------------------------------------------------
+class TarotAbility(SQLModel, table=True):
+    """
+    A spell or action unlocked by holding a specific Tarot card.
+    Costs mana of the given energy_type when cast.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    mana_cost: int = Field(ge=0)
+    energy_type: str = Field(regex="^(upright|reversed)$")
+    tags: Optional[str] = Field(default=None, regex=r"^[a-z0-9\-]+(,[a-z0-9\-]+)*$")
+    ability_category: str = Field(default="combat", regex="^(combat|utility|passive)$")
+
+    card_id: int = Field(foreign_key="tarotcardlore.id")
+    card: Optional[TarotCardLore] = Relationship(back_populates="abilities")
