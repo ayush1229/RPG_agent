@@ -1,0 +1,32 @@
+[project]
+# Name shown in the UI header
+name = "AI RPG Agent"
+
+[features]
+# Allow users to upload files in chat (disable until agent supports it)
+multi_modal = false
+# Show the chain-of-thought steps panel
+unsafe_allow_html = false
+
+[UI]
+# App name shown in browser tab
+name = "AI RPG Agent"
+
+# Dark theme is the default
+default_theme = "dark"
+
+# Collapse the sidebar on load for a clean first impression
+default_collapse_content = true
+
+[UI.theme]
+# ── Dark RPG palette ────────────────────────────────────────────────────────
+# Primary accent — deep amber/gold
+primary_color = "#c8922a"
+# Background layers
+background_color     = "#0d0d14"
+paper_color          = "#14141f"
+# Font
+font_family = "Inter, 'Segoe UI', system-ui, sans-serif"
+
+[meta]
+generated_by = "antigravity"
