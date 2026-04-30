@@ -679,12 +679,16 @@ class DialogueLog(SQLModel, table=True):
     NEVER injected into the LLM directly — only the last N lines and
     the ConversationSummary are used for model context.
 
-    role: "user" | "assistant"
+    role            : "user" | "assistant"
+    chat_session_id : Chainlit session id — groups messages per browser tab/session.
+                      Allows a user to start a fresh chat without losing prior history.
+                      When None the row belongs to a legacy session (pre-migration).
     """
     __table_args__ = {'extend_existing': True}
 
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: str = Field(index=True)
+    chat_session_id: Optional[str] = Field(default=None, index=True)  # Chainlit session id
     role: str                          # "user" | "assistant"
     message: str
     timestamp: datetime = Field(default_factory=utcnow)

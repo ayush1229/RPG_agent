@@ -71,16 +71,25 @@ class PlayerState:
 
 # ── Core functions ─────────────────────────────────────────────────────────────
 
-def load_user_state(session: Session, user_id: str) -> PlayerState:
+def load_user_state(
+    session: Session,
+    user_id: str,
+    chat_session_id: Optional[str] = None,
+) -> PlayerState:
     """
     Rehydrate the complete player state from DB.
+
+    chat_session_id: Chainlit session id. When provided, recent_messages is
+    scoped to ONLY the current chat session, so a new chat tab starts with a
+    clean dialogue window while preserving all entity state (inventory, quests,
+    health, location, TutorialState etc.) from the DB.
 
     Steps:
       1. Fetch or create UserSession (idempotent)
       2. Load TarotEntity
       3. Load Location, Inventory, QuestProgress, StatusEffects, nearby NPCs
-      4. Load last MAX_RECENT_MESSAGES dialogue turns
-      5. Load ConversationSummary
+      4. Load last MAX_RECENT_MESSAGES dialogue turns (scoped to chat_session_id)
+      5. Load ConversationSummary (cross-session compressed memory)
     """
     # ── 1. Resolve UserSession (create player entity if first login) ───────────
     user_session = session.exec(
@@ -155,13 +164,24 @@ def load_user_state(session: Session, user_id: str) -> PlayerState:
                 ),
             })
 
-    # ── 4. Recent dialogue (last MAX_RECENT_MESSAGES only) ────────────────────
-    all_logs = session.exec(
+    # ── 4. Recent dialogue (last MAX_RECENT_MESSAGES, scoped to this chat session) ─
+    dialogue_query = (
         select(DialogueLog)
         .where(DialogueLog.user_id == user_id)
         .order_by(col(DialogueLog.id).desc())
         .limit(MAX_RECENT_MESSAGES)
-    ).all()
+    )
+    if chat_session_id is not None:
+        dialogue_query = (
+            select(DialogueLog)
+            .where(
+                DialogueLog.user_id == user_id,
+                DialogueLog.chat_session_id == chat_session_id,
+            )
+            .order_by(col(DialogueLog.id).desc())
+            .limit(MAX_RECENT_MESSAGES)
+        )
+    all_logs = session.exec(dialogue_query).all()
     # Reverse so oldest-first for context window
     recent_messages = [
         {"role": log.role, "content": log.message}
@@ -223,36 +243,49 @@ def save_dialogue(
     user_id: str,
     role: str,
     message: str,
+    chat_session_id: Optional[str] = None,
 ) -> DialogueLog:
     """
     Append one DialogueLog row. role must be 'user' or 'assistant'.
+    chat_session_id: Chainlit session id, scopes the message to a specific chat window.
     Returns the created row.
     """
     if role not in {"user", "assistant"}:
         raise ValueError(f"Invalid role '{role}'. Must be 'user' or 'assistant'.")
-    log = DialogueLog(user_id=user_id, role=role, message=message)
+    log = DialogueLog(
+        user_id=user_id,
+        chat_session_id=chat_session_id,
+        role=role,
+        message=message,
+    )
     session.add(log)
     session.commit()
     session.refresh(log)
     return log
 
 
-def get_chat_history(session: Session, user_id: str) -> list[dict]:
+def get_chat_history(
+    session: Session,
+    user_id: str,
+    chat_session_id: Optional[str] = None,
+) -> list[dict]:
     """
-    Return full ordered dialogue history for UI replay.
+    Return ordered dialogue history for UI replay.
+    When chat_session_id is given, returns ONLY that session's messages.
+    When None, returns ALL messages for the user across all sessions (admin/debug use).
     NOT for model input — caller must never pass this to an LLM directly.
     """
-    logs = session.exec(
-        select(DialogueLog)
-        .where(DialogueLog.user_id == user_id)
-        .order_by(col(DialogueLog.id))
-    ).all()
+    query = select(DialogueLog).where(DialogueLog.user_id == user_id)
+    if chat_session_id is not None:
+        query = query.where(DialogueLog.chat_session_id == chat_session_id)
+    logs = session.exec(query.order_by(col(DialogueLog.id))).all()
     return [
         {
             "id": log.id,
             "role": log.role,
             "message": log.message,
             "timestamp": log.timestamp.isoformat(),
+            "chat_session_id": log.chat_session_id,
         }
         for log in logs
     ]
@@ -330,16 +363,22 @@ async def maybe_update_summary(
     session: Session,
     user_id: str,
     force: bool = False,
+    chat_session_id: Optional[str] = None,
 ) -> bool:
     """
-    Trigger summarisation if total message count is a multiple of SUMMARY_INTERVAL
-    or if force=True (e.g., after quest completion or combat end).
+    Trigger summarisation if total message count (for this chat session) is a
+    multiple of SUMMARY_INTERVAL or if force=True.
+
+    The ConversationSummary is cross-session — it accumulates the narrative
+    across ALL sessions. The summary always replaces rather than appends, so
+    it remains compact regardless of how many sessions a player has had.
 
     Returns True if summarisation was triggered.
     """
-    count = len(session.exec(
-        select(DialogueLog).where(DialogueLog.user_id == user_id)
-    ).all())
+    query = select(DialogueLog).where(DialogueLog.user_id == user_id)
+    if chat_session_id is not None:
+        query = query.where(DialogueLog.chat_session_id == chat_session_id)
+    count = len(session.exec(query).all())
 
     if force or (count > 0 and count % SUMMARY_INTERVAL == 0):
         from app.agent.summarizer import summarizer_agent

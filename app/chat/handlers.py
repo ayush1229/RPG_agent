@@ -79,10 +79,13 @@ async def on_chat_start() -> None:
         getattr(user, "identifier", None)
         or f"guest_{cl.user_session.get('id', 'unknown')}"
     )
+    # Chainlit gives each browser tab a unique session id
+    chat_session_id: str = cl.user_session.get("id", "default")
     cl.user_session.set(_USER_ID_KEY, user_id)
+    cl.user_session.set("_chat_session_id", chat_session_id)
 
     with get_session() as session:
-        state = load_user_state(session, user_id)
+        state = load_user_state(session, user_id, chat_session_id=chat_session_id)
         location_id = state.session_row.last_location_id
 
     cl.user_session.set(_LOCATION_ID_KEY, location_id)
@@ -114,13 +117,15 @@ async def on_chat_start() -> None:
 async def on_message(message: cl.Message) -> None:
     user_id: str = cl.user_session.get(_USER_ID_KEY, "unknown")
     location_id: Optional[int] = cl.user_session.get(_LOCATION_ID_KEY)
+    chat_session_id: str = cl.user_session.get("_chat_session_id", "default")
 
     with get_session() as session:
         # ── Step 1: Persist user message ─────────────────────────────────────
-        save_dialogue(session, user_id, role="user", message=message.content)
+        save_dialogue(session, user_id, role="user",
+                      message=message.content, chat_session_id=chat_session_id)
 
         # ── Step 2: Load full state from DB ───────────────────────────────────
-        state = load_user_state(session, user_id)
+        state = load_user_state(session, user_id, chat_session_id=chat_session_id)
 
         # ── Step 3: Build minimal LLM context ─────────────────────────────────
         agent_ctx = build_agent_context(state)
@@ -132,9 +137,11 @@ async def on_message(message: cl.Message) -> None:
 
         if override_text:
             # GM is bypassed — send forced narrative directly
-            save_dialogue(session, user_id, role="assistant", message=override_text)
+            save_dialogue(session, user_id, role="assistant",
+                          message=override_text, chat_session_id=chat_session_id)
             update_user_session(session, user_id, location_id=location_id)
-            await maybe_update_summary(session, user_id)
+            await maybe_update_summary(session, user_id,
+                                       chat_session_id=chat_session_id)
 
         # Convert recent_messages → ChatMessage list for GM
         history: list[ChatMessage] = [
@@ -210,7 +217,8 @@ async def on_message(message: cl.Message) -> None:
     # ── Steps 7–9: Persist reply + update session + maybe summarise ───────────
     with get_session() as session:
         # 7. Save assistant reply
-        save_dialogue(session, user_id, role="assistant", message=reply_msg.content)
+        save_dialogue(session, user_id, role="assistant",
+                      message=reply_msg.content, chat_session_id=chat_session_id)
 
         # 8. Update session (location may have changed via Arbiter / GM decision)
         update_user_session(session, user_id, location_id=location_id)
@@ -224,7 +232,8 @@ async def on_message(message: cl.Message) -> None:
         major_event = (
             arbiter_result is not None and getattr(arbiter_result, "success", False)
         )
-        await maybe_update_summary(session, user_id, force=major_event)
+        await maybe_update_summary(session, user_id, force=major_event,
+                                   chat_session_id=chat_session_id)
 
 
 # ─── Chat end ─────────────────────────────────────────────────────────────────
@@ -238,8 +247,10 @@ async def on_chat_end() -> None:
     user_id: str = cl.user_session.get(_USER_ID_KEY, "unknown")
     if user_id == "unknown":
         return
+    chat_session_id: str = cl.user_session.get("_chat_session_id", "default")
     with get_session() as session:
-        await maybe_update_summary(session, user_id, force=True)
+        await maybe_update_summary(session, user_id, force=True,
+                                   chat_session_id=chat_session_id)
 
     if settings.app_debug:
         print(f"[DEBUG] Session ended for user_id={user_id}")
