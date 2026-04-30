@@ -19,6 +19,7 @@ for row_id, flags_raw in rows:
     flags["interview_phase"] = 0
     flags["interview_answers"] = []
     flags["cards_drawn"] = False
+    flags["card_draw_phase"] = 0
     flags["awakening_triggered"] = False
     c.execute("UPDATE mainstorystate SET flags=? WHERE id=?", (json.dumps(flags), row_id))
     print(f"  Reset story state id={row_id}")

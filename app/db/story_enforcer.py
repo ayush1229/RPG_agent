@@ -102,10 +102,29 @@ Three cards rise from the void:
 
 The High Priestess whispers: "Do not choose. Let the cards find you."
 
-The cards turn face-up. Remember them — you will carry them always.
+The cards begin to turn face-up, one by one.
 
-[The Game Master will now reveal your drawn cards based on your interview answers.]
-""".strip()
+*Say anything to let the Game Master reveal your cards.*""".strip()
+
+_GM_CARD_REVEAL_DIRECTIVE = """[SYSTEM — GM INSTRUCTION: CARD REVEAL]
+
+The player has completed the void interview. You must now reveal their three drawn cards.
+
+Player alignment tendency: {alignment}
+
+Rules for card selection:
+  • Major Arcana (core card): choose one that resonates with their alignment.
+    - balance → prefer The High Priestess, The Star, Temperance, The World
+    - order   → prefer The Emperor, Justice, The Hierophant, Strength
+    - chaos   → prefer The Fool, The Tower, The Magician, The Moon
+  • Minor Arcana (two support cards): choose from Wands, Cups, Swords, Pentacles suits.
+
+Narrate the reveal poetically. Name each card. Describe what the player feels as each turns face-up.
+After the reveal, tell the player: "These cards are now yours. They hum in your memory."
+Then transition naturally into the world: the void dissolves, the Awakening begins.
+
+[The next system override will place the player in the physical world.]""".strip()
+
 
 _AWAKENING_SCRIPT = """
 [SYSTEM — AWAKENING TRIGGER]
@@ -246,11 +265,26 @@ def check_prologue_gates(
             _save_flags(session, state, flags)
             return _INTERVIEW_COMPLETE
 
-    # ── Gate 2: Card draw ──────────────────────────────────────────────────────
+    # ── Gate 2: Card draw ───────────────────────────────────────────────────
     if not flags.get("cards_drawn", False):
-        return _CARD_DRAW_SCRIPT
+        card_phase = flags.get("card_draw_phase", 0)
 
-    # ── Gate 3: Awakening ──────────────────────────────────────────────────────
+        if card_phase == 0:
+            # Show the card draw atmospheric prompt, advance to phase 1
+            flags["card_draw_phase"] = 1
+            _save_flags(session, state, flags)
+            return _CARD_DRAW_SCRIPT
+
+        else:
+            # Player acknowledged — mark cards_drawn=True and inject GM directive
+            # so the GM narrates the actual card reveal this turn
+            alignment = flags.get("alignment_tendency", "balance")
+            flags["cards_drawn"] = True
+            flags["card_draw_phase"] = 2
+            _save_flags(session, state, flags)
+            return _GM_CARD_REVEAL_DIRECTIVE.format(alignment=alignment)
+
+    # ── Gate 3: Awakening ───────────────────────────────────────────────────
     if not flags.get("awakening_triggered", False):
         flags["awakening_triggered"] = True
         _save_flags(session, state, flags)

@@ -178,6 +178,63 @@ class TestSequentialInterview:
         assert flags["interview_phase"] == 1           # phase advanced
 
 
+class TestCardDrawGate:
+    """Verify card draw gate does NOT loop and hands off to GM on second call."""
+
+    def _complete_interview(self, session, entity_id):
+        """Fast-forward through the 4-call interview sequence."""
+        check_prologue_gates(session, entity_id, "")             # show Q1
+        check_prologue_gates(session, entity_id, "power")        # answer Q1 → Q2
+        check_prologue_gates(session, entity_id, "no")           # answer Q2 → Q3
+        check_prologue_gates(session, entity_id, "trust fate")   # answer Q3 → COMPLETE
+
+    def test_card_draw_script_shown_once(self, session, entity):
+        self._complete_interview(session, entity.id)
+        result = check_prologue_gates(session, entity.id, "")
+        assert result is not None
+        assert "CARD DRAW" in result or "cards" in result.lower()
+
+    def test_card_draw_does_not_repeat(self, session, entity):
+        """Second call after card draw prompt must NOT return the same script."""
+        self._complete_interview(session, entity.id)
+        check_prologue_gates(session, entity.id, "")        # show card draw prompt
+        result2 = check_prologue_gates(session, entity.id, "reveal")   # player responds
+        # Must be a GM directive, not the card draw script again
+        assert result2 is not None
+        assert "CARD DRAW SEQUENCE" not in (result2 or "")
+
+    def test_gm_directive_contains_alignment(self, session, entity):
+        self._complete_interview(session, entity.id)
+        check_prologue_gates(session, entity.id, "")          # card draw prompt
+        result = check_prologue_gates(session, entity.id, "reveal")
+        assert result is not None
+        assert "balance" in result or "order" in result or "chaos" in result
+
+    def test_cards_drawn_flag_set_after_second_call(self, session, entity):
+        self._complete_interview(session, entity.id)
+        check_prologue_gates(session, entity.id, "")
+        check_prologue_gates(session, entity.id, "reveal")
+        state = _load_or_create(session, entity.id)
+        flags = _flags(state)
+        assert flags["cards_drawn"] is True
+
+    def test_awakening_follows_card_reveal(self, session, entity):
+        self._complete_interview(session, entity.id)
+        check_prologue_gates(session, entity.id, "")          # card draw prompt
+        check_prologue_gates(session, entity.id, "reveal")    # GM directive
+        result = check_prologue_gates(session, entity.id, "") # awakening
+        assert result is not None
+        assert "awaken" in result.lower() or "AWAKENING" in result
+
+    def test_after_awakening_gates_open(self, session, entity):
+        self._complete_interview(session, entity.id)
+        check_prologue_gates(session, entity.id, "")
+        check_prologue_gates(session, entity.id, "reveal")
+        check_prologue_gates(session, entity.id, "")    # awakening (self-consumes)
+        result = check_prologue_gates(session, entity.id, "I look around")
+        assert result is None  # GM is now free
+
+
 class TestArcAdvancement:
     def _complete_quest(self, session, entity_id: int, name: str) -> None:
         """Helper: create quest + mark progress complete."""
