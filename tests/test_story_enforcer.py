@@ -67,7 +67,7 @@ class TestPrologueGates:
     def test_interview_gate_fires_first(self, session, entity):
         result = check_prologue_gates(session, entity.id, "hello")
         assert result is not None
-        assert "COUNCIL" in result or "void" in result.lower() or "QUESTION" in result
+        assert "void" in result.lower() or "Question 1" in result
 
     def test_interview_done_shows_card_draw(self, session, entity):
         complete_interview(session, entity.id, alignment="order")
@@ -103,6 +103,79 @@ class TestPrologueGates:
         state = _load_or_create(session, entity.id)
         flags = _flags(state)
         assert flags["cards_drawn"] is True
+
+
+class TestSequentialInterview:
+    """Verify the one-question-at-a-time prologue interview flow."""
+
+    def test_q1_shown_on_first_call(self, session, entity):
+        result = check_prologue_gates(session, entity.id, "anything")
+        assert "Question 1" in result
+        assert "power" in result.lower() or "understanding" in result.lower()
+
+    def test_q2_shown_after_first_answer(self, session, entity):
+        check_prologue_gates(session, entity.id, "")        # trigger Q1
+        result = check_prologue_gates(session, entity.id, "I seek power")
+        assert "Question 2" in result
+        assert "sacrifice" in result.lower()
+
+    def test_q3_shown_after_second_answer(self, session, entity):
+        check_prologue_gates(session, entity.id, "")        # Q1
+        check_prologue_gates(session, entity.id, "power")   # Q2
+        result = check_prologue_gates(session, entity.id, "no")  # Q3
+        assert "Question 3" in result
+        assert "fate" in result.lower()
+
+    def test_interview_done_after_third_answer(self, session, entity):
+        check_prologue_gates(session, entity.id, "")          # Q1
+        check_prologue_gates(session, entity.id, "power")     # Q2
+        check_prologue_gates(session, entity.id, "no")        # Q3
+        result = check_prologue_gates(session, entity.id, "trust fate")  # complete
+        # Should return INTERVIEW_COMPLETE, not another question
+        assert result is not None
+        assert "heard enough" in result.lower() or "cards" in result.lower()
+        # Next call should go to card draw gate
+        result2 = check_prologue_gates(session, entity.id, "")
+        assert "CARD" in result2.upper() or "card" in result2.lower()
+
+    def test_answers_stored_in_flags(self, session, entity):
+        check_prologue_gates(session, entity.id, "")
+        check_prologue_gates(session, entity.id, "power")
+        check_prologue_gates(session, entity.id, "no")
+        check_prologue_gates(session, entity.id, "trust fate")
+        state = _load_or_create(session, entity.id)
+        flags = _flags(state)
+        answers = flags.get("interview_answers", [])
+        assert len(answers) == 3
+        assert "power" in answers[0]
+        assert "no" in answers[1]
+        assert "trust fate" in answers[2]
+
+    def test_alignment_derived_from_answers(self, session, entity):
+        check_prologue_gates(session, entity.id, "")
+        check_prologue_gates(session, entity.id, "I seek understanding above all")
+        check_prologue_gates(session, entity.id, "no, never")
+        check_prologue_gates(session, entity.id, "I trust fate completely")
+        state = _load_or_create(session, entity.id)
+        flags = _flags(state)
+        # understanding + no + trust = balance
+        assert flags["alignment_tendency"] == "balance"
+
+    def test_order_alignment_derived(self, session, entity):
+        check_prologue_gates(session, entity.id, "")
+        check_prologue_gates(session, entity.id, "power")
+        check_prologue_gates(session, entity.id, "yes I would sacrifice")
+        check_prologue_gates(session, entity.id, "I defy fate")
+        state = _load_or_create(session, entity.id)
+        flags = _flags(state)
+        assert flags["alignment_tendency"] == "order"
+
+    def test_phase_not_reset_on_repeated_calls(self, session, entity):
+        """Calling gates twice without answering should NOT re-show Q1 twice."""
+        check_prologue_gates(session, entity.id, "")   # triggers Q1, phase → 1
+        state = _load_or_create(session, entity.id)
+        flags = _flags(state)
+        assert flags["interview_phase"] == 1           # phase advanced
 
 
 class TestArcAdvancement:

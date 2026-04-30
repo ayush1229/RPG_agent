@@ -49,9 +49,9 @@ ARC_GATE_QUESTS: dict[int, list[str]] = {
     7: ["Threshold of Power", "Sovereign Trial", "Ascension"],
 }
 
-# ── Prologue override scripts ─────────────────────────────────────────────────
-_INTERVIEW_SCRIPT = """
-[SYSTEM — NARRATIVE OVERRIDE]
+# ── Prologue interview: ONE question per step ─────────────────────────────────
+
+_Q1 = """[SYSTEM — NARRATIVE OVERRIDE]
 
 The void is absolute. There is no up, no down, no time.
 
@@ -64,14 +64,30 @@ Five luminous figures materialise before you, each radiating a different energy 
 
 The Magician speaks first: "Anomaly. You exist outside the distribution model."
 The High Priestess adds, barely audible: "The energy knows you. It called you here."
-The Emperor: "Irrelevant. Answer our questions. Every choice you make shapes what you become."
+The Emperor steps forward, his gaze unwavering:
 
-QUESTION 1: "Do you seek power, or understanding?"
-QUESTION 2: "Would you sacrifice others to secure control?"
-QUESTION 3: "Do you trust fate, or do you defy it?"
+"Answer our questions. Every choice you make shapes what you become."
 
-Answer freely. There is no wrong answer — only true ones.
-""".strip()
+Question 1 of 3 — The Emperor asks:
+
+*"Do you seek power, or understanding?"*""".strip()
+
+_Q2 = """[The High Priestess tilts her head. She has heard your first answer.]
+
+Question 2 of 3 — The High Priestess asks:
+
+*"Would you sacrifice others to secure control?"*""".strip()
+
+_Q3 = """[The Fool stops flickering. Even chaos listens now.]
+
+Question 3 of 3 — The Star asks, gently:
+
+*"Do you trust fate — or do you defy it?"*""".strip()
+
+_INTERVIEW_COMPLETE = """[The five Arcana exchange a glance. The Fool laughs softly.
+"We have heard enough."
+
+The void hums. Three cards rise from nothingness.]""".strip()
 
 _CARD_DRAW_SCRIPT = """
 [SYSTEM — CARD DRAW SEQUENCE]
@@ -144,31 +160,97 @@ def _save_flags(session: Session, state: MainStoryState, flags: dict) -> None:
     session.commit()
 
 
+def _derive_alignment(answers: list[str]) -> str:
+    """
+    Derive a rough alignment from the 3 raw answer strings.
+    order → Emperor-aligned (power / sacrifice / defy fate)
+    chaos → Fool-aligned (both / no sacrifice / defy fate strongly)
+    balance → middle path (understanding / no sacrifice / trust fate)
+    """
+    text = " ".join(answers).lower()
+    order_signals = sum([
+        "power" in text and "understanding" not in text,
+        "sacrifice" in text and "would" in text and "not" not in text,
+        "defy" in text,
+    ])
+    if order_signals >= 2:
+        return "order"
+    balance_signals = sum([
+        "understanding" in text,
+        "not" in text or "no" in text,
+        "trust" in text,
+    ])
+    if balance_signals >= 2:
+        return "balance"
+    return "chaos"
+
+
 def check_prologue_gates(
     session: Session,
     entity_id: int,
     user_message: str,
 ) -> Optional[str]:
     """
-    Check prologue completeness.
-    Returns forced narrative text if a gate is incomplete, else None.
+    Check prologue completeness. ONE question at a time.
+    Reads the player's answer and advances the sub-phase before returning the next prompt.
 
-    ALSO updates flags when a gate is triggered (so next call advances).
+    interview sub-phases stored in flags["interview_phase"]:
+      0 → Q1 not yet shown
+      1 → Q1 shown, waiting for answer → record answer, show Q2
+      2 → Q2 shown, waiting for answer → record answer, show Q3
+      3 → Q3 shown, waiting for answer → record answer, mark complete
+
+    Returns forced narrative text if a prologue gate is active, else None.
     """
     state = _load_or_create(session, entity_id)
     flags = _flags(state)
 
-    # Gate 1: Interview
+    # ── Gate 1: Sequential interview ──────────────────────────────────────────
     if not flags.get("interview_done", False):
-        # Mark that we've started the interview (next call user answers it)
-        # The actual completion is set by complete_interview()
-        return _INTERVIEW_SCRIPT
+        phase = flags.get("interview_phase", 0)
 
-    # Gate 2: Card draw
+        if phase == 0:
+            # First visit — show Q1, advance to phase 1
+            flags["interview_phase"] = 1
+            flags.setdefault("interview_answers", [])
+            _save_flags(session, state, flags)
+            return _Q1
+
+        elif phase == 1:
+            # Player answered Q1 — record it, show Q2
+            answers = flags.get("interview_answers", [])
+            answers.append(user_message[:200])   # cap to 200 chars
+            flags["interview_answers"] = answers
+            flags["interview_phase"] = 2
+            _save_flags(session, state, flags)
+            return _Q2
+
+        elif phase == 2:
+            # Player answered Q2 — record it, show Q3
+            answers = flags.get("interview_answers", [])
+            answers.append(user_message[:200])
+            flags["interview_answers"] = answers
+            flags["interview_phase"] = 3
+            _save_flags(session, state, flags)
+            return _Q3
+
+        else:  # phase == 3
+            # Player answered Q3 — record it, mark interview done
+            answers = flags.get("interview_answers", [])
+            answers.append(user_message[:200])
+            alignment = _derive_alignment(answers)
+            flags["interview_answers"] = answers
+            flags["interview_phase"] = 4
+            flags["interview_done"] = True
+            flags["alignment_tendency"] = alignment
+            _save_flags(session, state, flags)
+            return _INTERVIEW_COMPLETE
+
+    # ── Gate 2: Card draw ──────────────────────────────────────────────────────
     if not flags.get("cards_drawn", False):
         return _CARD_DRAW_SCRIPT
 
-    # Gate 3: Awakening
+    # ── Gate 3: Awakening ──────────────────────────────────────────────────────
     if not flags.get("awakening_triggered", False):
         flags["awakening_triggered"] = True
         _save_flags(session, state, flags)
