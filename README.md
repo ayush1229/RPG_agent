@@ -13,12 +13,12 @@ The application routes player input through a 3-agent orchestration pipeline. Ea
 - **Role**: The frontend-facing orchestrator. Executes in two phases:
   1. **Analysis Phase**: Evaluates player action to generate a structured `GMDecision`, determining if the Persona Agent or Arbiter Agent is needed.
   2. **Narrative Phase**: Streams the final vivid story response back to the player, incorporating Persona dialogue and Arbiter outcomes.
-- **Constraints**: Read-only access to world state. Subject to Narrative Control (`StoryEnforcer`), which can bypass the GM entirely for mandatory story beats.
+- **Constraints**: Read-only access to world state. Subject to Narrative Control (`StoryEnforcer` and `TutorialEnforcer`), which can inject mandatory context or bypass the GM entirely.
 
 ### 🎭 The Persona Agent (NPC Voice)
 - **Model**: `Steelskull/L3.3-Nevoria-R1-70b`
 - **Role**: Generates authentic, in-character NPC dialogue.
-- **Constraints**: 100% read-only. Driven by `CharacterPersona` records (Motivation, Secret, Speaking Style, Risk Tolerance, Loyalty, Aggression, and Tarot Affinity).
+- **Constraints**: 100% read-only. Driven by `SideCharacter` records with personality, status, and Tarot affinity hints.
 
 ### ⚖️ The Arbiter (Logic & Economy)
 - **Model**: `Groq/Llama-3-Groq-8B-Tool-Use`
@@ -31,25 +31,32 @@ The application routes player input through a 3-agent orchestration pipeline. Ea
 
 The application uses **SQLModel** (built on SQLAlchemy) for its data layer.
 
-### Narrative Control & Persistence
-- **`UserSession` & `DialogueLog`**: Replaces transient in-memory chat history. Fully persists player states across restarts.
-- **`ConversationSummary`**: Uses an LLM summarizer to compress long-term chat history into key facts, injecting them into the context window rather than raw logs to save tokens.
-- **`MainStoryState` (Story Enforcer)**: Tracks canonical main quest progression across 7 Arcs. Enforces mandatory gates (e.g. Prologue Interview → Card Draw → Awakening) by completely bypassing the GM until completed.
+### Narrative Control, Persistence & Isolation
+- **`UserSession` & `DialogueLog`**: Fully persists player states across restarts. Includes `chat_session_id` to isolate message windows per browser tab, ensuring fresh starts while preserving underlying DB entity state.
+- **`ConversationSummary`**: Uses an LLM summarizer to compress long-term, cross-session chat history into key facts, injected into the context window to save tokens.
+- **`TutorialEnforcer` (Elaris Hollow)**: An 11-phase controlled onboarding pipeline disguised as narrative. Gates mechanics (combat, economy, housing) progressively.
+- **`StoryEnforcer` (MainStoryState)**: Tracks canonical main quest progression across 7 Arcs. Enforces mandatory gates (e.g., Prologue Interview).
 
-### The World Map & Travel
-- **`WorldMap` & `Location`**: 10 Major Kingdoms (with rulers and legendary items) and 15 Minor Kingdoms. Includes spatial coordinates (`x`, `y`).
-- **`TravelState`**: Movement is not instant. Travel time is calculated dynamically based on distance, entity speed, and `TERRAIN_MODIFIERS`. Runs asynchronously using a lazy-tick system.
+### Global Time, Housing, & Dreamscape
+- **`WorldTime`**: A lazy-tick deterministic global clock scaling real-world seconds into game time. Drives the Day/Night cycle (`NIGHT_RISK_MULTIPLIER` = 1.7x risk/difficulty at night).
+- **Housing System**: Players can rent or buy housing to establish safe zones, completely nullifying night risk multipliers when sheltered.
+- **Dreamscape**: A magic-restricted alternative realm gated behind probabilistic entry (requires night time, out-of-combat, and story unlocks) with narrative flag persistence.
+
+### The World Map, Events, & Travel
+- **`WorldMap` & `Location`**: Includes spatial coordinates (`x`, `y`).
+- **`TravelState`**: Movement travel time calculated dynamically based on distance, entity speed, and `TERRAIN_MODIFIERS`.
+- **`WorldEventInstance`**: Spawns dynamic, time-bound side quests/anomalies (probabilistic selection via `EventTemplate`). Weighted by location modifiers (wars, sovereign influence, day/night).
 
 ### Factions, Wars, & Sovereign Influence
-- **`Faction` & `TerritoryControl`**: Kingdoms fight for control. Faction relations scale from -100 (war) to +100 (allied).
-- **`War`**: Active wars slowly drain and shift territorial control.
-- **`SovereignInfluence`**: Entities holding >50% of a Major Arcana pool exert influence. If influence exceeds 70%, the location becomes highly unstable, altering spawn rates and danger levels.
-- **`WorldEvent`**: Time-limited events (wars, anomalies, festivals, sieges) that apply dynamic multipliers to the world.
+- **`Faction` & `TerritoryControl`**: Factions battle for control via the `War` system.
+- **`SovereignInfluence`**: Entities holding >50% of a Major Arcana pool exert influence, destabilizing locations.
+- **`Guild` & Dual-Membership**: Players can join specialized guilds (e.g., combat, magic, shadow) and gain reputation, gaining access to guild-specific quests and headquarters.
 
 ### Global & Economy Tables
 - **`TarotEntity`**: Any entity (player, NPC, the ROOT). Includes health, mana, level, and XP progression.
 - **`TarotTransaction`**: Immutable ledger of all energy capacity transfers.
-- **`InventoryItem` & `Quest`**: Items feature rarities and trade values. Quests reward XP scaled by player level and difficulty.
+- **`Wallet` & Economy System**: Full gold-based currency, shops, dynamic item pricing, auctions, and tradable items.
+- **`Quest` & `InventoryItem`**: Quests reward scaled XP and items. Items have durability, value, and stackability.
 
 ---
 
@@ -58,24 +65,26 @@ The application uses **SQLModel** (built on SQLAlchemy) for its data layer.
 ### `WorldService` (`app/db/world_service.py`)
 Features a lazy-tick architecture: `process_world_delta` is called at the start of every player interaction to catch up the simulation. Resolves active travel journeys, shifts territory control during wars, spreads sovereign influence, and decays event timers.
 
+### `TimeService` & `TutorialService`
+`update_time` is called automatically at the top of the LLM pipeline, advancing the global clock and synchronizing expiry/cooldowns. `build_tutorial_context` injects phase-specific, purely narrative instructions into the GM's prompt.
+
 ### `SessionService` (`app/db/session_service.py`)
-Handles persistent rehydration. Limits context injection to the last N messages plus the `ConversationSummary` to ensure maximum token efficiency.
+Handles persistent rehydration and per-tab isolation. Limits context injection to the last N messages of the *current* chat tab plus the cross-session `ConversationSummary`.
 
 ### `TarotService` (`app/db/service.py`)
-Handles all atomic interactions with the economy:
+Handles all atomic interactions with the energy economy:
 - **Conservation Law**: Capacity is strictly conserved.
-- **Lazy Mana Regeneration**: Mana regenerates automatically (1 unit per minute) calculated instantly upon access.
-- **`transfer_energy`**: Atomically debits and credits energy using strict rollbacks to prevent corruption.
+- **Lazy Mana Regeneration**: Regens automatically upon access.
 
 ---
 
 ## 4. Execution Flow (Message Pipeline)
 
 Every message follows a strict pipeline to prevent hallucination and double-narration:
-1. `save_dialogue`: Persist user message.
-2. `load_user_state`: Rehydrate player DB state.
+1. `save_dialogue`: Persist user message (scoped by `chat_session_id`).
+2. `load_user_state`: Rehydrate player DB state and this tab's recent messages.
 3. `build_agent_context`: Build minimal LLM context.
-4. **Story Enforcer Check**: If a mandatory story gate is hit, skip GM and return forced narrative.
+4. **Story/Tutorial Enforcer Checks**: Advance phases, inject constraints, or bypass the GM completely with forced narrative.
 5. `GM.analyze`: Output a structured `GMDecision`.
 6. `PersonaAgent` / `ArbiterAgent`: Execute specialized tasks if required.
 7. `GM.narrate`: Stream the final story back to the user.
@@ -86,9 +95,10 @@ Every message follows a strict pipeline to prevent hallucination and double-narr
 
 ## 5. Testing
 
-The core rules engine, service layer, and world simulation are backed by a massive 250+ test `pytest` suite ensuring high reliability for:
-- Lazy-tick World Simulation (Travel, Wars, Events)
-- Story Enforcer Progression Gates
-- Persistent Session & Chat Summarization
-- Atomic Energy and Card Transfers
-- Spell Casting and Resource Deduction
+The core rules engine, service layer, and world simulation are backed by a massive 560+ test `pytest` suite ensuring high reliability for:
+- Lazy-tick World Simulation (Travel, Wars, Events, Time)
+- Tutorial Gating & Story Enforcer Progression
+- Persistent Session, Tab Isolation, & Chat Summarization
+- Atomic Energy, Gold, and Item Transfers
+- Combat Engine & Spell Casting
+- Guilds, Economy, Housing, & Dreamscape Logic
