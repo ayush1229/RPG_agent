@@ -1,6 +1,7 @@
 
 
 from datetime import datetime, timezone
+from math import sqrt
 from typing import List, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
@@ -69,6 +70,7 @@ class TarotEntity(SQLModel, table=True):
     Any entity that can hold Tarot energy (player, NPC, ROOT).
     - Capacity is ONLY modified via TarotService.transfer_energy()
     - Mana is ONLY modified via regeneration and spell casting
+    - Position is ONLY modified via TarotService.move_entity()
     """
     __table_args__ = {'extend_existing': True}
 
@@ -83,6 +85,84 @@ class TarotEntity(SQLModel, table=True):
     current_upright_mana: int = Field(default=0, ge=0)
     current_reversed_mana: int = Field(default=0, ge=0)
     last_mana_update: datetime = Field(default_factory=utcnow)
+
+    # ── HEALTH ────────────────────────────────────────────
+    # current_health is stored; max_health is computed from energy capacity
+    current_health: int = Field(default=100, ge=0)
+
+    # ── POSITION ──────────────────────────────────────────────────
+    pos_x: float = Field(default=0.0)
+    pos_y: float = Field(default=0.0)
+    current_location_id: Optional[int] = Field(default=None, foreign_key="location.id")
+
+    # ── DAMAGE MODIFIERS ──────────────────────────────────
+    damage_bonus: int = Field(default=0)     # flat bonus to outgoing damage
+    damage_reduction: int = Field(default=0) # flat reduction to incoming damage
+
+    # ── SOVEREIGN FLAGS ───────────────────────────────────
+    # True when this entity controls >50% of a card's upright/reversed pool.
+    # Set by generate_sovereigns.py; enforced by world generation logic only.
+    is_upright_sovereign: bool = Field(default=False)
+    is_reversed_sovereign: bool = Field(default=False)
+
+    # ── PROGRESSION ───────────────────────────────────────
+    level: int = Field(default=1, ge=1, le=100)
+    current_xp: int = Field(default=0, ge=0)
+    # Flat HP bonus accumulated from level-up rewards (+5 per level)
+    health_bonus_from_levels: int = Field(default=0, ge=0)
+
+    # ─────────────────────────────────────────────────────
+    # Computed properties (no DB column)
+    # ─────────────────────────────────────────────────────
+
+    @property
+    def max_upright_mana(self) -> int:
+        """Dynamic mana limit: 100 + (capacity ^ 0.9)"""
+        return int(100 + (self.upright_capacity ** 0.9))
+
+    @property
+    def max_reversed_mana(self) -> int:
+        """Dynamic mana limit: 100 + (capacity ^ 0.9)"""
+        return int(100 + (self.reversed_capacity ** 0.9))
+
+    @property
+    def energy_shard_count(self) -> int:
+        """
+        Total energy capacity = upright + reversed.
+        This is the canonical 'shard count' for power scaling.
+        """
+        return self.upright_capacity + self.reversed_capacity
+
+    @property
+    def max_health(self) -> int:
+        """
+        Health scales with energy capacity AND level rewards.
+          base = 100 + (energy_shard_count * 10)
+          + 5 HP per level earned (health_bonus_from_levels)
+        """
+        return 100 + self.energy_shard_count * 10 + self.health_bonus_from_levels
+
+    @property
+    def shard_power_multiplier(self) -> float:
+        """
+        Power multiplier from energy capacity:
+          +5% per energy shard, hard-capped at 1.5x.
+        Cap is reached at 10 total energy shards.
+        """
+        return min(1.5, 1.0 + self.energy_shard_count * 0.05)
+
+    @property
+    def dominant_energy(self) -> str:
+        """
+        Dominant energy alignment based on capacity.
+        Upright wins on tie (both equal).
+        """
+        return "upright" if self.upright_capacity >= self.reversed_capacity else "reversed"
+
+    @property
+    def is_dead(self) -> bool:
+        """True when health has reached zero."""
+        return self.current_health == 0
 
     created_at: datetime = Field(default_factory=utcnow)
 
@@ -99,6 +179,9 @@ class TarotEntity(SQLModel, table=True):
         sa_relationship_kwargs={"foreign_keys": "[TarotTransaction.to_entity_id]"},
     )
     held_cards: List["TarotShard"] = Relationship(back_populates="owner")
+    inventory: List["InventoryItem"] = Relationship(back_populates="owner")
+    status_effects: List["StatusEffect"] = Relationship(back_populates="target")
+    combat_slots: List["CombatParticipant"] = Relationship(back_populates="entity")
 
 
 # ---------------------------------------------------------
@@ -127,10 +210,11 @@ class TarotTransaction(SQLModel, table=True):
 
 
 # ---------------------------------------------------------
-# 5. WORLD GEOGRAPHY
+# 5. WORLD GEOGRAPHY (spatial)
 # ---------------------------------------------------------
 class Location(SQLModel, table=True):
     """
+    Spatial location with coordinates and radius.
     is_safe_zone: Arbiter rejects capacity transfers here.
     is_magic_restricted: GM limits magical outcomes here.
     """
@@ -139,8 +223,16 @@ class Location(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(index=True)
     description: str
+
+    # Spatial system
+    x: float = Field(default=0.0)
+    y: float = Field(default=0.0)
+    radius: float = Field(default=50.0)   # defines the area's size
+
     is_safe_zone: bool = Field(default=False)
     is_magic_restricted: bool = Field(default=False)
+    # "major_kingdom" | "minor_kingdom" | "dungeon" | "town" | "void" | "neutral"
+    location_type: str = Field(default="neutral")
 
     occupants: List["SideCharacter"] = Relationship(back_populates="current_location")
 
@@ -266,7 +358,609 @@ class TarotAbility(SQLModel, table=True):
     mana_cost: int = Field(ge=0)
     energy_type: str = Field(regex="^(upright|reversed)$")
     tags: Optional[str] = Field(default=None, regex=r"^[a-z0-9\-]+(,[a-z0-9\-]+)*$")
-    ability_category: str = Field(default="combat", regex="^(combat|utility|passive)$")
+    ability_category: str = Field(default="combat", regex="^(combat|utility|passive|healing)$")
+    description: str = Field(default="")
+
+    # ── Combat / healing stats ─────────────────────────────
+    base_damage: Optional[int] = Field(default=None, ge=0)
+    base_heal: Optional[int] = Field(default=None, ge=0)
+    scaling_factor: float = Field(default=1.0)
+
+    # ── AOE ───────────────────────────────────────────────
+    is_aoe: bool = Field(default=False)
+    aoe_radius: float = Field(default=0.0)  # world-units; 0 = single target
+
+    # ── Status effect trigger ────────────────────────────
+    # If set, casting this ability applies the named status to the target
+    applies_status: Optional[str] = Field(default=None)  # e.g. "burn", "stun"
+    status_duration: int = Field(default=0, ge=0)
+    status_value: int = Field(default=0, ge=0)
+    status_stackable: bool = Field(default=False)
 
     card_id: int = Field(foreign_key="tarotcardlore.id")
     card: Optional[TarotCardLore] = Relationship(back_populates="abilities")
+
+
+# ---------------------------------------------------------
+# 12. INVENTORY SYSTEM
+# ---------------------------------------------------------
+class InventoryItem(SQLModel, table=True):
+    """
+    An item owned by an entity.
+
+    item_type   : "consumable" | "equipment" | "artifact" | "quest"
+    rarity      : "common" | "rare" | "epic" | "legendary"
+    item_effect : "heal" | "mana" | "buff" | "damage" | None  (legacy name kept)
+    effect_type : mirrors item_effect (preferred going forward)
+    effect_value: numeric magnitude
+    quantity    : stacks (consumables use one per use; equipment/quest = 1)
+    value       : gold/trade value (quest items have value=0, cannot be sold)
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    description: str = Field(default="")
+    quantity: int = Field(default=1, ge=0)
+
+    item_type: str = Field(default="consumable")   # consumable|equipment|artifact|quest
+    rarity: str = Field(default="common")           # common|rare|epic|legendary
+    value: int = Field(default=0, ge=0)             # trade value (quest items = 0)
+
+    # Effect fields — item_effect is the legacy name, effect_type the preferred one;
+    # both are stored identically so old service code keeps working.
+    item_effect: Optional[str] = Field(default=None)    # 'heal' | 'mana' | 'buff' | 'damage'
+    effect_type: Optional[str] = Field(default=None)    # same values, preferred key
+    effect_value: int = Field(default=0, ge=0)
+
+    owner_id: int = Field(foreign_key="tarotentity.id")
+    owner: Optional[TarotEntity] = Relationship(back_populates="inventory")
+
+
+# ---------------------------------------------------------
+# 12b. ARCANA-SPECIFIC COMBAT MODIFIERS
+#
+# Each Major Arcana card that an entity holds grants a passive
+# combat modifier. Keys match TarotCardLore.name exactly.
+# All values are small (5–15%) to ensure build diversity without
+# breaking combat integrity. Effects do NOT stack (single card each).
+# ---------------------------------------------------------
+ARCANA_EFFECTS: dict[str, dict[str, float]] = {
+    "The Fool":        {"aoe_bonus": 0.05},               # unpredictable chaos burst
+    "The Magician":    {"damage_bonus": 0.10},             # precise arcane strike
+    "The High Priestess": {"healing_bonus": 0.15},         # deep restorative knowledge
+    "The Empress":     {"healing_bonus": 0.10},            # nurturing life force
+    "The Emperor":     {"damage_reduction_bonus": 0.10},   # iron-willed defense
+    "The Hierophant":  {"healing_bonus": 0.05},            # structured doctrine
+    "The Lovers":      {"alignment_penalty_reduction": 0.10},  # harmony across energies
+    "The Chariot":     {"speed_bonus": 0.10},              # initiative advantage
+    "Strength":        {"damage_bonus": 0.10},             # raw physical power
+    "The Hermit":      {"stealth_bonus": 0.10},            # elusive, hard to target
+    "Wheel of Fortune": {"aoe_bonus": 0.10},               # fate's wide reach
+    "Justice":         {"damage_bonus": 0.05},             # balanced retribution
+    "The Hanged Man":  {"healing_bonus": 0.10},            # sacrifice for gain
+    "Death":           {"damage_bonus": 0.15},             # lethal transformation
+    "Temperance":      {"alignment_penalty_reduction": 0.15}, # perfect balance
+    "The Devil":       {"damage_bonus": 0.10},             # raw destructive force
+    "The Tower":       {"aoe_bonus": 0.10},                # wide-area devastation
+    "The Star":        {"healing_bonus": 0.15},            # celestial restoration
+    "The Moon":        {"stealth_bonus": 0.10},            # illusion and misdirection
+    "The Sun":         {"damage_bonus": 0.05},             # radiant clarity
+    "Judgement":       {"damage_bonus": 0.10},             # decisive reckoning
+    "The World":       {"aoe_bonus": 0.10},                # universal reach
+}
+
+
+# ---------------------------------------------------------
+# 13. STATUS EFFECT SYSTEM
+# ---------------------------------------------------------
+
+# Supported baseline effect types (enforced at service layer)
+STATUS_EFFECT_TYPES = frozenset({
+    "damage_over_time",   # burn, bleed
+    "control",            # stun, slow
+    "buff",               # shield
+    "debuff",             # weaken
+})
+
+# Supported named effects and their canonical type
+STATUS_EFFECT_CATALOGUE: dict[str, str] = {
+    "burn":    "damage_over_time",
+    "bleed":   "damage_over_time",
+    "stun":    "control",
+    "slow":    "control",
+    "shield":  "buff",
+    "weaken":  "debuff",
+}
+
+
+class StatusEffect(SQLModel, table=True):
+    """
+    A timed effect applied to an entity.
+
+    effect_type: "damage_over_time" | "control" | "buff" | "debuff"
+    name: "burn" | "bleed" | "stun" | "slow" | "shield" | "weaken"
+    value: magnitude (damage per tick for DoT; % reduction for shield; etc.)
+    duration: turns remaining — deleted when it reaches 0
+    stackable: if False, a second application of the same name REFRESHES duration
+               instead of adding a new row
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    name: str                        # e.g. "burn"
+    effect_type: str                 # "damage_over_time" | "control" | "buff" | "debuff"
+    value: int = Field(default=0)   # magnitude
+    duration: int = Field(default=1, ge=0)  # turns remaining
+    stackable: bool = Field(default=False)
+
+    source_ability_id: Optional[int] = Field(default=None, foreign_key="tarotability.id")
+    target_entity_id: int = Field(foreign_key="tarotentity.id")
+
+    target: Optional[TarotEntity] = Relationship(back_populates="status_effects")
+
+
+# ---------------------------------------------------------
+# 14. COMBAT ENGINE
+# ---------------------------------------------------------
+class CombatState(SQLModel, table=True):
+    """
+    Tracks the active state of a single combat encounter.
+    Separate from GameState — purely mechanical, not narrative.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    is_active: bool = Field(default=True)
+    turn_number: int = Field(default=1, ge=1)
+
+    # The entity_id whose turn it currently is
+    current_actor_id: Optional[int] = Field(default=None, foreign_key="tarotentity.id")
+
+    created_at: datetime = Field(default_factory=utcnow)
+
+    participants: List["CombatParticipant"] = Relationship(back_populates="combat")
+
+
+class CombatParticipant(SQLModel, table=True):
+    """
+    Join table linking entities to a CombatState.
+    initiative determines action order (higher = acts earlier).
+    is_player_side: True for allies, False for enemies.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    combat_id: int = Field(foreign_key="combatstate.id")
+    entity_id: int = Field(foreign_key="tarotentity.id")
+    initiative: int = Field(default=0)
+    is_player_side: bool = Field(default=True)
+    is_stunned: bool = Field(default=False)   # set by stun status effect tick
+
+    combat: Optional[CombatState] = Relationship(back_populates="participants")
+    entity: Optional[TarotEntity] = Relationship(back_populates="combat_slots")
+
+
+# ---------------------------------------------------------
+# 15. PROGRESSION HELPERS (pure functions — no DB)
+# ---------------------------------------------------------
+
+def xp_required(level: int) -> int:
+    """
+    XP needed to advance FROM 'level' TO 'level+1'.
+    Non-linear scaling: level 1 = 100 XP, level 99 = ~99,000 XP.
+    """
+    return int(100 * (level ** 1.5))
+
+
+# ---------------------------------------------------------
+# 16. QUEST SYSTEM
+# ---------------------------------------------------------
+
+DIFFICULTY_XP_MULTIPLIER: dict[str, float] = {
+    "easy":   1.0,
+    "medium": 1.5,
+    "hard":   2.5,
+    "elite":  4.0,
+}
+
+
+def calculate_xp_reward(base: int, difficulty: str, player_level: int) -> int:
+    """
+    Scale quest XP by difficulty and current player level.
+    Higher-level players earn more XP from the same quest.
+
+    formula: base * difficulty_multiplier * (1 + player_level * 0.05)
+    """
+    mult = DIFFICULTY_XP_MULTIPLIER.get(difficulty, 1.0)
+    return max(1, int(base * mult * (1 + player_level * 0.05)))
+
+
+class Quest(SQLModel, table=True):
+    """
+    A quest definition.  Main-line quests are seeded statically.
+    Side quests are generated dynamically by the GM.
+
+    quest_type  : "main" | "side"
+    difficulty  : "easy" | "medium" | "hard" | "elite"
+    required_level: minimum entity level to accept
+    xp_reward   : base XP before difficulty/level scaling
+    item_reward_id: optional FK to InventoryItem template (NOT an owned item)
+    is_completed: True once any entity has completed it (side quests are per-entity
+                  via QuestProgress; main quests share this flag)
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True, unique=True)
+    description: str = Field(default="")
+
+    quest_type: str = Field(default="side")    # "main" | "side"
+    difficulty: str = Field(default="easy")    # "easy" | "medium" | "hard" | "elite"
+    required_level: int = Field(default=1, ge=1)
+
+    xp_reward: int = Field(default=100, ge=0)
+    item_reward_id: Optional[int] = Field(default=None, foreign_key="inventoryitem.id")
+
+    is_completed: bool = Field(default=False)
+
+    # Back-populated list of per-entity progress rows
+    progress_entries: List["QuestProgress"] = Relationship(back_populates="quest")
+
+
+class QuestProgress(SQLModel, table=True):
+    """
+    Per-entity progress on a quest.
+    progress / goal tracks how many objectives are completed.
+    is_completed is set True when progress >= goal.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    quest_id: int = Field(foreign_key="quest.id")
+    entity_id: int = Field(foreign_key="tarotentity.id")
+
+    progress: int = Field(default=0, ge=0)
+    goal: int = Field(default=1, ge=1)
+    is_completed: bool = Field(default=False)
+
+    quest: Optional[Quest] = Relationship(back_populates="progress_entries")
+
+
+# ---------------------------------------------------------
+# 17. USER SESSION PERSISTENCE
+# ---------------------------------------------------------
+
+class UserSession(SQLModel, table=True):
+    """
+    One row per user. Persists player identity and last-known game state
+    across Chainlit restarts. Always updated on every interaction.
+
+    user_id      : Chainlit identifier (username or session-id for guests)
+    entity_id    : FK to the player's TarotEntity (energy wallet)
+    last_location_id  : where the player last was
+    last_game_state   : arbitrary JSON string (GM can store scene flags here)
+    last_active_quest_id: the quest the player is currently focused on
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: str = Field(index=True, unique=True)
+    entity_id: int = Field(foreign_key="tarotentity.id")
+
+    last_location_id: Optional[int] = Field(default=None, foreign_key="location.id")
+    last_game_state: Optional[str] = Field(default=None)       # JSON blob
+    last_active_quest_id: Optional[int] = Field(default=None, foreign_key="quest.id")
+
+    updated_at: datetime = Field(default_factory=utcnow)
+
+
+# ---------------------------------------------------------
+# 18. DIALOGUE LOG (UI replay — NOT sent to LLM raw)
+# ---------------------------------------------------------
+
+class DialogueLog(SQLModel, table=True):
+    """
+    Append-only log of every message for UI replay.
+    Never deleted automatically.
+    NEVER injected into the LLM directly — only the last N lines and
+    the ConversationSummary are used for model context.
+
+    role: "user" | "assistant"
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: str = Field(index=True)
+    role: str                          # "user" | "assistant"
+    message: str
+    timestamp: datetime = Field(default_factory=utcnow)
+
+
+# ---------------------------------------------------------
+# 19. CONVERSATION SUMMARY (compressed long-term memory)
+# ---------------------------------------------------------
+
+class ConversationSummary(SQLModel, table=True):
+    """
+    One row per user. Compressed key facts about past conversation.
+    Updated every N messages or after major events.
+    Injected into the LLM instead of the full chat log.
+
+    Must include: important decisions, NPC relationships,
+    quest progress, major events.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: str = Field(index=True, unique=True)
+    summary: str = Field(default="No history yet.")
+    updated_at: datetime = Field(default_factory=utcnow)
+
+
+# ---------------------------------------------------------
+# 20. MAIN STORY STATE  (narrative enforcement)
+# ---------------------------------------------------------
+
+# Canonical arc boundaries (inclusive level range)
+ARC_LEVEL_RANGES: dict[int, tuple[int, int]] = {
+    0: (1,  1),    # Prologue / void council
+    1: (1,  10),
+    2: (10, 25),
+    3: (25, 40),
+    4: (40, 60),
+    5: (60, 80),
+    6: (80, 95),
+    7: (95, 100),
+}
+
+# Default flags for a brand-new player
+DEFAULT_STORY_FLAGS: dict = {
+    # Prologue flags
+    "interview_done": False,
+    "cards_drawn": False,
+    "awakening_triggered": False,
+    # Arc tracking
+    "current_arc": 0,
+    # Alignment chosen during interview
+    "alignment_tendency": None,   # "order" | "chaos" | "balance"
+    # Branching flags (Arc 3 Q12)
+    "faction_chosen": None,       # "ally" | "oppose" | None
+    # Ascension flags (Arc 7)
+    "sovereign_challenged": False,
+    "sovereign_defeated": False,
+    "ascension_complete": False,
+    # GM override permission flag
+    "gm_override_allowed": False,
+}
+
+
+class MainStoryState(SQLModel, table=True):
+    """
+    One row per entity (player). Tracks canonical main-quest progression.
+
+    current_arc       : 0 = prologue, 1-7 = story arcs
+    current_quest_id  : FK to the Quest the player is actively on
+    flags             : JSON blob — see DEFAULT_STORY_FLAGS for schema
+
+    Enforcement contract:
+      The StoryEnforcer reads this BEFORE the GM executes any response.
+      If a mandatory prologue step is incomplete, GM is bypassed entirely.
+      GM may ONLY alter flags when gm_override_allowed == True.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    entity_id: int = Field(foreign_key="tarotentity.id", unique=True, index=True)
+    current_arc: int = Field(default=0, ge=0, le=7)
+    current_quest_id: Optional[int] = Field(default=None, foreign_key="quest.id")
+    flags: str = Field(default="{}")   # JSON blob — always parse with json.loads
+    updated_at: datetime = Field(default_factory=utcnow)
+
+
+# =============================================================
+# WORLD SYSTEMS (Map, Travel, Factions, War, Events)
+# =============================================================
+
+# ── Terrain modifiers (used by travel_time formula) ──────────────────────
+TERRAIN_MODIFIERS: dict[str, float] = {
+    "city":      1.0,
+    "town":      1.0,
+    "plains":    1.2,
+    "forest":    1.5,
+    "wild":      1.5,
+    "mountain":  2.0,
+    "dungeon":   1.8,
+    "corrupted": 2.5,
+    "void":      3.0,
+    "neutral":   1.2,
+    "major_kingdom": 1.0,
+    "minor_kingdom": 1.1,
+}
+
+
+# ---------------------------------------------------------
+# 21. WORLD MAP
+# ---------------------------------------------------------
+class WorldMap(SQLModel, table=True):
+    """
+    Top-level named map. All Locations belong to one WorldMap.
+    Typically one map per campaign ('The Known World').
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True, unique=True)
+    description: str = Field(default="")
+    width: float = Field(default=2000.0)    # logical units
+    height: float = Field(default=2000.0)
+
+
+# ---------------------------------------------------------
+# 22. TRAVEL STATE
+# ---------------------------------------------------------
+class TravelState(SQLModel, table=True):
+    """
+    Active travel journey for one entity.
+    One row per entity; replaced when a new journey starts.
+
+    is_completed: True once resolve_travel() has fired.
+    terrain_type: used to look up the modifier at journey start.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    entity_id: int = Field(foreign_key="tarotentity.id", unique=True, index=True)
+
+    start_x: float
+    start_y: float
+    target_x: float
+    target_y: float
+    target_location_id: Optional[int] = Field(default=None, foreign_key="location.id")
+
+    terrain_type: str = Field(default="plains")   # key into TERRAIN_MODIFIERS
+    speed: float = Field(default=1.0, gt=0)        # units per second
+    travel_time_seconds: float                     # total journey duration
+
+    start_time: datetime = Field(default_factory=utcnow)
+    end_time: datetime                              # = start_time + travel_time_seconds
+    is_completed: bool = Field(default=False)
+
+
+# ---------------------------------------------------------
+# 23. FACTION
+# ---------------------------------------------------------
+class Faction(SQLModel, table=True):
+    """
+    A political entity (usually a kingdom).
+    alignment: 'order' | 'chaos' | 'neutral'
+    ruler_id: FK to SideCharacter (optional — minor factions may lack a ruler)
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True, unique=True)
+    description: str = Field(default="")
+    alignment: str = Field(default="neutral")    # order | chaos | neutral
+    ruler_id: Optional[int] = Field(default=None, foreign_key="sidecharacter.id")
+    home_location_id: Optional[int] = Field(default=None, foreign_key="location.id")
+
+
+# ---------------------------------------------------------
+# 24. FACTION RELATION
+# ---------------------------------------------------------
+class FactionRelation(SQLModel, table=True):
+    """
+    Bilateral diplomatic relation between two factions.
+    relation: -100 (full war) to +100 (fully allied)
+    ≤ -50 → hostile   ≥ +50 → allied   else → neutral
+    Canonical form: faction_a_id < faction_b_id (enforced at service layer).
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    faction_a_id: int = Field(foreign_key="faction.id", index=True)
+    faction_b_id: int = Field(foreign_key="faction.id", index=True)
+    relation: int = Field(default=0)   # -100 to +100
+
+
+# ---------------------------------------------------------
+# 25. TERRITORY CONTROL
+# ---------------------------------------------------------
+class TerritoryControl(SQLModel, table=True):
+    """
+    Faction control level over a specific location.
+    control_value: 0–100 (>50 = controlled)
+    Multiple factions can have entries for the same location;
+    highest control_value wins.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    location_id: int = Field(foreign_key="location.id", index=True)
+    faction_id: int = Field(foreign_key="faction.id", index=True)
+    control_value: float = Field(default=0.0, ge=0.0, le=100.0)
+
+
+# ---------------------------------------------------------
+# 26. WAR
+# ---------------------------------------------------------
+class War(SQLModel, table=True):
+    """
+    Active or historical conflict between two factions.
+    A war can only be declared when FactionRelation.relation <= -50.
+    War ends when one faction loses majority territorial control
+    or a scripted peace event fires.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    faction_a_id: int = Field(foreign_key="faction.id", index=True)
+    faction_b_id: int = Field(foreign_key="faction.id", index=True)
+    start_time: datetime = Field(default_factory=utcnow)
+    end_time: Optional[datetime] = Field(default=None)
+    is_active: bool = Field(default=True)
+    # Tick accumulator: total delta_seconds processed so far
+    total_ticks_seconds: float = Field(default=0.0)
+
+
+# ---------------------------------------------------------
+# 27. SOVEREIGN INFLUENCE
+# ---------------------------------------------------------
+class SovereignInfluence(SQLModel, table=True):
+    """
+    A Sovereign's influence over a specific location.
+    influence_value: 0–100
+    > 70 → location becomes unstable (energy distortion, special enemies)
+    Decays at base rate unless Sovereign actively maintains it.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    sovereign_entity_id: int = Field(foreign_key="tarotentity.id", index=True)
+    location_id: int = Field(foreign_key="location.id", index=True)
+    influence_value: float = Field(default=0.0, ge=0.0, le=100.0)
+    growth_rate: float = Field(default=1.0)    # units gained per 60 seconds
+    decay_rate: float = Field(default=0.5)     # units lost per 60 seconds when not maintained
+    last_updated: datetime = Field(default_factory=utcnow)
+
+
+# ---------------------------------------------------------
+# 28. WORLD EVENT
+# ---------------------------------------------------------
+# Supported event types
+WORLD_EVENT_TYPES = frozenset({
+    "war",        # active military conflict
+    "sovereign",  # Sovereign-driven distortion
+    "anomaly",    # energy anomaly
+    "festival",   # peaceful bonus event
+    "siege",      # faction siege on a location
+})
+
+EVENT_EFFECTS: dict[str, dict] = {
+    "war":       {"spawn_rate": 2.0, "travel_danger": 1.5, "reward_mult": 1.3},
+    "sovereign": {"spawn_rate": 2.5, "travel_danger": 2.0, "reward_mult": 1.8},
+    "anomaly":   {"spawn_rate": 1.8, "travel_danger": 1.8, "reward_mult": 1.5},
+    "festival":  {"spawn_rate": 0.5, "travel_danger": 0.8, "reward_mult": 1.2},
+    "siege":     {"spawn_rate": 2.2, "travel_danger": 2.5, "reward_mult": 1.4},
+}
+
+
+class WorldEvent(SQLModel, table=True):
+    """
+    A time-limited event active at a location.
+    duration_seconds: when it reaches 0 the event expires.
+    Effects modify spawn rates, travel danger, and reward multipliers.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    location_id: int = Field(foreign_key="location.id", index=True)
+    event_type: str                                # key into WORLD_EVENT_TYPES
+    duration_seconds: float = Field(default=3600.0, gt=0)  # seconds remaining
+    is_active: bool = Field(default=True)
+    created_at: datetime = Field(default_factory=utcnow)
+    last_ticked: datetime = Field(default_factory=utcnow)

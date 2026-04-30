@@ -31,7 +31,7 @@ def get_test_session() -> Session:
 def setup_db():
     """Create all tables once for the test session."""
     from app.db.models import (  # noqa: F401 — import side effects register models
-        GlobalConfig, TarotAbility, TarotCardLore, TarotCardTransaction,
+        GlobalConfig, InventoryItem, TarotAbility, TarotCardLore, TarotCardTransaction,
         TarotEntity, TarotShard, TarotTransaction,
     )
     SQLModel.metadata.create_all(TEST_ENGINE)
@@ -61,9 +61,9 @@ def make_entity(session: Session, name: str, upright: int = 100, reversed: int =
         entity_name=name,
         upright_capacity=upright,
         reversed_capacity=reversed,
-        current_upright_mana=upright,
-        current_reversed_mana=reversed,
     )
+    e.current_upright_mana = e.max_upright_mana
+    e.current_reversed_mana = e.max_reversed_mana
     session.add(e)
     session.commit()
     session.refresh(e)
@@ -159,8 +159,8 @@ class TestManaRegeneration:
 
         service._regen_mana(e)
 
-        assert e.current_upright_mana == 5, "Mana must not exceed capacity"
-        assert e.current_reversed_mana == 5, "Mana must not exceed capacity"
+        assert e.current_upright_mana == e.max_upright_mana, "Mana must not exceed max limit"
+        assert e.current_reversed_mana == e.max_reversed_mana, "Mana must not exceed max limit"
 
     def test_regen_is_lazy_not_background(self, session, service):
         """Regen should only happen when explicitly called, not automatically."""
@@ -350,7 +350,7 @@ class TestCastSpell:
         result = service.cast_spell(session, caster.id, ability.id)
         assert result["success"] is True
         session.refresh(caster)
-        assert caster.current_upright_mana == 40
+        assert caster.current_upright_mana == caster.max_upright_mana - 10
 
     def test_cast_fails_without_card(self, session, service):
         caster = make_entity(session, "NakedCaster", upright=50)
@@ -387,7 +387,7 @@ class TestCastSpell:
         result = service.cast_spell(session, caster.id, ability.id)
         assert result["success"] is True
         session.refresh(caster)
-        assert caster.current_reversed_mana == 42
+        assert caster.current_reversed_mana == caster.max_reversed_mana - 8
 
     def test_cast_triggers_mana_regen_first(self, session, service):
         """Mana regen should apply before checking cost."""
@@ -537,4 +537,392 @@ class TestMintCapacity:
         e = make_entity(session, "MintManaTarget", upright=0, reversed=0)
         service.mint_capacity(session, e.id, upright=100)
         session.refresh(e)
-        assert e.current_upright_mana == 100
+        assert e.current_upright_mana == e.max_upright_mana
+
+
+# =============================================================================
+# HEALTH SYSTEM
+# =============================================================================
+
+class TestHealthSystem:
+
+    def test_entity_starts_at_full_health(self, session):
+        """Entity with 0 capacity has max_health=100 (base)."""
+        from app.db.models import TarotEntity
+        e = TarotEntity(entity_name="HealthTest", current_health=100)
+        session.add(e)
+        session.commit()
+        session.refresh(e)
+        assert e.current_health == 100
+        assert e.max_health == 100    # 100 + 0*10 = 100
+        assert e.is_dead is False
+
+    def test_max_health_scales_with_energy(self, session):
+        """max_health = 100 + (upright + reversed) * 10"""
+        from app.db.models import TarotEntity
+        e = TarotEntity(entity_name="ScaledHealth", upright_capacity=5, reversed_capacity=5, current_health=100)
+        session.add(e)
+        session.commit()
+        session.refresh(e)
+        assert e.energy_shard_count == 10
+        assert e.max_health == 200    # 100 + 10*10
+
+    def test_apply_damage_reduces_health(self, session, service):
+        from app.db.models import TarotEntity
+        # 0 capacity → max_health = 100
+        e = TarotEntity(entity_name="DmgTarget", current_health=100)
+        session.add(e)
+        session.commit()
+        dealt = service._apply_damage(e, 30)
+        assert dealt == 30
+        assert e.current_health == 70
+
+    def test_apply_damage_clamps_at_zero(self, session, service):
+        from app.db.models import TarotEntity
+        e = TarotEntity(entity_name="OverKill", current_health=10)
+        session.add(e)
+        session.commit()
+        dealt = service._apply_damage(e, 999)
+        assert e.current_health == 0
+        assert dealt == 10  # only 10 actual HP removed
+        assert e.is_dead is True
+
+    def test_apply_heal_restores_health(self, session, service):
+        from app.db.models import TarotEntity
+        # 0 capacity → max_health = 100
+        e = TarotEntity(entity_name="HealTarget", current_health=40)
+        session.add(e)
+        session.commit()
+        restored = service._apply_heal(e, 30)
+        assert restored == 30
+        assert e.current_health == 70
+
+    def test_apply_heal_clamps_at_max(self, session, service):
+        from app.db.models import TarotEntity
+        # 0 capacity → max_health = 100; current = 90
+        e = TarotEntity(entity_name="OverHeal", current_health=90)
+        session.add(e)
+        session.commit()
+        restored = service._apply_heal(e, 999)
+        assert e.current_health == 100
+        assert restored == 10  # only 10 actual HP restored
+
+    def test_dead_entity_cannot_cast(self, session, service):
+        """A dead entity should be rejected immediately when casting."""
+        from app.db.models import TarotEntity
+        e = TarotEntity(entity_name="DeadCaster", current_health=0)
+        session.add(e)
+        session.commit()
+        result = service.cast_spell(session, e.id, 9999)
+        assert result["success"] is False
+        assert result["reason"] == "entity_dead"
+
+
+# =============================================================================
+# DAMAGE + HEALING VIA CAST SPELL
+# =============================================================================
+
+def make_damage_ability(session, card_lore, base_damage: int = 10, base_heal=None, mana_cost=5):
+    from app.db.models import TarotAbility
+    a = TarotAbility(
+        name=f"TestDmgAbility_{base_damage}_{id(card_lore)}",
+        mana_cost=mana_cost,
+        energy_type="upright",
+        ability_category="combat",
+        description="test ability",
+        base_damage=base_damage,
+        base_heal=base_heal,
+        scaling_factor=1.0,
+        card_id=card_lore.id,
+    )
+    session.add(a)
+    session.commit()
+    session.refresh(a)
+    return a
+
+
+class TestDamageHealing:
+
+    def test_cast_deals_damage_using_formula(self, session, service):
+        """
+        With base_damage=10, mana_cost=5, scaling=1.0:
+          raw = (10 + 5*1.0) = 15
+          power_mult = min(1.5, 1 + 50*0.05) = 1.5 (caster has upright=50)
+          alignment_mult = 1.0 (upright ability, upright dominant)
+          damage = int(15 * 1.5) = 22
+        Target has 0 capacity → max_health = 100, starts at 100.
+        """
+        lore = make_lore(session, "DmgLore", arcana_type="Minor")
+        # caster: upright=50, reversed=0 → energy_shard_count=50 → power_mult=1.5 (capped)
+        # dominant = upright → alignment_mult=1.0 (upright ability = aligned)
+        caster = make_entity(session, "DmgCaster", upright=50, reversed=0)
+        # target: 0 capacity → max_health=100, starts full
+        target_e = make_entity(session, "DmgTarget", upright=0)
+        target_e.current_health = 100
+        session.add(target_e)
+        session.commit()
+        session.refresh(target_e)
+
+        shard = make_shard(session, caster.id, lore.id)
+        ability = make_damage_ability(session, lore, base_damage=10, mana_cost=5)
+
+        result = service.cast_spell(session, caster.id, ability.id, target_id=target_e.id)
+        assert result["success"] is True
+        # 15 base * 1.5 power_mult = 22 (int truncation)
+        assert result["damage"] == 22
+        assert result["healing"] == 0
+        session.refresh(target_e)
+        assert target_e.current_health == 78
+
+    def test_cast_deals_damage_no_capacity(self, session, service):
+        """
+        Caster with 0 upright + 0 reversed → power_mult=1.0, dominant=upright.
+        With base_damage=10, mana_cost=5, scaling=1.0 → damage = 15.
+        """
+        lore = make_lore(session, "DmgLore0", arcana_type="Minor")
+        caster = make_entity(session, "DmgCaster0", upright=0, reversed=0)
+        target_e = make_entity(session, "DmgTarget0", upright=0, reversed=0)
+        target_e.current_health = 100
+        session.add(target_e)
+        session.commit()
+        session.refresh(target_e)
+
+        shard = make_shard(session, caster.id, lore.id)
+        ability = make_damage_ability(session, lore, base_damage=10, mana_cost=5)
+
+        result = service.cast_spell(session, caster.id, ability.id, target_id=target_e.id)
+        assert result["success"] is True
+        assert result["damage"] == 15    # 15 * 1.0 (no capacity)
+        session.refresh(target_e)
+        assert target_e.current_health == 85
+
+    def test_cast_heals_target(self, session, service):
+        """
+        Caster with 0 upright + 0 reversed → power_mult=1.0, dominant=upright.
+        base_heal=5, mana_cost=3, scaling=1.0 → raw=(5+3)=8, *1.0 = 8.
+        Target starts at 60/100 HP → ends at 68.
+        """
+        from app.db.models import TarotAbility
+        lore = make_lore(session, "HealLore", arcana_type="Minor")
+        caster = make_entity(session, "HealCaster", upright=0, reversed=0)
+        target_e = make_entity(session, "HealTarget2", upright=0, reversed=0)
+        target_e.current_health = 60
+        session.add(target_e)
+        session.commit()
+        session.refresh(target_e)
+
+        shard = make_shard(session, caster.id, lore.id)
+        ability = TarotAbility(
+            name="TestHealAbility",
+            mana_cost=3,
+            energy_type="upright",
+            ability_category="healing",
+            description="heals target",
+            base_heal=5,
+            scaling_factor=1.0,
+            card_id=lore.id,
+        )
+        session.add(ability)
+        session.commit()
+        session.refresh(ability)
+
+        result = service.cast_spell(session, caster.id, ability.id, target_id=target_e.id)
+        assert result["success"] is True
+        assert result["healing"] == 8    # (5 + 3*1.0) * 1.0 multiplier
+        assert result["damage"] == 0
+        session.refresh(target_e)
+        assert target_e.current_health == 68
+
+    def test_damage_cannot_kill_already_dead_target(self, session, service):
+        from app.db.models import TarotEntity
+        lore = make_lore(session, "DeadTargetLore", arcana_type="Minor")
+        caster = make_entity(session, "DeadTargetCaster", upright=50)
+        target_e = TarotEntity(entity_name="AlreadyDead", current_health=0)
+        session.add(target_e)
+        session.commit()
+        session.refresh(target_e)
+
+        shard = make_shard(session, caster.id, lore.id)
+        ability = make_damage_ability(session, lore, base_damage=5, mana_cost=2)
+
+        result = service.cast_spell(session, caster.id, ability.id, target_id=target_e.id)
+        assert result["success"] is False
+        assert result["reason"] == "target_already_dead"
+
+    def test_self_heal_targets_caster_when_no_target(self, session, service):
+        """
+        Caster with 0 upright + 0 reversed → power_mult=1.0, dominant=upright.
+        scaling_factor=0 → heal = base_heal * 1.0 = 10.
+        Starts at 50 HP → ends at 60.
+        """
+        from app.db.models import TarotAbility
+        lore = make_lore(session, "SelfHealLore", arcana_type="Minor")
+        # 0 capacity → power_mult=1.0, max_health=100
+        caster = make_entity(session, "SelfHealCaster", upright=0, reversed=0)
+        caster.current_health = 50
+        session.add(caster)
+        session.commit()
+        session.refresh(caster)
+
+        shard = make_shard(session, caster.id, lore.id)
+        ability = TarotAbility(
+            name="SelfHealAbility",
+            mana_cost=4,
+            energy_type="upright",
+            ability_category="healing",
+            description="self-heal",
+            base_heal=10,
+            scaling_factor=0.0,   # flat 10 heal, no scaling
+            card_id=lore.id,
+        )
+        session.add(ability)
+        session.commit()
+        session.refresh(ability)
+
+        result = service.cast_spell(session, caster.id, ability.id)  # no target_id
+        assert result["success"] is True
+        assert result["healing"] == 10   # 10 * 1.0 (no capacity bonus)
+        session.refresh(caster)
+        assert caster.current_health == 60
+
+    def test_cast_response_includes_damage_and_healing_keys(self, session, service):
+        """Even without base_damage/base_heal set, response always has both keys."""
+        lore = make_lore(session, "BasicAbilityLore", arcana_type="Minor")
+        caster = make_entity(session, "BasicCaster", upright=50)
+        shard = make_shard(session, caster.id, lore.id)
+        from app.db.models import TarotAbility
+        ability = TarotAbility(
+            name="BasicAbility",
+            mana_cost=1,
+            energy_type="upright",
+            ability_category="utility",
+            description="no damage no heal",
+            card_id=lore.id,
+        )
+        session.add(ability)
+        session.commit()
+        session.refresh(ability)
+        result = service.cast_spell(session, caster.id, ability.id)
+        assert result["success"] is True
+        assert "damage" in result
+        assert "healing" in result
+        assert result["damage"] == 0
+        assert result["healing"] == 0
+
+
+# =============================================================================
+# INVENTORY SYSTEM
+# =============================================================================
+
+class TestInventory:
+
+    def test_add_item_creates_entry(self, session, service):
+        e = make_entity(session, "InvHolder1")
+        result = service.add_item(session, e.id, "Health Potion", "Restores HP", quantity=3,
+                                  item_effect="heal", effect_value=50)
+        assert result["success"] is True
+        assert result["quantity_added"] == 3
+
+    def test_add_item_stacks_existing(self, session, service):
+        e = make_entity(session, "InvHolder2")
+        service.add_item(session, e.id, "Mana Vial", quantity=2)
+        service.add_item(session, e.id, "Mana Vial", quantity=3)
+        from app.db.models import InventoryItem
+        items = session.exec(
+            select(InventoryItem).where(
+                InventoryItem.owner_id == e.id,
+                InventoryItem.name == "Mana Vial",
+            )
+        ).all()
+        assert len(items) == 1
+        assert items[0].quantity == 5
+
+    def test_remove_item_decrements(self, session, service):
+        e = make_entity(session, "InvHolder3")
+        service.add_item(session, e.id, "Arrow", quantity=10)
+        from app.db.models import InventoryItem
+        item = session.exec(
+            select(InventoryItem).where(InventoryItem.owner_id == e.id)
+        ).first()
+        result = service.remove_item(session, e.id, item.id, quantity=4)
+        assert result["success"] is True
+        assert result["remaining"] == 6
+
+    def test_remove_item_deletes_at_zero(self, session, service):
+        e = make_entity(session, "InvHolder4")
+        service.add_item(session, e.id, "TempItem", quantity=2)
+        from app.db.models import InventoryItem
+        item = session.exec(
+            select(InventoryItem).where(InventoryItem.owner_id == e.id)
+        ).first()
+        service.remove_item(session, e.id, item.id, quantity=2)
+        gone = session.get(InventoryItem, item.id)
+        assert gone is None
+
+    def test_remove_item_rejects_underflow(self, session, service):
+        e = make_entity(session, "InvHolder5")
+        service.add_item(session, e.id, "Coin", quantity=1)
+        from app.db.models import InventoryItem
+        item = session.exec(
+            select(InventoryItem).where(InventoryItem.owner_id == e.id)
+        ).first()
+        result = service.remove_item(session, e.id, item.id, quantity=99)
+        assert result["success"] is False
+        assert result["reason"] == "insufficient_quantity"
+
+    def test_use_item_heal_effect(self, session, service):
+        """Heal item on 0-capacity entity (max_health=100)."""
+        e = make_entity(session, "InvHolder6")
+        e.current_health = 50
+        session.add(e)
+        session.commit()
+        session.refresh(e)
+
+        service.add_item(session, e.id, "Big Potion", quantity=1,
+                         item_effect="heal", effect_value=30)
+        from app.db.models import InventoryItem
+        item = session.exec(
+            select(InventoryItem).where(InventoryItem.owner_id == e.id)
+        ).first()
+        result = service.use_item(session, e.id, item.id)
+        assert result["success"] is True
+        assert result["heal"] == 30
+        session.refresh(e)
+        assert e.current_health == 80
+
+    def test_use_item_mana_effect(self, session, service):
+        e = make_entity(session, "InvHolder7", upright=50)
+        e.current_upright_mana = 100  # not at max
+        session.add(e)
+        session.commit()
+        session.refresh(e)
+
+        service.add_item(session, e.id, "Mana Crystal", quantity=1,
+                         item_effect="mana", effect_value=20)
+        from app.db.models import InventoryItem
+        item = session.exec(
+            select(InventoryItem).where(InventoryItem.owner_id == e.id)
+        ).first()
+        result = service.use_item(session, e.id, item.id)
+        assert result["success"] is True
+        assert result["mana"] == 20
+        session.refresh(e)
+        assert e.current_upright_mana == 120
+
+    def test_use_item_deletes_when_depleted(self, session, service):
+        e = make_entity(session, "InvHolder8")
+        service.add_item(session, e.id, "Last Potion", quantity=1,
+                         item_effect="heal", effect_value=10)
+        from app.db.models import InventoryItem
+        item = session.exec(
+            select(InventoryItem).where(InventoryItem.owner_id == e.id)
+        ).first()
+        service.use_item(session, e.id, item.id)
+        gone = session.get(InventoryItem, item.id)
+        assert gone is None
+
+    def test_add_item_invalid_effect_rejected(self, session, service):
+        e = make_entity(session, "InvHolder9")
+        result = service.add_item(session, e.id, "Junk", item_effect="explosion")
+        assert result["success"] is False
+        assert result["reason"] == "invalid_item_effect"

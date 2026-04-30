@@ -1,3 +1,28 @@
+"""
+app/chat/handlers.py
+====================
+Chainlit event handlers — the main request pipeline.
+
+Pipeline per message
+---------------------
+1.  save_dialogue (user turn)
+2.  load_user_state         → PlayerState (full DB rehydration)
+3.  build_agent_context     → minimal context dict (NO full history)
+4.  GM analyze              → GMDecision (structured intent)
+5a. Persona Agent           → NPC dialogue (if needed)
+5b. Arbiter                 → energy transfer (if needed)
+6.  GM narrate (streaming)  → reply tokens
+7.  save_dialogue (assistant turn)
+8.  update_user_session     → persist location / quest / state
+9.  maybe_update_summary    → LLM summary every N messages
+
+State contract
+--------------
+- cl.user_session stores ONLY: user_id, location_id
+  (entity_id is resolved every turn from DB — never cached in memory)
+- History is NOT stored in Chainlit session; load_user_state fetches it
+- Full chat log is DB-only; LLM only ever sees last N + summary
+"""
 from __future__ import annotations
 
 from typing import Optional
@@ -11,79 +36,120 @@ from app.agent.persona import persona_agent
 from app.config import settings
 from app.contracts import PersonaSpeakRequest
 from app.db.database import create_db_and_tables, get_session, init_root
-from app.db.models import TarotEntity
-from app.db.service import tarot_service
+from app.db.session_service import (
+    build_agent_context,
+    get_chat_history,
+    load_user_state,
+    maybe_update_summary,
+    save_dialogue,
+    update_user_session,
+)
+from app.db.story_enforcer import (
+    advance_arc_if_ready,
+    check_prologue_gates,
+    get_story_state,
+)
 from app.schemas import ChatMessage, Role
 
-_HISTORY_KEY = "chat_history"
-_ENTITY_ID_KEY = "entity_id"
 _LOCATION_ID_KEY = "location_id"
+_USER_ID_KEY = "user_id"
 
 
 # ─── App startup ──────────────────────────────────────────────────────────────
 
 @cl.on_app_startup
 async def on_app_startup() -> None:
-    """Create DB tables and seed ROOT entity on first run."""
+    """Create all DB tables (incl. new persistence tables) and seed ROOT entity."""
     create_db_and_tables()
     with get_session() as session:
         init_root(session)
 
 
-# ─── Session lifecycle ────────────────────────────────────────────────────────
+# ─── Session start ────────────────────────────────────────────────────────────
 
 @cl.on_chat_start
 async def on_chat_start() -> None:
     """
-    Initialize session state.
-    Player identity is resolved HERE and stored in session.
-    The LLM NEVER infers who the player is.
+    Resolve user identity → load_user_state (creates entity if new player)
+    → restore last location → send welcome with persisted state summary.
     """
-    cl.user_session.set(_HISTORY_KEY, [])
-    cl.user_session.set(_LOCATION_ID_KEY, None)
-
-    # ── Resolve or create the player entity ──────────────────────────────────
-    # Use Chainlit's built-in user identifier if auth is enabled,
-    # otherwise fall back to the session id for guest play.
+    # Resolve user_id from Chainlit auth or fall back to session-id
     user = cl.user_session.get("user")
-    player_name = getattr(user, "identifier", None) or f"Player_{cl.user_session.get('id', 'guest')}"
+    user_id: str = (
+        getattr(user, "identifier", None)
+        or f"guest_{cl.user_session.get('id', 'unknown')}"
+    )
+    cl.user_session.set(_USER_ID_KEY, user_id)
 
-    entity_id: Optional[int] = None
     with get_session() as session:
-        existing = session.exec(
-            select(TarotEntity).where(TarotEntity.entity_name == player_name)
-        ).first()
+        state = load_user_state(session, user_id)
+        location_id = state.session_row.last_location_id
 
-        if existing:
-            entity_id = existing.id
-        else:
-            # New player — create entity with no capacity (Arbiter grants it)
-            player_entity = TarotEntity(entity_name=player_name)
-            session.add(player_entity)
-            session.commit()
-            session.refresh(player_entity)
-            entity_id = player_entity.id
+    cl.user_session.set(_LOCATION_ID_KEY, location_id)
+    cl.user_session.set("_entity_id_cache", state.entity.id)
 
-    cl.user_session.set(_ENTITY_ID_KEY, entity_id)
-
-    await cl.Message(
-        content=(
+    # ── Build a personalised welcome ──────────────────────────────────────────
+    is_returning = state.summary != "No history yet."
+    if is_returning:
+        welcome_body = (
+            f"Welcome back, **{user_id}**. Your adventure continues.\n\n"
+            f"**Level {state.entity.level}** | "
+            f"HP {state.entity.current_health}/{state.entity.max_health} | "
+            f"Location: {state.location.name if state.location else 'Unknown'}\n\n"
+            f"*{state.summary[:300]}{'…' if len(state.summary) > 300 else ''}*"
+        )
+    else:
+        welcome_body = (
             f"# ⚔️ {settings.app_name}\n\n"
-            f"Welcome, **{player_name}**. Your soul awakens in a world of Tarot energy.\n\n"
+            f"Welcome, **{user_id}**. Your soul awakens in a world of Tarot energy.\n\n"
             "Type anything to begin your adventure!"
-        ),
-        author="System",
-    ).send()
+        )
+
+    await cl.Message(content=welcome_body, author="System").send()
 
 
 # ─── Message handler ──────────────────────────────────────────────────────────
 
 @cl.on_message
 async def on_message(message: cl.Message) -> None:
-    history: list[ChatMessage] = cl.user_session.get(_HISTORY_KEY, [])
+    user_id: str = cl.user_session.get(_USER_ID_KEY, "unknown")
     location_id: Optional[int] = cl.user_session.get(_LOCATION_ID_KEY)
 
-    # ── Phase 1: GM Analysis ──────────────────────────────────────────────────
+    with get_session() as session:
+        # ── Step 1: Persist user message ─────────────────────────────────────
+        save_dialogue(session, user_id, role="user", message=message.content)
+
+        # ── Step 2: Load full state from DB ───────────────────────────────────
+        state = load_user_state(session, user_id)
+
+        # ── Step 3: Build minimal LLM context ─────────────────────────────────
+        agent_ctx = build_agent_context(state)
+
+        # ── STORY ENFORCER: prologue gate check (OVERRIDES GM) ────────────────
+        entity_id = state.entity.id
+        override_text = check_prologue_gates(session, entity_id, message.content)
+        story_ctx = get_story_state(session, entity_id)
+
+        if override_text:
+            # GM is bypassed — send forced narrative directly
+            save_dialogue(session, user_id, role="assistant", message=override_text)
+            update_user_session(session, user_id, location_id=location_id)
+            await maybe_update_summary(session, user_id)
+
+        # Convert recent_messages → ChatMessage list for GM
+        history: list[ChatMessage] = [
+            ChatMessage(
+                role=Role.USER if m["role"] == "user" else Role.ASSISTANT,
+                content=m["content"],
+            )
+            for m in state.recent_messages
+        ]
+
+    if override_text:
+        reply_msg = cl.Message(content=override_text, author="System")
+        await reply_msg.send()
+        return
+
     async with cl.Step(name="🧠 Reading the scene...", show_input=False) as step:
         decision = await game_master.analyze(
             message=message.content,
@@ -95,23 +161,26 @@ async def on_message(message: cl.Message) -> None:
             f"| Needs Arbiter: {decision.needs_arbiter}"
         )
 
-    # ── Phase 2a: Persona Agent (NPC dialogue, if needed) ────────────────────
-    persona_dialogue = None
+    # ── Step 5a: Persona Agent ────────────────────────────────────────────────
+    persona_dialogue: Optional[str] = None
     if decision.needs_persona and decision.npc_name:
         async with cl.Step(
             name=f"🎭 {decision.npc_name} speaks...", show_input=False
         ) as step:
-            recent = [m.content for m in history[-6:] if m.role == Role.ASSISTANT]
+            recent_assistant = [
+                m["content"] for m in state.recent_messages
+                if m["role"] == "assistant"
+            ][-6:]
             persona_dialogue = await persona_agent.speak(
                 PersonaSpeakRequest(
                     character_name=decision.npc_name,
                     context=decision.persona_context or message.content,
-                    recent_dialogue=recent,
+                    recent_dialogue=recent_assistant,
                 )
             )
             step.output = persona_dialogue[:200] + ("…" if len(persona_dialogue) > 200 else "")
 
-    # ── Phase 2b: Arbiter (BLOCKING — GM waits for result) ───────────────────
+    # ── Step 5b: Arbiter ──────────────────────────────────────────────────────
     arbiter_result = None
     if decision.needs_arbiter and decision.arbiter_instruction:
         async with cl.Step(name="⚖️ Arbiter resolving...", show_input=False) as step:
@@ -119,7 +188,7 @@ async def on_message(message: cl.Message) -> None:
             status = "✅ Success" if arbiter_result.success else "❌ Rejected"
             step.output = f"{status}: {arbiter_result.message[:300]}"
 
-    # ── Phase 3: GM Narrative (streaming — only after sub-agents finish) ──────
+    # ── Step 6: GM Narrative (streaming) ─────────────────────────────────────
     reply_msg = cl.Message(content="", author=settings.app_name)
     await reply_msg.send()
 
@@ -138,15 +207,39 @@ async def on_message(message: cl.Message) -> None:
 
     await reply_msg.update()
 
-    # ── Update session history ────────────────────────────────────────────────
-    history.append(ChatMessage(role=Role.USER, content=message.content))
-    history.append(ChatMessage(role=Role.ASSISTANT, content=reply_msg.content))
-    cl.user_session.set(_HISTORY_KEY, history)
+    # ── Steps 7–9: Persist reply + update session + maybe summarise ───────────
+    with get_session() as session:
+        # 7. Save assistant reply
+        save_dialogue(session, user_id, role="assistant", message=reply_msg.content)
 
+        # 8. Update session (location may have changed via Arbiter / GM decision)
+        update_user_session(session, user_id, location_id=location_id)
+
+        # Advance arc if all gate quests completed
+        entity_id = cl.user_session.get("_entity_id_cache")
+        if entity_id:
+            advance_arc_if_ready(session, entity_id)
+
+        # 9. Trigger summary if interval reached or major event fired
+        major_event = (
+            arbiter_result is not None and getattr(arbiter_result, "success", False)
+        )
+        await maybe_update_summary(session, user_id, force=major_event)
+
+
+# ─── Chat end ─────────────────────────────────────────────────────────────────
 
 @cl.on_chat_end
 async def on_chat_end() -> None:
-    history: list[ChatMessage] = cl.user_session.get(_HISTORY_KEY, [])
+    """
+    On disconnect: force a summary update so the next session starts with
+    fresh compressed context, regardless of message count.
+    """
+    user_id: str = cl.user_session.get(_USER_ID_KEY, "unknown")
+    if user_id == "unknown":
+        return
+    with get_session() as session:
+        await maybe_update_summary(session, user_id, force=True)
+
     if settings.app_debug:
-        entity_id = cl.user_session.get(_ENTITY_ID_KEY)
-        print(f"[DEBUG] Session ended. entity_id={entity_id}, turns={len(history)}")
+        print(f"[DEBUG] Session ended for user_id={user_id}")

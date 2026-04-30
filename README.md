@@ -10,97 +10,85 @@ The application routes player input through a 3-agent orchestration pipeline. Ea
 
 ### 🧠 The Game Master (Orchestrator)
 - **Model**: `Qwen/Qwen3-Next-80B-A3B-Instruct`
-  - *Sampling Settings*: `temperature=0.7`, `top_p=0.8`, `top_k=20`, `min_p=0.0`, `max_tokens=16384`
-- **Role**: The frontend-facing orchestrator. It executes in two phases:
-  1. **Analysis Phase**: Evaluates the player's action and generates a structured JSON payload (`GMDecision`) to determine if the Persona Agent or Arbiter Agent needs to be invoked.
-  2. **Narrative Phase**: Streams the final vivid story response back to the player, incorporating dialogue from the Persona and outcomes from the Arbiter.
-- **Constraints**: Read-only access to locations, characters, and lore. Can only write narrative events to the `CharacterHistory`. It **cannot** directly mutate the energy economy.
-- **Prompts**:
-  - *Analysis*: "You are the decision engine of an RPG Game Master. Analyze the player action and return ONLY a valid JSON object..." (Injects active scene location, characters, and Tarot Lore dynamically).
-  - *Narrative*: "You are an immersive RPG Game Master narrating outcomes vividly... Do NOT invent energy values — use only what is provided in the context. When a character uses magic, strictly align their abilities with their Tarot Magic Style."
+- **Role**: The frontend-facing orchestrator. Executes in two phases:
+  1. **Analysis Phase**: Evaluates player action to generate a structured `GMDecision`, determining if the Persona Agent or Arbiter Agent is needed.
+  2. **Narrative Phase**: Streams the final vivid story response back to the player, incorporating Persona dialogue and Arbiter outcomes.
+- **Constraints**: Read-only access to world state. Subject to Narrative Control (`StoryEnforcer`), which can bypass the GM entirely for mandatory story beats.
 
 ### 🎭 The Persona Agent (NPC Voice)
 - **Model**: `Steelskull/L3.3-Nevoria-R1-70b`
-- **Role**: Whenever an NPC speaks, the Game Master delegates dialogue generation to the Persona Agent to ensure character authenticity.
-- **Constraints**: 100% read-only. It receives a read-only dictionary of context from the GM and returns purely in-character dialogue.
-- **Prompt**: Dynamically built from the NPC's `CharacterPersona` database record: "You are the Persona Agent. You speak exclusively as the character described below... React authentically to the situation given." (Injects Risk Tolerance, Loyalty, Aggression metrics, and their Tarot Affinity lore block).
+- **Role**: Generates authentic, in-character NPC dialogue.
+- **Constraints**: 100% read-only. Driven by `CharacterPersona` records (Motivation, Secret, Speaking Style, Risk Tolerance, Loyalty, Aggression, and Tarot Affinity).
 
 ### ⚖️ The Arbiter (Logic & Economy)
 - **Model**: `Groq/Llama-3-Groq-8B-Tool-Use`
-  - *Sampling Settings*: `temperature=0.5`, `top_p=0.65` (highly sensitive parameters for reliable tool use)
-- **Role**: A highly constrained, non-creative rules engine. When the GM realizes an energy/mechanic transfer is required (e.g., combat or intimidation), it asks the Arbiter to resolve it.
-- **Constraints**: The Arbiter is the **only** agent permitted to mutate the `TarotEntity` balances. It runs in a custom XML tool-calling loop. It serializes all requests behind an `asyncio.Lock` to prevent race conditions during high concurrency.
-- **Prompt**: "You are a function calling AI model... You are the Arbiter — a strict logic and rules engine for an RPG. You may ONLY call tools. Never narrate. Never improvise."
+- **Role**: A highly constrained, non-creative rules engine that acts via Tool Calls.
+- **Constraints**: The Arbiter is the **only** agent permitted to mutate `TarotEntity` balances. Serializes all requests behind an `asyncio.Lock` to prevent race conditions.
 
 ---
 
-## 2. Database Schema (`app/db/models.py`)
+## 2. World Systems & Persistence
 
 The application uses **SQLModel** (built on SQLAlchemy) for its data layer.
 
+### Narrative Control & Persistence
+- **`UserSession` & `DialogueLog`**: Replaces transient in-memory chat history. Fully persists player states across restarts.
+- **`ConversationSummary`**: Uses an LLM summarizer to compress long-term chat history into key facts, injecting them into the context window rather than raw logs to save tokens.
+- **`MainStoryState` (Story Enforcer)**: Tracks canonical main quest progression across 7 Arcs. Enforces mandatory gates (e.g. Prologue Interview → Card Draw → Awakening) by completely bypassing the GM until completed.
+
+### The World Map & Travel
+- **`WorldMap` & `Location`**: 10 Major Kingdoms (with rulers and legendary items) and 15 Minor Kingdoms. Includes spatial coordinates (`x`, `y`).
+- **`TravelState`**: Movement is not instant. Travel time is calculated dynamically based on distance, entity speed, and `TERRAIN_MODIFIERS`. Runs asynchronously using a lazy-tick system.
+
+### Factions, Wars, & Sovereign Influence
+- **`Faction` & `TerritoryControl`**: Kingdoms fight for control. Faction relations scale from -100 (war) to +100 (allied).
+- **`War`**: Active wars slowly drain and shift territorial control.
+- **`SovereignInfluence`**: Entities holding >50% of a Major Arcana pool exert influence. If influence exceeds 70%, the location becomes highly unstable, altering spawn rates and danger levels.
+- **`WorldEvent`**: Time-limited events (wars, anomalies, festivals, sieges) that apply dynamic multipliers to the world.
+
 ### Global & Economy Tables
-- **`GlobalConfig`**: Stores hard invariants (e.g., `TOTAL_UPRIGHT_CAPACITY` at genesis).
-- **`TarotEntity`**: Any entity (player, NPC, the ROOT) that holds Tarot energy. It implements a **Dual-Layer Economy**:
-  - **Capacity**: Permanent, zero-sum energy determining sovereignty.
-  - **Mana**: Spendable energy for spell casting. Regenerates lazily at 1 unit per minute.
-- **`TarotTransaction`**: The absolute source of truth. An immutable, append-only ledger of every capacity transfer.
-- **`TarotCardTransaction`**: Immutable ledger of Tarot card ownership transfers.
-- **`TarotShard`**: Represents discrete arcana shards, linked via foreign key directly to the `TarotCardLore` that names and defines them. Enforces a strict loadout of 1 Major and 2 Minor Arcana per entity.
-- **`TarotAbility`**: Spells or actions unlocked by holding specific Tarot cards. Includes strict categorical rules (`combat`, `utility`, `passive`) and structured parsing tags.
-
-### Static Lore (Reference Data)
-- **`TarotCardLore`**: Static reference table for Tarot meanings and magical themes. The database is fully seeded with all 78 Tarot Cards (22 Major, 56 Minor including Court cards) and 30 integrated abilities.
-
-### Narrative Tables
-- **`Location`**: Physical places in the world. Includes semantic state rules:
-  - `is_safe_zone`: The Arbiter will reject any energy transfers that happen here.
-  - `is_magic_restricted`: The GM knows to limit magical narrative outcomes here.
-- **`SideCharacter`**: Narrative characters linked to a `TarotEntity` wallet, a `Location`, and a `CharacterPersona`.
-- **`CharacterHistory`**: An append-only log of roleplay memory. Includes an `event_type` ("dialogue", "combat", "transfer", "movement") to allow agents to selectively recall relevant past events.
-- **`CharacterPersona`**: The "NPC Brain." Contains static personality data (`motivation`, `hidden_secret`, `speaking_style`), numerical behavioral profiles (`risk_tolerance`, `loyalty`, `aggression`), and a relationship to `TarotCardLore` that dictates their magic style.
+- **`TarotEntity`**: Any entity (player, NPC, the ROOT). Includes health, mana, level, and XP progression.
+- **`TarotTransaction`**: Immutable ledger of all energy capacity transfers.
+- **`InventoryItem` & `Quest`**: Items feature rarities and trade values. Quests reward XP scaled by player level and difficulty.
 
 ---
 
 ## 3. Core Services
 
-### `TarotService` (`app/db/service.py`)
-Handles all atomic interactions with the economy to ensure data integrity and prevent corruption.
-- **Conservation Law**: Capacity is strictly conserved.
-- **Lazy Mana Regeneration**: Mana regenerates automatically (1 unit per minute) calculated instantly upon access, requiring no background loops.
-- **`transfer_energy`**: Atomically debits the sender, credits the receiver, and writes a ledger entry. Uses strict `try/except` blocks with `session.rollback()` to prevent corrupted states.
-- **`transfer_card`**: Handles transferring Tarot Shards, strictly enforcing the 1 Major / 2 Minor loadout limits.
-- **`cast_spell`**: Validates card ownership, applies lazy mana regeneration, and deducts the correct energy type cost for spell casting.
+### `WorldService` (`app/db/world_service.py`)
+Features a lazy-tick architecture: `process_world_delta` is called at the start of every player interaction to catch up the simulation. Resolves active travel journeys, shifts territory control during wars, spreads sovereign influence, and decays event timers.
 
-### JIT Context Builder (`app/db/context.py`)
-Prevents token-limit exhaustion by dynamically assembling context strings only for the active scene.
-- **`build_gm_context`**: Assembles location details, current occupants, and active Tarot lore into a single string injected into the GM's prompts.
-- **`get_character_lore_block`**: Fetches a single character's archetype ("Your soul is bound to the archetype of...") to inject directly into the Persona Agent's prompt.
+### `SessionService` (`app/db/session_service.py`)
+Handles persistent rehydration. Limits context injection to the last N messages plus the `ConversationSummary` to ensure maximum token efficiency.
+
+### `TarotService` (`app/db/service.py`)
+Handles all atomic interactions with the economy:
+- **Conservation Law**: Capacity is strictly conserved.
+- **Lazy Mana Regeneration**: Mana regenerates automatically (1 unit per minute) calculated instantly upon access.
+- **`transfer_energy`**: Atomically debits and credits energy using strict rollbacks to prevent corruption.
 
 ---
 
-## 4. Inter-Agent Contracts (`app/contracts.py`)
+## 4. Execution Flow (Message Pipeline)
 
-To enforce strict API boundaries, agents communicate via explicit Pydantic schemas:
-
-- **`GMDecision`**: The output of the GM's analysis phase. Determines if `needs_persona` or `needs_arbiter` are true, and provides the `arbiter_instruction`.
-- **`PersonaSpeakRequest`**: The context passed from the GM to the Persona Agent (includes the character name, the situation, and recent dialogue history).
-- **`EnergyTransferRequest`**: A structured request representing a desired energy movement. (Currently, the GM sends a natural language instruction to the Arbiter, which the Arbiter's LLM translates into tool calls, but this schema structure is available for deeper programmatic integration).
-- **`ArbiterResult`**: What the Arbiter returns back to the GM (`success` bool, amounts transferred, and a human-readable `message` for the GM to weave into the final story).
-
-### `GameState` (Execution Flow)
-The engine strictly orchestrates interactions through a deterministic state machine to prevent hallucination and double-narration:
-1. **ACTIVE_ROLEPLAY**: Default state for exploration and GM narration.
-2. **NPC_INTERACTION**: Clean hand-off to the Persona Agent for character dialogue.
-3. **SYSTEM_INTERCEPT**: GM pauses when a mechanic or conflict is detected.
-4. **ARBITER_RESOLUTION**: Arbiter executes the strict rules and state mutations.
-5. **POST_RESOLUTION**: GM translates the Arbiter's outcomes back into narrative format.
+Every message follows a strict pipeline to prevent hallucination and double-narration:
+1. `save_dialogue`: Persist user message.
+2. `load_user_state`: Rehydrate player DB state.
+3. `build_agent_context`: Build minimal LLM context.
+4. **Story Enforcer Check**: If a mandatory story gate is hit, skip GM and return forced narrative.
+5. `GM.analyze`: Output a structured `GMDecision`.
+6. `PersonaAgent` / `ArbiterAgent`: Execute specialized tasks if required.
+7. `GM.narrate`: Stream the final story back to the user.
+8. `update_user_session`: Save new location, quests, and game state.
+9. `maybe_update_summary`: Trigger LLM history compression every N messages.
 
 ---
 
 ## 5. Testing
 
-The core rules engine and service layer are backed by a comprehensive `pytest` suite testing all atomic operations, ensuring high reliability for:
-- Lazy Mana Regeneration logic
+The core rules engine, service layer, and world simulation are backed by a massive 250+ test `pytest` suite ensuring high reliability for:
+- Lazy-tick World Simulation (Travel, Wars, Events)
+- Story Enforcer Progression Gates
+- Persistent Session & Chat Summarization
 - Atomic Energy and Card Transfers
-- Loadout Limit Enforcement
 - Spell Casting and Resource Deduction
