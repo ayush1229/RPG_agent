@@ -13,7 +13,8 @@ The application routes player input through a 3-agent orchestration pipeline. Ea
 - **Role**: The frontend-facing orchestrator. Executes in two phases:
   1. **Analysis Phase**: Evaluates player action to generate a structured `GMDecision`, determining if the Persona Agent or Arbiter Agent is needed.
   2. **Narrative Phase**: Streams the final vivid story response back to the player, incorporating Persona dialogue and Arbiter outcomes.
-- **Constraints**: Read-only access to world state. Subject to Narrative Control (`StoryEnforcer` and `TutorialEnforcer`), which can inject mandatory context or bypass the GM entirely.
+- **Constraints**: Read-only access to world state. Subject to Narrative Control (`StoryEnforcer` and `TutorialEnforcer`), which can inject mandatory context or `is_gm_directive` system overrides to force specific scene beats without exposing raw instructions to the player.
+- **Logging**: All prompts, history, context, and generated narrative tokens are captured by the `SessionLLMLogger` and saved per-session in the `logs/` directory.
 
 ### 🎭 The Persona Agent (NPC Voice)
 - **Model**: `Steelskull/L3.3-Nevoria-R1-70b`
@@ -68,8 +69,8 @@ Features a lazy-tick architecture: `process_world_delta` is called at the start 
 ### `TimeService` & `TutorialService`
 `update_time` is called automatically at the top of the LLM pipeline, advancing the global clock and synchronizing expiry/cooldowns. `build_tutorial_context` injects phase-specific, purely narrative instructions into the GM's prompt.
 
-### `SessionService` (`app/db/session_service.py`)
-Handles persistent rehydration and per-tab isolation. Limits context injection to the last N messages of the *current* chat tab plus the cross-session `ConversationSummary`.
+### `SessionService` & `LLMLogger`
+`app/db/session_service.py` handles persistent rehydration and per-tab isolation. Limits context injection to the last N messages of the *current* chat tab plus the cross-session `ConversationSummary`. `app/llm_logger.py` acts as a LangChain callback handler, saving the exact LLM prompt and output into `logs/<session_id>.log` for debugging and transparency.
 
 ### `TarotService` (`app/db/service.py`)
 Handles all atomic interactions with the energy economy:
@@ -95,7 +96,7 @@ Every message follows a strict pipeline to prevent hallucination and double-narr
 
 ## 5. Testing
 
-The core rules engine, service layer, and world simulation are backed by a massive 560+ test `pytest` suite ensuring high reliability for:
+The core rules engine, service layer, and world simulation are backed by a massive 570+ test `pytest` suite ensuring high reliability for:
 - Lazy-tick World Simulation (Travel, Wars, Events, Time)
 - Tutorial Gating & Story Enforcer Progression
 - Persistent Session, Tab Isolation, & Chat Summarization
