@@ -198,19 +198,32 @@ async def on_message(message: cl.Message) -> None:
     else:
         system_directive = None
 
-    async with cl.Step(name="Reading the scene...", show_input=False) as step:
-        llm_logger = SessionLLMLogger(chat_session_id)
-        decision = await game_master.analyze(
-            message=message.content,
-            history=history,
-            location_id=location_id,
-            callbacks=[llm_logger],
+    # -- Step 4: Analyze OR bypass for directive turns ----------------------
+    # Prologue GM directives (card reveal, awakening) are self-contained.
+    # Running analyze on top of them causes the GM to hallucinate NPCs
+    # (e.g. 'The High Priestess speaks') and spurious arbiter transfers.
+    if prologue and prologue.is_gm_directive:
+        # Bypass: the directive IS the full instruction to the GM.
+        from app.contracts import GMDecision
+        decision = GMDecision(
+            needs_persona=False,
+            needs_arbiter=False,
+            narrative_intent="Follow the system directive exactly as instructed.",
         )
-        step.output = (
-            f"Needs Persona: {decision.needs_persona} "
-            f"| Needs Arbiter: {decision.needs_arbiter}"
-            + (" | [CARD REVEAL]" if system_directive else "")
-        )
+    else:
+        async with cl.Step(name="Reading the scene...", show_input=False) as step:
+            llm_logger = SessionLLMLogger(chat_session_id)
+            decision = await game_master.analyze(
+                message=message.content,
+                history=history,
+                location_id=location_id,
+                callbacks=[llm_logger],
+            )
+            step.output = (
+                f"Needs Persona: {decision.needs_persona} "
+                f"| Needs Arbiter: {decision.needs_arbiter}"
+                + (f" | tutorial phase active" if tutorial_ctx else "")
+            )
 
     # -- Step 5a: Persona Agent (graceful degradation on capacity failure) ---
     persona_dialogue: Optional[str] = None
