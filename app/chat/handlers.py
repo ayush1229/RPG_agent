@@ -191,24 +191,32 @@ async def on_message(message: cl.Message) -> None:
             + (" | [CARD REVEAL]" if system_directive else "")
         )
 
-    # ── Step 5a: Persona Agent ────────────────────────────────────────────────
+    # -- Step 5a: Persona Agent (graceful degradation on capacity failure) ---
     persona_dialogue: Optional[str] = None
     if decision.needs_persona and decision.npc_name:
         async with cl.Step(
             name=f"🎭 {decision.npc_name} speaks...", show_input=False
         ) as step:
-            recent_assistant = [
-                m["content"] for m in state.recent_messages
-                if m["role"] == "assistant"
-            ][-6:]
-            persona_dialogue = await persona_agent.speak(
-                PersonaSpeakRequest(
-                    character_name=decision.npc_name,
-                    context=decision.persona_context or message.content,
-                    recent_dialogue=recent_assistant,
+            try:
+                recent_assistant = [
+                    m["content"] for m in state.recent_messages
+                    if m["role"] == "assistant"
+                ][-3:]   # cap at 3 to respect 32k context limit
+                persona_dialogue = await persona_agent.speak(
+                    PersonaSpeakRequest(
+                        character_name=decision.npc_name,
+                        context=decision.persona_context or message.content,
+                        recent_dialogue=recent_assistant,
+                    )
                 )
-            )
-            step.output = persona_dialogue[:200] + ("…" if len(persona_dialogue) > 200 else "")
+                step.output = (
+                    persona_dialogue[:200]
+                    + ("…" if len(persona_dialogue) > 200 else "")
+                )
+            except Exception as exc:
+                err = str(exc)
+                step.output = f"⚠️ Persona unavailable ({err[:120]}). GM will narrate."
+                persona_dialogue = None   # GM narrates without NPC dialogue
 
     # ── Step 5b: Arbiter ──────────────────────────────────────────────────────
     arbiter_result = None
