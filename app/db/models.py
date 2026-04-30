@@ -1461,3 +1461,67 @@ class DreamState(SQLModel, table=True):
 
     pre_dream_location_id: Optional[int] = Field(default=None, foreign_key="location.id")
     dream_progress_flag: str = Field(default="{}")   # JSON dict
+
+
+# =============================================================
+# TUTORIAL SYSTEM
+# =============================================================
+
+# Tutorial phase constants — gating order enforced by TutorialEnforcer
+TUTORIAL_PHASES: dict[int, str] = {
+    0:  "not_started",
+    1:  "awakening",          # phase 1 — player wakes in Elaris Hollow
+    2:  "first_interaction",  # phase 2 — Old Well Square, merchant dialogue
+    3:  "first_task",         # phase 3 — retrieve item from forest edge
+    4:  "first_combat",       # phase 4 — weak enemy encounter
+    5:  "first_reward",       # phase 5 — return item, XP + item reward
+    6:  "economy_intro",      # phase 6 — shop buy/sell with merchant
+    7:  "housing_intro",      # phase 7 — night approaches, rent inn room
+    8:  "night_system",       # phase 8 — night risk live if outside
+    9:  "first_dungeon",      # phase 9 — optional Ruins of Velkar run
+    10: "dream_hook",         # phase 10 — Old Seer foreshadowing
+    11: "complete",           # tutorial finished — all systems unlocked
+}
+
+# Systems locked per phase (entity cannot access until phase passed)
+TUTORIAL_SYSTEM_LOCKS: dict[str, int] = {
+    "guilds":       11,   # only after tutorial completes
+    "auctions":     11,
+    "war_zones":    11,
+    "sovereign":    11,
+    "rare_events":  8,    # only from phase 8 onward
+    "epic_events":  11,
+    "economy":      6,    # unlocks at phase 6
+    "housing":      7,    # unlocks at phase 7
+    "night_system": 8,
+    "dreamscape":   11,
+}
+
+# Max event rarity during tutorial phases (enforced by spawn gate)
+TUTORIAL_MAX_RARITY: dict[int, str] = {
+    phase: "common" for phase in range(1, 9)   # phases 1-8: common only
+}
+TUTORIAL_MAX_RARITY[9]  = "uncommon"   # dungeon phase: allow uncommon
+TUTORIAL_MAX_RARITY[10] = "uncommon"
+TUTORIAL_MAX_RARITY[11] = "epic"       # tutorial done: all rarities
+
+
+# ---------------------------------------------------------
+# 45. TUTORIAL STATE
+# ---------------------------------------------------------
+class TutorialState(SQLModel, table=True):
+    """
+    Per-entity tutorial progression tracker.
+    phase     : current phase index (0 = not started, 11 = complete).
+    phase_data: JSON dict for phase-specific flags (e.g. quest_accepted, item_retrieved).
+    The TutorialEnforcer reads this before every GM response and injects
+    phase-appropriate context overrides.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    entity_id: int = Field(foreign_key="tarotentity.id", unique=True, index=True)
+    phase: int = Field(default=0, ge=0, le=11)
+    phase_data: str = Field(default="{}")   # JSON — arbitrary per-phase state
+    started_at: datetime = Field(default_factory=utcnow)
+    completed_at: Optional[datetime] = Field(default=None)
