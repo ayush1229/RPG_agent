@@ -50,12 +50,14 @@ class GameMasterAgent:
     """
 
     def __init__(self) -> None:
-        # Qwen3-Next recommended sampling parameters
-        _qwen_kwargs = {
+        # Standard OpenAI-compatible sampling parameters
+        # Note: Qwen-specific extras (top_k, min_p) are NOT passed — they are
+        # not part of the OpenAI API spec and cause 'unexpected keyword argument'
+        # errors on most OpenAI-compatible endpoints.
+        _llm_kwargs = {
             "temperature": 0.7,
             "top_p": 0.8,
             "max_tokens": 16384,
-            "model_kwargs": {"top_k": 20, "min_p": 0.0},
         }
 
         self._llm_analyze = ChatOpenAI(
@@ -63,14 +65,14 @@ class GameMasterAgent:
             base_url=settings.llm_base_url,
             model=settings.llm_model,
             streaming=False,
-            **_qwen_kwargs,
+            **_llm_kwargs,
         )
         self._llm_narrate = ChatOpenAI(
             api_key=settings.llm_api_key,
             base_url=settings.llm_base_url,
             model=settings.llm_model,
             streaming=True,
-            **_qwen_kwargs,
+            **_llm_kwargs,
         )
 
         self._parser = JsonOutputParser(pydantic_object=GMDecision)
