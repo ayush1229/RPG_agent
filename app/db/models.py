@@ -233,6 +233,8 @@ class Location(SQLModel, table=True):
     is_magic_restricted: bool = Field(default=False)
     # "major_kingdom" | "minor_kingdom" | "dungeon" | "town" | "void" | "neutral"
     location_type: str = Field(default="neutral")
+    # If set, completing this main quest invalidates all active events in the region
+    region_main_quest_id: Optional[int] = Field(default=None, foreign_key="quest.id")
 
     occupants: List["SideCharacter"] = Relationship(back_populates="current_location")
 
@@ -1242,3 +1244,121 @@ class GuildExposure(SQLModel, table=True):
     exposure_level: float = Field(default=0.0, ge=0.0, le=100.0)
     last_increased_at: datetime = Field(default_factory=utcnow)
     exposure_triggered: bool = Field(default=False)   # True after event fired
+
+
+# =============================================================
+# RANDOM EVENT SYSTEM
+# =============================================================
+
+# Event types
+EVENT_TEMPLATE_TYPES = frozenset({
+    "combat", "exploration", "escort", "trade", "anomaly",
+})
+
+# Rarity tiers
+EVENT_RARITY_TIERS = ("common", "uncommon", "rare", "epic")
+
+# Base spawn weights (probabilities out of 100)
+BASE_SPAWN_WEIGHTS: dict[str, float] = {
+    "common":   60.0,
+    "uncommon": 25.0,
+    "rare":     10.0,
+    "epic":      5.0,
+}
+
+# Per-rarity modifier bonuses applied to weights
+SPAWN_MODIFIERS: dict[str, dict[str, float]] = {
+    "war_zone":       {"rare": +8.0,  "epic": +4.0},
+    "sovereign_high": {"epic": +10.0, "rare": +5.0},
+    "safe_zone":      {"common": -20.0, "uncommon": -10.0, "rare": -5.0, "epic": -3.0},
+    "level_tier_2":   {"rare": +3.0,  "epic": +1.0},   # level 20–39
+    "level_tier_3":   {"rare": +6.0,  "epic": +3.0},   # level 40+
+}
+
+# Max concurrent active events per location (prevents spam)
+MAX_EVENTS_PER_LOCATION = 5
+
+# Difficulty scaling: final = 1 + player_level * factor
+DIFFICULTY_SCALE_FACTOR = 0.03
+
+
+# ---------------------------------------------------------
+# 39. EVENT TEMPLATE
+# ---------------------------------------------------------
+class EventTemplate(SQLModel, table=True):
+    """
+    Reusable blueprint for a random event category.
+    reward_item_pool : JSON array of item name strings for loot rolls.
+    requires_war     : only eligible when an active war WorldEvent exists nearby.
+    requires_sovereign_influence: only eligible when influence > 50 at location.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True, unique=True)
+    description: str = Field(default="")
+
+    event_type: str                         # key in EVENT_TEMPLATE_TYPES
+    rarity: str = Field(default="common")   # key in BASE_SPAWN_WEIGHTS
+
+    base_duration_minutes: int = Field(default=60, gt=0)
+    min_level: int = Field(default=1, ge=1)
+    max_level: Optional[int] = Field(default=None)   # None = no cap
+
+    risk_level: int = Field(default=1, ge=1, le=10)
+    reward_base_xp: int = Field(default=100, ge=0)
+    reward_item_pool: Optional[str] = Field(default=None)  # JSON array
+
+    requires_war: bool = Field(default=False)
+    requires_sovereign_influence: bool = Field(default=False)
+    is_active: bool = Field(default=True)  # soft-disable without deleting
+
+
+# ---------------------------------------------------------
+# 40. WORLD EVENT INSTANCE
+# ---------------------------------------------------------
+class WorldEventInstance(SQLModel, table=True):
+    """
+    A live spawned event at a location.
+    spawned_for_entity_id: None = world-visible; set = personalized to one player.
+    difficulty_scaling    = 1 + (player_level * DIFFICULTY_SCALE_FACTOR)
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    template_id: int = Field(foreign_key="eventtemplate.id", index=True)
+    location_id: int = Field(foreign_key="location.id", index=True)
+
+    spawned_at: datetime = Field(default_factory=utcnow)
+    expires_at: datetime
+
+    is_active: bool = Field(default=True)
+    is_completed: bool = Field(default=False)
+
+    spawned_for_entity_id: Optional[int] = Field(
+        default=None, foreign_key="tarotentity.id"
+    )
+    difficulty_scaling: float = Field(default=1.0, gt=0)
+
+
+# ---------------------------------------------------------
+# 41. EVENT QUEST
+# ---------------------------------------------------------
+class EventQuest(SQLModel, table=True):
+    """
+    Created when a player accepts a WorldEventInstance (converts to side quest).
+    One row per (event_instance × entity) pair.
+    is_abandoned: player explicitly gave up — no rewards, event unmarked so others can take it.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    event_instance_id: int = Field(foreign_key="worldeventinstance.id", index=True)
+    entity_id: int = Field(foreign_key="tarotentity.id", index=True)
+
+    progress: int = Field(default=0, ge=0)
+    goal: int = Field(default=1, ge=1)
+
+    is_completed: bool = Field(default=False)
+    is_abandoned: bool = Field(default=False)
+    accepted_at: datetime = Field(default_factory=utcnow)
