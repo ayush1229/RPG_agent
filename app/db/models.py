@@ -407,11 +407,20 @@ class InventoryItem(SQLModel, table=True):
     rarity: str = Field(default="common")           # common|rare|epic|legendary
     value: int = Field(default=0, ge=0)             # trade value (quest items = 0)
 
-    # Effect fields — item_effect is the legacy name, effect_type the preferred one;
-    # both are stored identically so old service code keeps working.
-    item_effect: Optional[str] = Field(default=None)    # 'heal' | 'mana' | 'buff' | 'damage'
-    effect_type: Optional[str] = Field(default=None)    # same values, preferred key
+    # Effect fields
+    item_effect: Optional[str] = Field(default=None)
+    effect_type: Optional[str] = Field(default=None)
     effect_value: int = Field(default=0, ge=0)
+
+    # ── Economy fields ───────────────────────────────────────────────
+    # base_price: canonical gold cost in a neutral market
+    # tradable  : quest items and sovereign artifacts are non-tradable
+    # durability: None = unbreakable; 0 = broken
+    # stackable : if False, each unit must be its own row
+    base_price: int = Field(default=0, ge=0)
+    tradable: bool = Field(default=True)
+    durability: Optional[int] = Field(default=None)
+    stackable: bool = Field(default=True)
 
     owner_id: int = Field(foreign_key="tarotentity.id")
     owner: Optional[TarotEntity] = Relationship(back_populates="inventory")
@@ -964,3 +973,272 @@ class WorldEvent(SQLModel, table=True):
     is_active: bool = Field(default=True)
     created_at: datetime = Field(default_factory=utcnow)
     last_ticked: datetime = Field(default_factory=utcnow)
+
+
+# =============================================================
+# ECONOMY SYSTEMS (Wallet, Shop, Auction, Tax)
+# =============================================================
+
+# Rarity → base price multiplier (applied when no explicit base_price set)
+RARITY_PRICE_MULT: dict[str, float] = {
+    "common":    1.0,
+    "rare":      3.0,
+    "epic":      8.0,
+    "legendary": 25.0,
+}
+
+# Shop type → markup factor applied on top of compute_price
+SHOP_TYPE_MARKUP: dict[str, float] = {
+    "general":      1.0,
+    "magic":        1.2,
+    "black_market": 1.6,
+    "guild":        1.1,
+    "trading_hub":  0.9,   # cheapest — Virell Prime hub
+}
+
+# Auction hall type → tax rate applied to seller proceeds
+AUCTION_TAX: dict[str, float] = {
+    "small_hall":        0.08,
+    "grand_hall":        0.12,
+    "sovereign_exchange": 0.20,
+}
+
+
+# ---------------------------------------------------------
+# 29. WALLET
+# ---------------------------------------------------------
+class Wallet(SQLModel, table=True):
+    """
+    Gold wallet for any entity (player, NPC merchant, shop owner).
+    balance is always non-negative — enforced at service layer.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    owner_entity_id: int = Field(foreign_key="tarotentity.id", unique=True, index=True)
+    balance: int = Field(default=0, ge=0)
+
+
+# ---------------------------------------------------------
+# 30. SHOP
+# ---------------------------------------------------------
+class Shop(SQLModel, table=True):
+    """
+    A merchant shop anchored to a location.
+    shop_type: 'general' | 'magic' | 'black_market' | 'guild' | 'trading_hub'
+    tax_rate  : fraction of sale deducted as kingdom tax (default 5%).
+    owner_entity_id: the NPC/player entity that receives sold-item proceeds.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    location_id: int = Field(foreign_key="location.id", index=True)
+    owner_entity_id: Optional[int] = Field(default=None, foreign_key="tarotentity.id")
+    shop_type: str = Field(default="general")
+    tax_rate: float = Field(default=0.05, ge=0.0, le=1.0)
+    is_open: bool = Field(default=True)
+
+
+# ---------------------------------------------------------
+# 31. SHOP INVENTORY
+# ---------------------------------------------------------
+class ShopInventory(SQLModel, table=True):
+    """
+    Stock of one item inside one shop.
+    price_override: if set, supersedes compute_price() for this specific item/shop.
+    restock_rate  : units restored per world-tick minute (0 = no restock).
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    shop_id: int = Field(foreign_key="shop.id", index=True)
+    item_id: int = Field(foreign_key="inventoryitem.id", index=True)
+    quantity: int = Field(default=1, ge=0)
+    price_override: Optional[int] = Field(default=None)   # None → use compute_price
+    restock_rate: float = Field(default=0.0, ge=0.0)      # units per minute
+
+
+# ---------------------------------------------------------
+# 32. AUCTION
+# ---------------------------------------------------------
+class Auction(SQLModel, table=True):
+    """
+    A live auction listing.
+    hall_type: 'small_hall' | 'grand_hall' | 'sovereign_exchange'
+    is_active: False once resolved or cancelled.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    seller_id: int = Field(foreign_key="tarotentity.id", index=True)
+    item_id: int = Field(foreign_key="inventoryitem.id")
+    quantity: int = Field(default=1, ge=1)
+
+    starting_price: int = Field(ge=1)
+    current_bid: int = Field(ge=0)
+    highest_bidder_id: Optional[int] = Field(default=None, foreign_key="tarotentity.id")
+
+    location_id: int = Field(foreign_key="location.id")
+    hall_type: str = Field(default="small_hall")   # key into AUCTION_TAX
+    end_time: datetime
+    is_active: bool = Field(default=True)
+    created_at: datetime = Field(default_factory=utcnow)
+
+
+# ---------------------------------------------------------
+# 33. TAX POLICY
+# ---------------------------------------------------------
+class TaxPolicy(SQLModel, table=True):
+    """
+    Per-kingdom (location) tax overrides.
+    If no row exists for a location, Shop.tax_rate is used directly.
+    trade_tax   : applied to buy/sell transactions in shops.
+    auction_tax : applied to auction sale proceeds (overrides AUCTION_TAX default).
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    location_id: int = Field(foreign_key="location.id", unique=True, index=True)
+    trade_tax: float = Field(default=0.05, ge=0.0, le=1.0)
+    auction_tax: float = Field(default=0.10, ge=0.0, le=1.0)
+
+
+# =============================================================
+# GUILD SYSTEMS
+# =============================================================
+
+# Valid guild types
+GUILD_TYPES = frozenset({"combat", "magic", "trade", "shadow", "chaos", "hybrid"})
+
+# Rank tier labels
+RANK_TIER: dict[int, str] = {
+    1: "Novice", 2: "Novice", 3: "Novice",
+    4: "Core Member", 5: "Core Member", 6: "Core Member",
+    7: "Elite", 8: "Elite", 9: "Elite",
+    10: "Guild Master",
+}
+
+# Rank-based perk definitions (read by service layer)
+RANK_PERKS: dict[str, list[str]] = {
+    "Novice":      ["xp_bonus_5pct", "guild_shop_access"],
+    "Core Member": ["xp_bonus_10pct", "item_discount_10pct", "minor_stat_bonus"],
+    "Elite":       ["xp_bonus_20pct", "exclusive_ability_slot", "priority_quests"],
+    "Guild Master": ["xp_bonus_25pct", "faction_influence", "treasury_control",
+                     "guild_decision_vote"],
+}
+
+# Exposure thresholds
+EXPOSURE_WARNING   = 50.0    # warn player
+EXPOSURE_CRITICAL  = 75.0    # GM hinted danger
+EXPOSURE_TRIGGERED = 100.0   # forced event fires
+
+
+# ---------------------------------------------------------
+# 34. GUILD
+# ---------------------------------------------------------
+class Guild(SQLModel, table=True):
+    """
+    A player/NPC organisation.
+    is_secret: hidden guilds — not visible in normal UI, joined via special triggers.
+    headquarters_location_id: city/kingdom where the guild HQ is anchored.
+    master_id: FK to GuildMembership of the current Guild Master (rank 10).
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True, unique=True)
+    description: str = Field(default="")
+    guild_type: str                                   # key in GUILD_TYPES
+    is_secret: bool = Field(default=False)
+    headquarters_location_id: Optional[int] = Field(default=None, foreign_key="location.id")
+    master_id: Optional[int] = Field(default=None)   # FK to GuildMembership.id (set after)
+    # Treasury balance (managed by treasurer)
+    treasury: int = Field(default=0, ge=0)
+
+
+# ---------------------------------------------------------
+# 35. GUILD MEMBERSHIP
+# ---------------------------------------------------------
+class GuildMembership(SQLModel, table=True):
+    """
+    One row per (entity × guild) pair.
+    Dual-membership rules:
+      - entity may hold EXACTLY ONE non-secret membership
+      - entity may hold EXACTLY ONE secret membership
+    Leaving resets reputation to 0 (enforced by leave_guild()).
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    entity_id: int = Field(foreign_key="tarotentity.id", index=True)
+    guild_id: int = Field(foreign_key="guild.id", index=True)
+
+    rank: int = Field(default=1, ge=1, le=10)
+    role: str = Field(default="member")      # member | officer | treasurer | master
+    reputation: int = Field(default=0, ge=0)
+    is_active: bool = Field(default=True)
+    joined_at: datetime = Field(default_factory=utcnow)
+
+
+# ---------------------------------------------------------
+# 36. GUILD QUEST
+# ---------------------------------------------------------
+class GuildQuest(SQLModel, table=True):
+    """
+    A quest that belongs to a specific guild.
+    required_rank: minimum rank needed to accept.
+    arc: story arc number (1–5).
+    sequence: order within the arc.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    guild_id: int = Field(foreign_key="guild.id", index=True)
+    name: str = Field(index=True)
+    description: str = Field(default="")
+    required_rank: int = Field(default=1, ge=1, le=10)
+    required_level: int = Field(default=1, ge=1)
+    xp_reward: int = Field(default=0, ge=0)
+    reputation_reward: int = Field(default=50, ge=0)
+    arc: int = Field(default=1, ge=1, le=5)
+    sequence: int = Field(default=1, ge=1)
+    is_repeatable: bool = Field(default=False)
+
+
+# ---------------------------------------------------------
+# 37. GUILD INCOME
+# ---------------------------------------------------------
+class GuildIncome(SQLModel, table=True):
+    """
+    Periodic gold distribution from guild treasury to active members.
+    amount = base_income * (member_rank / 10)
+    distribution_time: when the distribution was processed.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    guild_id: int = Field(foreign_key="guild.id", index=True)
+    recipient_entity_id: int = Field(foreign_key="tarotentity.id", index=True)
+    amount: int = Field(default=0, ge=0)
+    rank_at_time: int = Field(default=1)
+    distribution_time: datetime = Field(default_factory=utcnow)
+
+
+# ---------------------------------------------------------
+# 38. GUILD EXPOSURE (secret guild detection)
+# ---------------------------------------------------------
+class GuildExposure(SQLModel, table=True):
+    """
+    Tracks how close an entity is to being exposed as a secret guild member.
+    exposure_level: 0.0 (unknown) – 100.0 (fully exposed).
+    When exposure_level >= EXPOSURE_TRIGGERED (100), trigger_exposure_event() fires.
+    Exposure event outcome is MANDATORY (forced loss, all memberships revoked).
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    entity_id: int = Field(foreign_key="tarotentity.id", unique=True, index=True)
+    exposure_level: float = Field(default=0.0, ge=0.0, le=100.0)
+    last_increased_at: datetime = Field(default_factory=utcnow)
+    exposure_triggered: bool = Field(default=False)   # True after event fired
