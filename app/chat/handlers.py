@@ -48,6 +48,7 @@ from app.db.story_enforcer import (
     advance_arc_if_ready,
     check_prologue_gates,
     get_story_state,
+    PrologueOverride,
 )
 from app.schemas import ChatMessage, Role
 
@@ -130,20 +131,22 @@ async def on_message(message: cl.Message) -> None:
         # ── Step 3: Build minimal LLM context ─────────────────────────────────
         agent_ctx = build_agent_context(state)
 
-        # ── STORY ENFORCER: prologue gate check (OVERRIDES GM) ────────────────
+        # -- STORY ENFORCER: prologue gate check --------------------------------
         entity_id = state.entity.id
-        override_text = check_prologue_gates(session, entity_id, message.content)
+        prologue: Optional[PrologueOverride] = check_prologue_gates(
+            session, entity_id, message.content
+        )
         story_ctx = get_story_state(session, entity_id)
 
-        if override_text:
-            # GM is bypassed — send forced narrative directly
+        if prologue and not prologue.is_gm_directive:
+            # Player-visible override: persist it (GM bypassed)
             save_dialogue(session, user_id, role="assistant",
-                          message=override_text, chat_session_id=chat_session_id)
+                          message=prologue.text, chat_session_id=chat_session_id)
             update_user_session(session, user_id, location_id=location_id)
             await maybe_update_summary(session, user_id,
                                        chat_session_id=chat_session_id)
 
-        # Convert recent_messages → ChatMessage list for GM
+        # Convert recent_messages -> ChatMessage list for GM
         history: list[ChatMessage] = [
             ChatMessage(
                 role=Role.USER if m["role"] == "user" else Role.ASSISTANT,
@@ -152,12 +155,19 @@ async def on_message(message: cl.Message) -> None:
             for m in state.recent_messages
         ]
 
-    if override_text:
-        reply_msg = cl.Message(content=override_text, author="System")
-        await reply_msg.send()
+    # -- Player-visible override: send directly, skip GM --------------------
+    if prologue and not prologue.is_gm_directive:
+        await cl.Message(content=prologue.text, author="System").send()
         return
 
-    async with cl.Step(name="🧠 Reading the scene...", show_input=False) as step:
+    # -- GM-directive OR normal play: run full GM pipeline ------------------
+    # is_gm_directive=True  -> directive injected into narrate() invisibly
+    # prologue is None      -> normal gameplay
+    system_directive: Optional[str] = (
+        prologue.text if (prologue and prologue.is_gm_directive) else None
+    )
+
+    async with cl.Step(name="Reading the scene...", show_input=False) as step:
         decision = await game_master.analyze(
             message=message.content,
             history=history,
@@ -166,6 +176,7 @@ async def on_message(message: cl.Message) -> None:
         step.output = (
             f"Needs Persona: {decision.needs_persona} "
             f"| Needs Arbiter: {decision.needs_arbiter}"
+            + (" | [CARD REVEAL]" if system_directive else "")
         )
 
     # ── Step 5a: Persona Agent ────────────────────────────────────────────────
@@ -207,10 +218,11 @@ async def on_message(message: cl.Message) -> None:
             persona_dialogue=persona_dialogue,
             arbiter_result=arbiter_result,
             location_id=location_id,
+            system_directive=system_directive,
         ):
             await reply_msg.stream_token(token)
     except Exception as e:
-        reply_msg.content = f"⚠️ Narrative error: {e}"
+        reply_msg.content = f"Narrative error: {e}"
 
     await reply_msg.update()
 

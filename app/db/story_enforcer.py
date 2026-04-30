@@ -8,21 +8,22 @@ Enforcement contract
 1. Load (or create) MainStoryState for the player entity.
 2. Check mandatory prologue gates sequentially:
       interview_done → cards_drawn → awakening_triggered
-3. If any gate is incomplete → return a forced narrative override response.
-   The GM is NOT called.
-4. After prologue, enforce arc-level sequential quest gating:
-   - Player cannot receive a quest response for Arc N+1 content
-     until Arc N's required quests are complete.
+3. If any gate is incomplete → return a PrologueOverride.
+   - is_gm_directive=False → shown verbatim to the player (GM bypassed)
+   - is_gm_directive=True  → injected into GM.narrate() as a system directive;
+                              the GM writes the actual player-facing text.
+4. After prologue, enforce arc-level sequential quest gating.
 5. GM may suggest flag changes only when gm_override_allowed == True.
 
 Return value
 -------------
-  None  → gates passed, GM may proceed normally.
-  str   → forced override text to send directly to the player (GM bypassed).
+  None             → gates passed, GM may proceed normally.
+  PrologueOverride → a gate is active (see is_gm_directive flag).
 """
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -49,7 +50,26 @@ ARC_GATE_QUESTS: dict[int, list[str]] = {
     7: ["Threshold of Power", "Sovereign Trial", "Ascension"],
 }
 
-# ── Prologue interview: ONE question per step ─────────────────────────────────
+@dataclass
+class PrologueOverride:
+    """
+    Returned by check_prologue_gates when a prologue gate is active.
+
+    is_gm_directive=False (default):
+        Show `text` verbatim to the player. GM is bypassed entirely.
+        Used for: Q1/Q2/Q3 prompts, INTERVIEW_COMPLETE, CARD_DRAW_SCRIPT, AWAKENING.
+
+    is_gm_directive=True:
+        Inject `text` into GM.narrate() as a system directive block.
+        The GM writes the actual player-facing narrative — the raw directive
+        is NEVER shown to the player.
+        Used for: _GM_CARD_REVEAL_DIRECTIVE.
+    """
+    text: str
+    is_gm_directive: bool = False
+
+
+# -- Prologue interview: ONE question per step --------------------------------
 
 _Q1 = """[SYSTEM — NARRATIVE OVERRIDE]
 
@@ -182,9 +202,9 @@ def _save_flags(session: Session, state: MainStoryState, flags: dict) -> None:
 def _derive_alignment(answers: list[str]) -> str:
     """
     Derive a rough alignment from the 3 raw answer strings.
-    order → Emperor-aligned (power / sacrifice / defy fate)
-    chaos → Fool-aligned (both / no sacrifice / defy fate strongly)
-    balance → middle path (understanding / no sacrifice / trust fate)
+    order   -> Emperor-aligned (power / sacrifice / defy fate)
+    chaos   -> Fool-aligned (both / no sacrifice / defy fate strongly)
+    balance -> middle path (understanding / no sacrifice / trust fate)
     """
     text = " ".join(answers).lower()
     order_signals = sum([
@@ -208,53 +228,44 @@ def check_prologue_gates(
     session: Session,
     entity_id: int,
     user_message: str,
-) -> Optional[str]:
+) -> Optional[PrologueOverride]:
     """
     Check prologue completeness. ONE question at a time.
-    Reads the player's answer and advances the sub-phase before returning the next prompt.
+    Returns a PrologueOverride if a gate is active, else None.
 
-    interview sub-phases stored in flags["interview_phase"]:
-      0 → Q1 not yet shown
-      1 → Q1 shown, waiting for answer → record answer, show Q2
-      2 → Q2 shown, waiting for answer → record answer, show Q3
-      3 → Q3 shown, waiting for answer → record answer, mark complete
-
-    Returns forced narrative text if a prologue gate is active, else None.
+    interview_phase: 0=show Q1, 1=record+show Q2, 2=record+show Q3, 3=record+mark done
+    card_draw_phase: 0=show CARD_DRAW_SCRIPT, 1=inject GM_CARD_REVEAL_DIRECTIVE
     """
     state = _load_or_create(session, entity_id)
     flags = _flags(state)
 
-    # ── Gate 1: Sequential interview ──────────────────────────────────────────
+    # -- Gate 1: Sequential interview -----------------------------------------
     if not flags.get("interview_done", False):
         phase = flags.get("interview_phase", 0)
 
         if phase == 0:
-            # First visit — show Q1, advance to phase 1
             flags["interview_phase"] = 1
             flags.setdefault("interview_answers", [])
             _save_flags(session, state, flags)
-            return _Q1
+            return PrologueOverride(_Q1)
 
         elif phase == 1:
-            # Player answered Q1 — record it, show Q2
             answers = flags.get("interview_answers", [])
-            answers.append(user_message[:200])   # cap to 200 chars
+            answers.append(user_message[:200])
             flags["interview_answers"] = answers
             flags["interview_phase"] = 2
             _save_flags(session, state, flags)
-            return _Q2
+            return PrologueOverride(_Q2)
 
         elif phase == 2:
-            # Player answered Q2 — record it, show Q3
             answers = flags.get("interview_answers", [])
             answers.append(user_message[:200])
             flags["interview_answers"] = answers
             flags["interview_phase"] = 3
             _save_flags(session, state, flags)
-            return _Q3
+            return PrologueOverride(_Q3)
 
         else:  # phase == 3
-            # Player answered Q3 — record it, mark interview done
             answers = flags.get("interview_answers", [])
             answers.append(user_message[:200])
             alignment = _derive_alignment(answers)
@@ -263,34 +274,36 @@ def check_prologue_gates(
             flags["interview_done"] = True
             flags["alignment_tendency"] = alignment
             _save_flags(session, state, flags)
-            return _INTERVIEW_COMPLETE
+            return PrologueOverride(_INTERVIEW_COMPLETE)
 
-    # ── Gate 2: Card draw ───────────────────────────────────────────────────
+    # -- Gate 2: Card draw ----------------------------------------------------
     if not flags.get("cards_drawn", False):
         card_phase = flags.get("card_draw_phase", 0)
 
         if card_phase == 0:
-            # Show the card draw atmospheric prompt, advance to phase 1
+            # Show atmospheric card draw prompt TO the player
             flags["card_draw_phase"] = 1
             _save_flags(session, state, flags)
-            return _CARD_DRAW_SCRIPT
+            return PrologueOverride(_CARD_DRAW_SCRIPT)          # player-visible
 
         else:
-            # Player acknowledged — mark cards_drawn=True and inject GM directive
-            # so the GM narrates the actual card reveal this turn
+            # Player acknowledged — let GM narrate the actual card reveal
             alignment = flags.get("alignment_tendency", "balance")
             flags["cards_drawn"] = True
             flags["card_draw_phase"] = 2
             _save_flags(session, state, flags)
-            return _GM_CARD_REVEAL_DIRECTIVE.format(alignment=alignment)
+            return PrologueOverride(                             # GM directive
+                _GM_CARD_REVEAL_DIRECTIVE.format(alignment=alignment),
+                is_gm_directive=True,
+            )
 
-    # ── Gate 3: Awakening ───────────────────────────────────────────────────
+    # -- Gate 3: Awakening ----------------------------------------------------
     if not flags.get("awakening_triggered", False):
         flags["awakening_triggered"] = True
         _save_flags(session, state, flags)
-        return _AWAKENING_SCRIPT
+        return PrologueOverride(_AWAKENING_SCRIPT)              # player-visible
 
-    return None  # All prologue gates passed — GM may proceed
+    return None  # All prologue gates passed -- GM may proceed
 
 
 def complete_interview(

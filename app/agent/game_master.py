@@ -94,6 +94,7 @@ class GameMasterAgent:
             ("system", _NARRATIVE_SYSTEM),
             MessagesPlaceholder("history"),
             ("human", (
+                "{directive_block}"
                 "SCENE CONTEXT:\n{scene_context}\n\n"
                 "Player action: {input}\n\n"
                 "Narrative intent: {narrative_intent}\n\n"
@@ -148,8 +149,13 @@ class GameMasterAgent:
         persona_dialogue: Optional[str],
         arbiter_result: Optional[ArbiterResult],
         location_id: Optional[int] = None,
+        system_directive: Optional[str] = None,
     ) -> AsyncIterator[str]:
-        """Stream the final narrative, incorporating lore context + sub-agent results."""
+        """Stream the final narrative, incorporating lore context + sub-agent results.
+
+        system_directive: injected from the StoryEnforcer for GM-directed prologue
+        gates (e.g. card reveal). Never shown verbatim to the player.
+        """
         scene_context = self._fetch_scene_context(location_id)
         lc_history = [
             HumanMessage(content=m.content) if m.role == Role.USER
@@ -166,6 +172,11 @@ class GameMasterAgent:
             status = "succeeded" if arbiter_result.success else "was rejected"
             arbiter_block = f"Energy transfer {status}: {arbiter_result.message}\n\n"
 
+        # GM directive from the StoryEnforcer (highest priority context)
+        directive_block = ""
+        if system_directive:
+            directive_block = f"{system_directive}\n\n"
+
         async for chunk in self._narrative_chain.astream({
             "input": message,
             "history": lc_history,
@@ -173,6 +184,7 @@ class GameMasterAgent:
             "scene_context": scene_context or "(no active scene data)",
             "npc_block": npc_block,
             "arbiter_block": arbiter_block,
+            "directive_block": directive_block,
         }):
             content = chunk.content
             if isinstance(content, str) and content:

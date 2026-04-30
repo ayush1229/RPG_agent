@@ -67,20 +67,20 @@ class TestPrologueGates:
     def test_interview_gate_fires_first(self, session, entity):
         result = check_prologue_gates(session, entity.id, "hello")
         assert result is not None
-        assert "void" in result.lower() or "Question 1" in result
+        assert "void" in result.text.lower() or "Question 1" in result.text
 
     def test_interview_done_shows_card_draw(self, session, entity):
         complete_interview(session, entity.id, alignment="order")
         result = check_prologue_gates(session, entity.id, "hello")
         assert result is not None
-        assert "CARD" in result.upper() or "card" in result.lower()
+        assert "CARD" in result.text.upper() or "card" in result.text.lower()
 
     def test_cards_done_shows_awakening(self, session, entity):
         complete_interview(session, entity.id, alignment="chaos")
         complete_card_draw(session, entity.id)
         result = check_prologue_gates(session, entity.id, "hello")
         assert result is not None
-        assert "awaken" in result.lower() or "AWAKENING" in result or "spark" in result.lower()
+        assert "awaken" in result.text.lower() or "AWAKENING" in result.text
 
     def test_awakening_consumed_next_call_returns_none(self, session, entity):
         complete_interview(session, entity.id, alignment="balance")
@@ -110,33 +110,34 @@ class TestSequentialInterview:
 
     def test_q1_shown_on_first_call(self, session, entity):
         result = check_prologue_gates(session, entity.id, "anything")
-        assert "Question 1" in result
-        assert "power" in result.lower() or "understanding" in result.lower()
+        assert result is not None
+        assert not result.is_gm_directive
+        assert "Question 1" in result.text
+        assert "power" in result.text.lower() or "understanding" in result.text.lower()
 
     def test_q2_shown_after_first_answer(self, session, entity):
         check_prologue_gates(session, entity.id, "")        # trigger Q1
         result = check_prologue_gates(session, entity.id, "I seek power")
-        assert "Question 2" in result
-        assert "sacrifice" in result.lower()
+        assert "Question 2" in result.text
+        assert "sacrifice" in result.text.lower()
 
     def test_q3_shown_after_second_answer(self, session, entity):
         check_prologue_gates(session, entity.id, "")        # Q1
         check_prologue_gates(session, entity.id, "power")   # Q2
         result = check_prologue_gates(session, entity.id, "no")  # Q3
-        assert "Question 3" in result
-        assert "fate" in result.lower()
+        assert "Question 3" in result.text
+        assert "fate" in result.text.lower()
 
     def test_interview_done_after_third_answer(self, session, entity):
         check_prologue_gates(session, entity.id, "")          # Q1
         check_prologue_gates(session, entity.id, "power")     # Q2
         check_prologue_gates(session, entity.id, "no")        # Q3
         result = check_prologue_gates(session, entity.id, "trust fate")  # complete
-        # Should return INTERVIEW_COMPLETE, not another question
         assert result is not None
-        assert "heard enough" in result.lower() or "cards" in result.lower()
+        assert "heard enough" in result.text.lower() or "cards" in result.text.lower()
         # Next call should go to card draw gate
         result2 = check_prologue_gates(session, entity.id, "")
-        assert "CARD" in result2.upper() or "card" in result2.lower()
+        assert "CARD" in result2.text.upper() or "card" in result2.text.lower()
 
     def test_answers_stored_in_flags(self, session, entity):
         check_prologue_gates(session, entity.id, "")
@@ -192,23 +193,26 @@ class TestCardDrawGate:
         self._complete_interview(session, entity.id)
         result = check_prologue_gates(session, entity.id, "")
         assert result is not None
-        assert "CARD DRAW" in result or "cards" in result.lower()
+        assert not result.is_gm_directive        # atmospheric prompt is player-visible
+        assert "CARD DRAW" in result.text or "cards" in result.text.lower()
 
     def test_card_draw_does_not_repeat(self, session, entity):
         """Second call after card draw prompt must NOT return the same script."""
         self._complete_interview(session, entity.id)
         check_prologue_gates(session, entity.id, "")        # show card draw prompt
-        result2 = check_prologue_gates(session, entity.id, "reveal")   # player responds
+        result2 = check_prologue_gates(session, entity.id, "reveal")
         # Must be a GM directive, not the card draw script again
         assert result2 is not None
-        assert "CARD DRAW SEQUENCE" not in (result2 or "")
+        assert result2.is_gm_directive           # card reveal is a GM directive
+        assert "CARD DRAW SEQUENCE" not in result2.text
 
     def test_gm_directive_contains_alignment(self, session, entity):
         self._complete_interview(session, entity.id)
         check_prologue_gates(session, entity.id, "")          # card draw prompt
         result = check_prologue_gates(session, entity.id, "reveal")
         assert result is not None
-        assert "balance" in result or "order" in result or "chaos" in result
+        assert result.is_gm_directive
+        assert "balance" in result.text or "order" in result.text or "chaos" in result.text
 
     def test_cards_drawn_flag_set_after_second_call(self, session, entity):
         self._complete_interview(session, entity.id)
@@ -224,7 +228,8 @@ class TestCardDrawGate:
         check_prologue_gates(session, entity.id, "reveal")    # GM directive
         result = check_prologue_gates(session, entity.id, "") # awakening
         assert result is not None
-        assert "awaken" in result.lower() or "AWAKENING" in result
+        assert not result.is_gm_directive        # awakening is player-visible
+        assert "awaken" in result.text.lower() or "AWAKENING" in result.text
 
     def test_after_awakening_gates_open(self, session, entity):
         self._complete_interview(session, entity.id)
