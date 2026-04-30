@@ -39,13 +39,17 @@ The application routes player input through a 3-agent orchestration pipeline. Ea
 The application uses **SQLModel** (built on SQLAlchemy) for its data layer.
 
 ### Global & Economy Tables
-- **`GlobalConfig`**: Stores hard invariants (e.g., `TOTAL_UPRIGHT_ENERGY` at genesis).
-- **`TarotEntity`**: Any entity (player, NPC, the ROOT) that holds Tarot energy. Its `upright_energy` and `reversed_energy` are cached balances. *Never mutated directly.*
-- **`TarotTransaction`**: The absolute source of truth. An immutable, append-only ledger of every energy transfer.
-- **`TarotShard`**: Represents discrete arcana shards, linked via foreign key directly to the `TarotCardLore` that names and defines them.
+- **`GlobalConfig`**: Stores hard invariants (e.g., `TOTAL_UPRIGHT_CAPACITY` at genesis).
+- **`TarotEntity`**: Any entity (player, NPC, the ROOT) that holds Tarot energy. It implements a **Dual-Layer Economy**:
+  - **Capacity**: Permanent, zero-sum energy determining sovereignty.
+  - **Mana**: Spendable energy for spell casting. Regenerates lazily at 1 unit per minute.
+- **`TarotTransaction`**: The absolute source of truth. An immutable, append-only ledger of every capacity transfer.
+- **`TarotCardTransaction`**: Immutable ledger of Tarot card ownership transfers.
+- **`TarotShard`**: Represents discrete arcana shards, linked via foreign key directly to the `TarotCardLore` that names and defines them. Enforces a strict loadout of 1 Major and 2 Minor Arcana per entity.
+- **`TarotAbility`**: Spells or actions unlocked by holding specific Tarot cards. Includes strict categorical rules (`combat`, `utility`, `passive`) and structured parsing tags.
 
 ### Static Lore (Reference Data)
-- **`TarotCardLore`**: Static reference table for Tarot meanings and magical themes (e.g., upright/reversed meanings, magical manifestation, and personality archetypes). Seeded once and used dynamically as JIT context by the agents.
+- **`TarotCardLore`**: Static reference table for Tarot meanings and magical themes. The database is fully seeded with all 78 Tarot Cards (22 Major, 56 Minor including Court cards) and 30 integrated abilities.
 
 ### Narrative Tables
 - **`Location`**: Physical places in the world. Includes semantic state rules:
@@ -61,9 +65,11 @@ The application uses **SQLModel** (built on SQLAlchemy) for its data layer.
 
 ### `TarotService` (`app/db/service.py`)
 Handles all atomic interactions with the economy to ensure data integrity and prevent corruption.
-- **Conservation Law**: The total amount of energy in the system must remain constant. The service calculates total balances before and after operations to verify this.
-- **`mint_energy`**: Used *only* at genesis (bootstrapping the `ROOT` entity).
-- **`transfer_energy`**: The core mechanic used by the Arbiter. Atomically debits the sender, credits the receiver, and writes a `TarotTransaction` ledger entry. Uses strict `try/except` blocks with `session.rollback()` to prevent corrupted states on failure.
+- **Conservation Law**: Capacity is strictly conserved.
+- **Lazy Mana Regeneration**: Mana regenerates automatically (1 unit per minute) calculated instantly upon access, requiring no background loops.
+- **`transfer_energy`**: Atomically debits the sender, credits the receiver, and writes a ledger entry. Uses strict `try/except` blocks with `session.rollback()` to prevent corrupted states.
+- **`transfer_card`**: Handles transferring Tarot Shards, strictly enforcing the 1 Major / 2 Minor loadout limits.
+- **`cast_spell`**: Validates card ownership, applies lazy mana regeneration, and deducts the correct energy type cost for spell casting.
 
 ### JIT Context Builder (`app/db/context.py`)
 Prevents token-limit exhaustion by dynamically assembling context strings only for the active scene.
@@ -80,3 +86,21 @@ To enforce strict API boundaries, agents communicate via explicit Pydantic schem
 - **`PersonaSpeakRequest`**: The context passed from the GM to the Persona Agent (includes the character name, the situation, and recent dialogue history).
 - **`EnergyTransferRequest`**: A structured request representing a desired energy movement. (Currently, the GM sends a natural language instruction to the Arbiter, which the Arbiter's LLM translates into tool calls, but this schema structure is available for deeper programmatic integration).
 - **`ArbiterResult`**: What the Arbiter returns back to the GM (`success` bool, amounts transferred, and a human-readable `message` for the GM to weave into the final story).
+
+### `GameState` (Execution Flow)
+The engine strictly orchestrates interactions through a deterministic state machine to prevent hallucination and double-narration:
+1. **ACTIVE_ROLEPLAY**: Default state for exploration and GM narration.
+2. **NPC_INTERACTION**: Clean hand-off to the Persona Agent for character dialogue.
+3. **SYSTEM_INTERCEPT**: GM pauses when a mechanic or conflict is detected.
+4. **ARBITER_RESOLUTION**: Arbiter executes the strict rules and state mutations.
+5. **POST_RESOLUTION**: GM translates the Arbiter's outcomes back into narrative format.
+
+---
+
+## 5. Testing
+
+The core rules engine and service layer are backed by a comprehensive `pytest` suite testing all atomic operations, ensuring high reliability for:
+- Lazy Mana Regeneration logic
+- Atomic Energy and Card Transfers
+- Loadout Limit Enforcement
+- Spell Casting and Resource Deduction

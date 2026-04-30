@@ -23,8 +23,9 @@ def utcnow() -> datetime:
 _TOTAL_UPRIGHT_KEY = "TOTAL_UPRIGHT_CAPACITY"
 _TOTAL_REVERSED_KEY = "TOTAL_REVERSED_CAPACITY"
 
-# Mana regeneration: 1 unit per second, capped at entity's capacity
-_MANA_REGEN_RATE: float = 1.0
+# Mana regeneration: 1 unit per minute (out-of-combat), capped at capacity.
+# Lazy — calculated only on access, never in a background loop.
+_MANA_REGEN_RATE: float = 1.0  # units per second
 
 
 class TarotService:
@@ -54,7 +55,7 @@ class TarotService:
             last = last.replace(tzinfo=timezone.utc)
 
         delta_seconds = (now - last).total_seconds()
-        regen = int(delta_seconds * _MANA_REGEN_RATE)
+        regen = int(delta_seconds * _MANA_REGEN_RATE)  # 1 per minute = 0.01667/s
 
         if regen > 0:
             entity.current_upright_mana = min(
@@ -361,7 +362,14 @@ class TarotService:
                 TarotTransaction.to_entity_id == entity_id
             )
         ).all()
-        return sorted(set(sent) | set(received), key=lambda t: t.timestamp)
+        # Deduplicate by id (SQLModel objects are not hashable)
+        seen: set[int] = set()
+        combined = []
+        for tx in sent + received:
+            if tx.id not in seen:
+                seen.add(tx.id)
+                combined.append(tx)
+        return sorted(combined, key=lambda t: t.timestamp)
 
     def get_held_cards(self, session: Session, entity_id: int) -> list[dict]:
         """Return a list of held card summaries for context injection."""
