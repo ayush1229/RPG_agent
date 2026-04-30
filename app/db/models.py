@@ -1362,3 +1362,102 @@ class EventQuest(SQLModel, table=True):
     is_completed: bool = Field(default=False)
     is_abandoned: bool = Field(default=False)
     accepted_at: datetime = Field(default_factory=utcnow)
+
+
+# =============================================================
+# TIME / HOUSING / DREAMSCAPE SYSTEMS
+# =============================================================
+
+# Day/Night boundary hours (game-time)
+NIGHT_START_HOUR: int = 18   # 6 PM
+NIGHT_END_HOUR:   int = 6    # 6 AM
+
+# Night risk multiplier — applied to event spawn weights, combat scaling, ambush chance
+NIGHT_RISK_MULTIPLIER: float = 1.7
+
+# Default game-day length in real-world seconds
+DEFAULT_DAY_LENGTH_SECONDS: float = 24 * 60.0   # 24 real-minutes = 24 game-hours
+
+# Housing types
+HOUSING_TYPES = frozenset({"inn", "rented_room", "owned_house"})
+
+# Dreamscape entry base probability (per check)
+DREAM_BASE_CHANCE: float = 0.10   # 10%
+
+# Dreamscape location name (must be seeded / created)
+DREAMSCAPE_LOCATION_NAME: str = "The Dreamscape"
+
+
+# ---------------------------------------------------------
+# 42. WORLD TIME  (singleton — always id=1)
+# ---------------------------------------------------------
+class WorldTime(SQLModel, table=True):
+    """
+    Singleton row (id=1) that tracks the global game clock.
+
+    current_time : authoritative game-world datetime.
+    time_scale   : how many game-seconds pass per real-second.
+                   Default = 60 → 1 real-minute = 1 game-hour.
+    last_real_tick: wall-clock time of the last update (lazy-tick basis).
+
+    is_night() computed in service layer from current_time.hour.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: int = Field(default=1, primary_key=True)
+    current_time: datetime = Field(default_factory=utcnow)
+    time_scale: float = Field(default=60.0, gt=0)   # game-seconds per real-second
+    last_real_tick: datetime = Field(default_factory=utcnow)
+
+
+# ---------------------------------------------------------
+# 43. PLAYER HOUSING
+# ---------------------------------------------------------
+class PlayerHousing(SQLModel, table=True):
+    """
+    Active housing assignment for a player entity.
+    One row per entity; replaced on re-rent / purchase.
+
+    housing_type : "inn" | "rented_room" | "owned_house"
+    expires_at   : None for owned houses; set for inn/rental
+    is_inside    : True while player is physically inside (safe zone active)
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    entity_id: int = Field(foreign_key="tarotentity.id", unique=True, index=True)
+    location_id: int = Field(foreign_key="location.id")
+
+    housing_type: str = Field(default="inn")      # key in HOUSING_TYPES
+    is_safe_zone: bool = Field(default=True)
+    is_inside: bool = Field(default=False)
+
+    # None = permanent (owned); datetime = rental expiry
+    expires_at: Optional[datetime] = Field(default=None)
+    rented_at: datetime = Field(default_factory=utcnow)
+
+
+# ---------------------------------------------------------
+# 44. DREAM STATE
+# ---------------------------------------------------------
+class DreamState(SQLModel, table=True):
+    """
+    Per-entity Dreamscape progression.
+
+    has_unlocked      : True once the required main quest milestone is reached.
+    is_in_dreamscape  : True while player is inside the realm.
+    last_entered      : last entry datetime (rate-limit / cooldown check).
+    pre_dream_location_id: where to return the entity after dream exit.
+    dream_progress_flag: JSON dict for arbitrary narrative flags.
+    """
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    entity_id: int = Field(foreign_key="tarotentity.id", unique=True, index=True)
+
+    has_unlocked: bool = Field(default=False)
+    is_in_dreamscape: bool = Field(default=False)
+    last_entered: Optional[datetime] = Field(default=None)
+
+    pre_dream_location_id: Optional[int] = Field(default=None, foreign_key="location.id")
+    dream_progress_flag: str = Field(default="{}")   # JSON dict
