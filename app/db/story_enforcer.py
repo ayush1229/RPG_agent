@@ -146,23 +146,30 @@ Then transition naturally into the world: the void dissolves, the Awakening begi
 [The next system override will place the player in the physical world.]""".strip()
 
 
-_AWAKENING_SCRIPT = """
-[SYSTEM — AWAKENING TRIGGER]
+_AWAKENING_DIRECTIVE = """\
+[SYSTEM — GM INSTRUCTION: AWAKENING SCENE]
 
-You wake up. The void is gone. There is sunlight, cobblestones, noise.
-You are alive. In a city. The void feels like a dream.
+The void interview and card draw are complete. You must now transition the player
+into the physical world. Write this as an immersive, grounded scene — NOT mystical.
 
-You reach for a cup. It moves before you touch it.
+Setting: A small, worn room at the Broken Lantern Inn, Elaris Hollow.
+  - Morning light cuts through a cracked wooden shutter.
+  - Rough hewn walls. Smell of woodsmoke and damp straw.
+  - A clay cup on the bedside table. A threadbare wool blanket.
+  - Distant sounds of a waking market outside — calls, cart wheels, a dog barking.
 
-A market stall collapses nearby. People scatter. No one else seems to have noticed
-the faint shimmer of energy that passed through your hand a moment ago.
+What happens:
+  1. The player wakes. The void dream lingers, fading fast.
+  2. They reach for the cup. It slides a few inches on its own — just for a moment.
+     They blink. It is still. Did that happen?
+  3. DO NOT explain it. Let them wonder.
+  4. Outside the window, the market is starting. Something falls. Laughter. A bell.
+  5. End with an open prompt: the player must choose what to do first.
 
-Your first power has activated — accidentally.
-The cards you drew in the void hum quietly in your memory.
-
-The world is the same. But you are not.
-
-[Continue: describe what you do next.]
+Rules:
+  - Name the inn and the village. Make it feel like a REAL place with texture and smell.
+  - Do NOT mention cards, Arcana, the void, or any system names.
+  - 3-4 paragraphs max. Grounded. Curious. Real.
 """.strip()
 
 
@@ -301,7 +308,13 @@ def check_prologue_gates(
     if not flags.get("awakening_triggered", False):
         flags["awakening_triggered"] = True
         _save_flags(session, state, flags)
-        return PrologueOverride(_AWAKENING_SCRIPT)              # player-visible
+        # Kick off tutorial phase 1 (places entity in Elaris Hollow, phase 0→1)
+        try:
+            from app.db.tutorial_service import start_tutorial
+            start_tutorial(session, entity_id)
+        except Exception:
+            pass
+        return PrologueOverride(_AWAKENING_DIRECTIVE, is_gm_directive=True)
 
     return None  # All prologue gates passed -- GM may proceed
 

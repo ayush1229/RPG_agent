@@ -35,6 +35,7 @@ from app.agent.game_master import game_master
 from app.agent.persona import persona_agent
 from app.config import settings
 from app.contracts import PersonaSpeakRequest
+from app.llm_logger import SessionLLMLogger
 from app.db.database import create_db_and_tables, get_session, init_root
 from app.db.session_service import (
     build_agent_context,
@@ -50,6 +51,7 @@ from app.db.story_enforcer import (
     get_story_state,
     PrologueOverride,
 )
+from app.db.tutorial_service import build_tutorial_context
 from app.schemas import ChatMessage, Role
 
 _LOCATION_ID_KEY = "location_id"
@@ -161,17 +163,27 @@ async def on_message(message: cl.Message) -> None:
         return
 
     # -- GM-directive OR normal play: run full GM pipeline ------------------
-    # is_gm_directive=True  -> directive injected into narrate() invisibly
-    # prologue is None      -> normal gameplay
-    system_directive: Optional[str] = (
-        prologue.text if (prologue and prologue.is_gm_directive) else None
-    )
+    # Priority: prologue directive (card reveal / awakening) > tutorial context > None
+    with get_session() as session:
+        entity_id = cl.user_session.get("_entity_id_cache")
+        tutorial_ctx = build_tutorial_context(session, entity_id) if entity_id else ""
+
+    if prologue and prologue.is_gm_directive:
+        # Prologue directive takes priority; append tutorial phase if already started
+        system_directive = prologue.text + (f"\n\n{tutorial_ctx}" if tutorial_ctx else "")
+    elif tutorial_ctx:
+        # Normal play: tutorial enforcer directs the GM
+        system_directive = tutorial_ctx
+    else:
+        system_directive = None
 
     async with cl.Step(name="Reading the scene...", show_input=False) as step:
+        llm_logger = SessionLLMLogger(chat_session_id)
         decision = await game_master.analyze(
             message=message.content,
             history=history,
             location_id=location_id,
+            callbacks=[llm_logger],
         )
         step.output = (
             f"Needs Persona: {decision.needs_persona} "
@@ -219,6 +231,7 @@ async def on_message(message: cl.Message) -> None:
             arbiter_result=arbiter_result,
             location_id=location_id,
             system_directive=system_directive,
+            callbacks=[SessionLLMLogger(chat_session_id)],
         ):
             await reply_msg.stream_token(token)
     except Exception as e:

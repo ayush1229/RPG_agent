@@ -80,7 +80,8 @@ class TestPrologueGates:
         complete_card_draw(session, entity.id)
         result = check_prologue_gates(session, entity.id, "hello")
         assert result is not None
-        assert "awaken" in result.text.lower() or "AWAKENING" in result.text
+        assert result.is_gm_directive     # awakening is now a GM directive
+        assert "AWAKENING" in result.text or "Broken Lantern" in result.text
 
     def test_awakening_consumed_next_call_returns_none(self, session, entity):
         complete_interview(session, entity.id, alignment="balance")
@@ -228,8 +229,8 @@ class TestCardDrawGate:
         check_prologue_gates(session, entity.id, "reveal")    # GM directive
         result = check_prologue_gates(session, entity.id, "") # awakening
         assert result is not None
-        assert not result.is_gm_directive        # awakening is player-visible
-        assert "awaken" in result.text.lower() or "AWAKENING" in result.text
+        assert result.is_gm_directive     # awakening is now a GM directive
+        assert "AWAKENING" in result.text or "Broken Lantern" in result.text
 
     def test_after_awakening_gates_open(self, session, entity):
         self._complete_interview(session, entity.id)
