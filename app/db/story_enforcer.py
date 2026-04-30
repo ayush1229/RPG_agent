@@ -133,15 +133,16 @@ The player has completed the void interview. You must now reveal their three dra
 Player alignment tendency: {alignment}
 
 Rules for card selection:
-  • Major Arcana (core card): choose one that resonates with their alignment.
+  • You MUST select EXACTLY ONE Major Arcana (core card) that resonates with their alignment:
     - balance → prefer The High Priestess, The Star, Temperance, The World
     - order   → prefer The Emperor, Justice, The Hierophant, Strength
     - chaos   → prefer The Fool, The Tower, The Magician, The Moon
-  • Minor Arcana (two support cards): choose from Wands, Cups, Swords, Pentacles suits.
+  • You MUST select EXACTLY TWO Minor Arcana (support cards). These must be from the Wands, Cups, Swords, or Pentacles suits.
+  • CRITICAL: Do NOT select more than one Major Arcana. The second and third cards MUST be Minor Arcana.
 
-Narrate the reveal poetically. Name each card. Describe what the player feels as each turns face-up.
+Narrate the reveal poetically. Name each of the three cards. Describe what the player feels as each turns face-up.
 After the reveal, tell the player: "These cards are now yours. They hum in your memory."
-Then transition naturally into the world: the void dissolves, the Awakening begins.
+Then transition naturally into the physical world: the void dissolves, the Awakening begins.
 
 [The next system override will place the player in the physical world.]""".strip()
 
