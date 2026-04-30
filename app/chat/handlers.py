@@ -166,7 +166,28 @@ async def on_message(message: cl.Message) -> None:
     # Priority: prologue directive (card reveal / awakening) > tutorial context > None
     with get_session() as session:
         entity_id = cl.user_session.get("_entity_id_cache")
+        if entity_id:
+            from app.db.tutorial_service import get_tutorial_state, advance_phase
+            from app.db.models import TarotEntity
+            ts = get_tutorial_state(session, entity_id)
+            # Phase 1 (Awakening) is already handled by the awakening GM directive.
+            # Auto-advance to Phase 2 (First Interaction / Callum) immediately.
+            if ts.phase == 1:
+                advance_phase(session, entity_id)
+
         tutorial_ctx = build_tutorial_context(session, entity_id) if entity_id else ""
+
+        # Capture entity stats for the HUD footer (before session closes)
+        _ent = session.get(TarotEntity, entity_id) if entity_id else None
+        stats_footer = ""
+        if _ent:
+            stats_footer = (
+                f"\n\n---\n"
+                f"`⚔️ Lv.{_ent.level}` "
+                f"`❤️ {_ent.current_health} HP` "
+                f"`🔮 {_ent.current_upright_mana}/{_ent.upright_capacity} MP` "
+                f"`✨ {_ent.current_xp} XP`"
+            )
 
     if prologue and prologue.is_gm_directive:
         # Prologue directive takes priority; append tutorial phase if already started
@@ -244,6 +265,10 @@ async def on_message(message: cl.Message) -> None:
             await reply_msg.stream_token(token)
     except Exception as e:
         reply_msg.content = f"Narrative error: {e}"
+
+    # -- Append stats HUD footer -------------------------------------------
+    if stats_footer and reply_msg.content and not reply_msg.content.startswith("Narrative error"):
+        reply_msg.content += stats_footer
 
     await reply_msg.update()
 

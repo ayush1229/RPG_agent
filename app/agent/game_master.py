@@ -30,12 +30,17 @@ _ANALYSIS_SYSTEM = (
     "Respond with ONLY the JSON object. No markdown. No explanation."
 )
 
-# ─── Phase 3: Narrative prompt ────────────────────────────────────────────────
+# ─── Phase 3: Narrative prompt ──────────────────────────────────────────────────────
 _NARRATIVE_SYSTEM = (
     "You are an immersive RPG Game Master narrating outcomes vividly.\n"
     "Keep responses engaging and concise (2-4 paragraphs max).\n"
+    "Ground your narration in the physical world — real locations, real textures, real NPCs.\n"
+    "Do NOT invent locations, characters, or lore not present in the scene context.\n"
     "Do NOT invent energy values — use only what is provided in the context.\n"
-    "When a character uses magic, strictly align their abilities with their Tarot Magic Style."
+    "When a character uses magic, strictly align their abilities with their Tarot Magic Style.\n\n"
+    "CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY "
+    "SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. "
+    "Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete."
 )
 
 
@@ -96,7 +101,6 @@ class GameMasterAgent:
             ("system", _NARRATIVE_SYSTEM),
             MessagesPlaceholder("history"),
             ("human", (
-                "{directive_block}"
                 "SCENE CONTEXT:\n{scene_context}\n\n"
                 "Player action: {input}\n\n"
                 "Narrative intent: {narrative_intent}\n\n"
@@ -104,6 +108,10 @@ class GameMasterAgent:
                 "{arbiter_block}"
                 "Narrate the outcome now."
             )),
+            # Directive injected LAST as a system message = highest authority.
+            # Overrides conversation history patterns (e.g. void interview tone).
+            # Empty string when no directive is active.
+            ("system", "{directive_block}"),
         ])
         self._narrative_chain = self._narrative_prompt | self._llm_narrate
 
@@ -121,6 +129,7 @@ class GameMasterAgent:
         message: str,
         history: list[ChatMessage],
         location_id: Optional[int] = None,
+        callbacks: Optional[list] = None,
     ) -> GMDecision:
         """
         Parse player message into a structured GMDecision.
@@ -132,11 +141,14 @@ class GameMasterAgent:
             for m in history[-10:]
         )
         try:
-            result = await self._analysis_chain.ainvoke({
-                "input": message,
-                "history": history_text or "(start of session)",
-                "scene_context": scene_context or "(no active scene data)",
-            })
+            result = await self._analysis_chain.ainvoke(
+                {
+                    "input": message,
+                    "history": history_text or "(start of session)",
+                    "scene_context": scene_context or "(no active scene data)",
+                },
+                config={"callbacks": callbacks} if callbacks else None,
+            )
             return GMDecision(**result) if isinstance(result, dict) else result
         except Exception:
             return GMDecision(narrative_intent=message)
@@ -152,6 +164,7 @@ class GameMasterAgent:
         arbiter_result: Optional[ArbiterResult],
         location_id: Optional[int] = None,
         system_directive: Optional[str] = None,
+        callbacks: Optional[list] = None,
     ) -> AsyncIterator[str]:
         """Stream the final narrative, incorporating lore context + sub-agent results.
 
@@ -179,15 +192,18 @@ class GameMasterAgent:
         if system_directive:
             directive_block = f"{system_directive}\n\n"
 
-        async for chunk in self._narrative_chain.astream({
-            "input": message,
-            "history": lc_history,
-            "narrative_intent": decision.narrative_intent,
-            "scene_context": scene_context or "(no active scene data)",
-            "npc_block": npc_block,
-            "arbiter_block": arbiter_block,
-            "directive_block": directive_block,
-        }):
+        async for chunk in self._narrative_chain.astream(
+            {
+                "input": message,
+                "history": lc_history,
+                "narrative_intent": decision.narrative_intent,
+                "scene_context": scene_context or "(no active scene data)",
+                "npc_block": npc_block,
+                "arbiter_block": arbiter_block,
+                "directive_block": directive_block,
+            },
+            config={"callbacks": callbacks} if callbacks else None,
+        ):
             content = chunk.content
             if isinstance(content, str) and content:
                 yield content
