@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from sqlalchemy.orm import configure_mappers
 from sqlmodel import Session, create_engine, select
 
 from app.db.models import (
@@ -16,6 +17,12 @@ engine = create_engine(
     echo=False,
     connect_args={"check_same_thread": False},
 )
+
+# Force SQLAlchemy to resolve all deferred string Relationship() references
+# (e.g. "CharacterPersona" in TarotCardLore) immediately at import time.
+# Without this, the mapper configuration can fail on the first query if the
+# data layer is imported before all model classes have been scanned.
+configure_mappers()
 
 
 def create_db_and_tables() -> None:

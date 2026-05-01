@@ -46,6 +46,27 @@ def _utcnow_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _format_thread_name(first_message: Optional[str], timestamp: Optional[datetime]) -> str:
+    """
+    Build a sidebar-friendly session name:
+      "May 01 14:22 — first 40 chars of first user message"
+    Always includes a timestamp prefix so identical opening words don't collide.
+    """
+    if timestamp:
+        prefix = timestamp.strftime("%b %d %H:%M")
+    else:
+        prefix = datetime.now(timezone.utc).strftime("%b %d %H:%M")
+
+    snippet = ""
+    if first_message:
+        snippet = first_message.strip()[:40]
+        if len(first_message.strip()) > 40:
+            snippet += "…"
+
+    if snippet:
+        return f"{prefix} — {snippet}"
+    return prefix
+
 def _log_to_step(log_row: DialogueLog) -> dict:
     """Convert a DialogueLog row to a Chainlit StepDict-compatible dict."""
     step_type = "user_message" if log_row.role == "user" else "assistant_message"
@@ -160,7 +181,13 @@ class RPGDataLayer(BaseDataLayer):
             threads: list[ThreadDict] = []
             for sid in ordered_ids:
                 last_row = seen[sid]
-                # Use the first user message as the thread display name
+                # Find the first log of the session (not necessarily user) for the timestamp
+                first_log = session.exec(
+                    select(DialogueLog)
+                    .where(DialogueLog.chat_session_id == sid)
+                    .order_by(DialogueLog.timestamp.asc())  # type: ignore[union-attr]
+                    .limit(1)
+                ).first()
                 first_user = session.exec(
                     select(DialogueLog)
                     .where(DialogueLog.chat_session_id == sid)
@@ -168,10 +195,11 @@ class RPGDataLayer(BaseDataLayer):
                     .order_by(DialogueLog.timestamp.asc())  # type: ignore[union-attr]
                     .limit(1)
                 ).first()
-                raw_name = (
-                    first_user.message[:60] if first_user and first_user.message else sid[:16]
+                session_start = first_log.timestamp if first_log else None
+                name = _format_thread_name(
+                    first_user.message if first_user else None,
+                    session_start,
                 )
-                name = raw_name.strip() or sid[:16]
 
                 threads.append(
                     ThreadDict(
@@ -207,8 +235,11 @@ class RPGDataLayer(BaseDataLayer):
             user_id = logs[0].user_id
             steps = [_log_to_step(row) for row in logs]
 
-            first_user = next((r for r in logs if r.role == "user"), logs[0])
-            name = (first_user.message[:60] if first_user.message else thread_id[:16]).strip()
+            first_user = next((r for r in logs if r.role == "user"), None)
+            name = _format_thread_name(
+                first_user.message if first_user else None,
+                logs[0].timestamp,
+            )
 
             return ThreadDict(
                 id=thread_id,
