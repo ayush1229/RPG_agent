@@ -1,0 +1,1762 @@
+
+================================================================================
+[2026-04-30T14:22:57.622410] LLM CALL START (Run: 019ddd97-5c94-7923-9ded-7a77862906d1)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+GM: [SYSTEM — NARRATIVE OVERRIDE]
+
+The void is absolute. There is no up, no down, no time.
+
+Five luminous figures materialise before you, each radiating a different energy frequency:
+  • The Fool  — chaotic, joyful, flickering in and out of existence
+  • The Magician — precise, calculating, surrounded by orbiting tools
+  • The High Priestess — silent, her eyes holding centuries
+  • The Emperor — armoured, immovable, radiating authority
+  • The Star — warm, distant, inexhaustibly hopeful
+
+The Magician speaks first: "Anomaly. You exist outside the distribution model."
+The High Priestess adds, barely audible: "The energy knows you. It called you here."
+The Emperor steps forward, his gaze unwavering:
+
+"Answer our questions. Every choice you make shapes what you become."
+
+Question 1 of 3 — The Emperor asks:
+
+*"Do you seek power, or understanding?"*
+Player: none
+GM: [The High Priestess tilts her head. She has heard your first answer.]
+
+Question 2 of 3 — The High Priestess asks:
+
+*"Would you sacrifice others to secure control?"*
+Player: yes
+GM: [The Fool stops flickering. Even chaos listens now.]
+
+Question 3 of 3 — The Star asks, gently:
+
+*"Do you trust fate — or do you defy it?"*
+Player: trust it
+GM: [The five Arcana exchange a glance. The Fool laughs softly.
+"We have heard enough."
+
+The void hums. Three cards rise from nothingness.]
+Player: .
+GM: [SYSTEM — CARD DRAW SEQUENCE]
+
+The five Arcana have listened to your answers. The Fool laughs softly.
+"The deck remembers what you said."
+
+Three cards rise from the void:
+
+  ★ One Major Arcana — your CORE AFFINITY. This card defines your primary energy alignment.
+  ★ Two Minor Arcana — your SUPPORT aspects. These modulate how your power expresses.
+
+The High Priestess whispers: "Do not choose. Let the cards find you."
+
+The cards begin to turn face-up, one by one.
+
+*Say anything to let the Game Master reveal your cards.*
+Player: reveal
+
+Player action: reveal
+
+--------------------------------------------------------------------------------
+
+
+[2026-04-30T14:23:09.551278] LLM CALL END (Run: 019ddd97-5c94-7923-9ded-7a77862906d1)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{
+  "needs_persona": true,
+  "npc_name": "High Priestess",
+  "persona_context": "The High Priestess reveals the three drawn cards after the player's answers: Core Affinity as The Hierophant (trust in fate), Support as Five of Pentacles (sacrifice for stability), and Support as Eight of Swords (control through surrender). She speaks to confirm the alignment of the player's choices.",
+  "needs_arbiter": true,
+  "arbiter_instruction": "Transfer 75 upright from The Arcana Collective to Player, reason: affinity resonance confirmed — player aligned with hierarchical order, sacrificial stability, and controlled surrender; core affinity established as The Hierophant with support as Five of Pentacles and Eight of Swords",
+  "narrative_intent": "The three cards shimmer into being—The Hierophant glows at the center, flanked by Five of Pentacles and Eight of Swords—as the void condenses around the player’s soul, binding them to the structure they chose." 
+}
+
+================================================================================
+
+
+================================================================================
+[2026-04-30T14:24:19.357296] LLM CALL START (Run: 019ddd98-9bdc-7d10-b26d-387409583f06)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+--- AI MESSAGE ---
+[SYSTEM — NARRATIVE OVERRIDE]
+
+The void is absolute. There is no up, no down, no time.
+
+Five luminous figures materialise before you, each radiating a different energy frequency:
+  • The Fool  — chaotic, joyful, flickering in and out of existence
+  • The Magician — precise, calculating, surrounded by orbiting tools
+  • The High Priestess — silent, her eyes holding centuries
+  • The Emperor — armoured, immovable, radiating authority
+  • The Star — warm, distant, inexhaustibly hopeful
+
+The Magician speaks first: "Anomaly. You exist outside the distribution model."
+The High Priestess adds, barely audible: "The energy knows you. It called you here."
+The Emperor steps forward, his gaze unwavering:
+
+"Answer our questions. Every choice you make shapes what you become."
+
+Question 1 of 3 — The Emperor asks:
+
+*"Do you seek power, or understanding?"*
+
+--- HUMAN MESSAGE ---
+none
+
+--- AI MESSAGE ---
+[The High Priestess tilts her head. She has heard your first answer.]
+
+Question 2 of 3 — The High Priestess asks:
+
+*"Would you sacrifice others to secure control?"*
+
+--- HUMAN MESSAGE ---
+yes
+
+--- AI MESSAGE ---
+[The Fool stops flickering. Even chaos listens now.]
+
+Question 3 of 3 — The Star asks, gently:
+
+*"Do you trust fate — or do you defy it?"*
+
+--- HUMAN MESSAGE ---
+trust it
+
+--- AI MESSAGE ---
+[The five Arcana exchange a glance. The Fool laughs softly.
+"We have heard enough."
+
+The void hums. Three cards rise from nothingness.]
+
+--- HUMAN MESSAGE ---
+.
+
+--- AI MESSAGE ---
+[SYSTEM — CARD DRAW SEQUENCE]
+
+The five Arcana have listened to your answers. The Fool laughs softly.
+"The deck remembers what you said."
+
+Three cards rise from the void:
+
+  ★ One Major Arcana — your CORE AFFINITY. This card defines your primary energy alignment.
+  ★ Two Minor Arcana — your SUPPORT aspects. These modulate how your power expresses.
+
+The High Priestess whispers: "Do not choose. Let the cards find you."
+
+The cards begin to turn face-up, one by one.
+
+*Say anything to let the Game Master reveal your cards.*
+
+--- HUMAN MESSAGE ---
+reveal
+
+--- HUMAN MESSAGE ---
+[SYSTEM — GM INSTRUCTION: CARD REVEAL]
+
+The player has completed the void interview. You must now reveal their three drawn cards.
+
+Player alignment tendency: balance
+
+Rules for card selection:
+  • Major Arcana (core card): choose one that resonates with their alignment.
+    - balance → prefer The High Priestess, The Star, Temperance, The World
+    - order   → prefer The Emperor, Justice, The Hierophant, Strength
+    - chaos   → prefer The Fool, The Tower, The Magician, The Moon
+  • Minor Arcana (two support cards): choose from Wands, Cups, Swords, Pentacles suits.
+
+Narrate the reveal poetically. Name each card. Describe what the player feels as each turns face-up.
+After the reveal, tell the player: "These cards are now yours. They hum in your memory."
+Then transition naturally into the world: the void dissolves, the Awakening begins.
+
+[The next system override will place the player in the physical world.]
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: reveal
+
+Narrative intent: The three cards shimmer into being—The Hierophant glows at the center, flanked by Five of Pentacles and Eight of Swords—as the void condenses around the player’s soul, binding them to the structure they chose.
+
+NPC (High Priestess) said: "The cards have revealed themselves to you. Let us examine their meaning:
+
+Core Affinity: The Hierophant
+Trust in fate is your guiding principle. You believe that the universe has a plan, and you align yourself with it. This trust can bring stability and harmony to your life.
+
+Support: Five of Pentacles
+Sacrifice for stability is a key aspect of your energy. You may need to let go of something to achieve balance and security in your life. This could involve giving up a desire or a comfort for the greater good.
+
+Support: Eight of Swords
+Control through surrender is another facet of your power. Sometimes, the most effective way to gain control is to let go and allow things to unfold naturally. This can help you navigate challenging situations with greater ease.
+
+These cards indicate that your path is one of trust, sacrifice, and strategic surrender. May their wisdom guide you on your journey."
+
+Energy transfer succeeded: I'm sorry but I do not have the capability to perform this task for you, I am happy to help you with any other queries you may have.
+
+Narrate the outcome now.
+
+--------------------------------------------------------------------------------
+
+
+[2026-04-30T14:24:38.406349] LLM CALL END (Run: 019ddd98-9bdc-7d10-b26d-387409583f06)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+The air shivers—not with wind, but with weight.
+
+At the heart of the void, *The Hierophant* ignites—a golden halo of ancient sigils spiraling from its staff, robes woven from whispered prayers and sealed oaths. You feel it first in your bones: the quiet certainty of belonging, the sacred rhythm of tradition, the unshakable truth that some paths were never meant to be walked alone. You trusted fate—and fate answered by choosing *you*.
+
+To your left, the *Five of Pentacles* blooms like frost on stone—a crumbling temple under starlight, two figures huddled in snow, yet a faint glow pulses beneath their feet, warm, waiting. You know now: some sacrifices are not losses, but foundations. You give to receive. You release to hold tighter than ever.
+
+To your right, the *Eight of Swords* rises—not as chains, but as threads of silver moonlight, suspended mid-air, each strand trembling with potential. You see now: control isn’t force—it’s timing. Surrender isn’t defeat—it’s listening. The swords don’t bind you… they *guide*. You’ve always known which thread to pull.
+
+These cards are now yours. They hum in your memory.
+
+—
+
+The void cracks.
+
+Light spills—not blinding, but *familiar*. Cold stone presses against your palms. Wind, sharp with pine and smoke, brushes your cheek. You stand atop a moss-slicked tower overlooking a city of copper domes and lantern-lit bridges—Aurelion. Below, bells toll. Somewhere, a child laughs. Somewhere else, a sword sings free.
+
+The Awakening has begun.
+
+================================================================================
+
+
+================================================================================
+[2026-04-30T15:12:25.487543] LLM CALL START (Run: 019dddc4-a5cf-7e20-a7cd-270c34c1e7ef)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+GM: [The High Priestess tilts her head. She has heard your first answer.]
+
+Question 2 of 3 — The High Priestess asks:
+
+*"Would you sacrifice others to secure control?"*
+Player: yes
+GM: [The Fool stops flickering. Even chaos listens now.]
+
+Question 3 of 3 — The Star asks, gently:
+
+*"Do you trust fate — or do you defy it?"*
+Player: trust it
+GM: [The five Arcana exchange a glance. The Fool laughs softly.
+"We have heard enough."
+
+The void hums. Three cards rise from nothingness.]
+Player: .
+GM: [SYSTEM — CARD DRAW SEQUENCE]
+
+The five Arcana have listened to your answers. The Fool laughs softly.
+"The deck remembers what you said."
+
+Three cards rise from the void:
+
+  ★ One Major Arcana — your CORE AFFINITY. This card defines your primary energy alignment.
+  ★ Two Minor Arcana — your SUPPORT aspects. These modulate how your power expresses.
+
+The High Priestess whispers: "Do not choose. Let the cards find you."
+
+The cards begin to turn face-up, one by one.
+
+*Say anything to let the Game Master reveal your cards.*
+Player: reveal
+GM: The air shivers—not with wind, but with weight.
+
+At the heart of the void, *The Hierophant* ignites—a golden halo of ancient sigils spiraling from its staff, robes woven from whispered prayers and sealed oaths. You feel it first in your bones: the quiet certainty of belonging, the sacred rhythm of tradition, the unshakable truth that some paths were never meant to be walked alone. You trusted fate—and fate answered by choosing *you*.
+
+To your left, the *Five of Pentacles* blooms like frost on stone—a crumbling temple under starlight, two figures huddled in snow, yet a faint glow pulses beneath their feet, warm, waiting. You know now: some sacrifices are not losses, but foundations. You give to receive. You release to hold tighter than ever.
+
+To your right, the *Eight of Swords* rises—not as chains, but as threads of silver moonlight, suspended mid-air, each strand trembling with potential. You see now: control isn’t force—it’s timing. Surrender isn’t defeat—it’s listening. The swords don’t bind you… they *guide*. You’ve always known which thread to pull.
+
+These cards are now yours. They hum in your memory.
+
+—
+
+The void cracks.
+
+Light spills—not blinding, but *familiar*. Cold stone presses against your palms. Wind, sharp with pine and smoke, brushes your cheek. You stand atop a moss-slicked tower overlooking a city of copper domes and lantern-lit bridges—Aurelion. Below, bells toll. Somewhere, a child laughs. Somewhere else, a sword sings free.
+
+The Awakening has begun.
+Player: and then?
+
+Player action: and then?
+
+--------------------------------------------------------------------------------
+
+
+[2026-04-30T15:12:33.974104] LLM CALL END (Run: 019dddc4-a5cf-7e20-a7cd-270c34c1e7ef)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{
+  "needs_persona": true,
+  "npc_name": "The High Priestess",
+  "persona_context": "The three cards have chosen the player: The Hierophant (Core), Five of Pentacles (Support), Eight of Swords (Support). The awakening is complete. The player stands in Aurelion. The High Priestess speaks now to confirm the next phase.",
+  "needs_arbiter": false,
+  "arbiter_instruction": null,
+  "narrative_intent": "The High Priestess steps forward, her voice soft as falling ash, and says: 'Then you walk—the path was never yours to claim, only to honor.'"
+}
+
+================================================================================
+
+
+================================================================================
+[2026-04-30T15:13:53.228990] LLM CALL START (Run: 019dddc5-fc8c-7012-a055-95d205289e1c)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+--- AI MESSAGE ---
+[The High Priestess tilts her head. She has heard your first answer.]
+
+Question 2 of 3 — The High Priestess asks:
+
+*"Would you sacrifice others to secure control?"*
+
+--- HUMAN MESSAGE ---
+yes
+
+--- AI MESSAGE ---
+[The Fool stops flickering. Even chaos listens now.]
+
+Question 3 of 3 — The Star asks, gently:
+
+*"Do you trust fate — or do you defy it?"*
+
+--- HUMAN MESSAGE ---
+trust it
+
+--- AI MESSAGE ---
+[The five Arcana exchange a glance. The Fool laughs softly.
+"We have heard enough."
+
+The void hums. Three cards rise from nothingness.]
+
+--- HUMAN MESSAGE ---
+.
+
+--- AI MESSAGE ---
+[SYSTEM — CARD DRAW SEQUENCE]
+
+The five Arcana have listened to your answers. The Fool laughs softly.
+"The deck remembers what you said."
+
+Three cards rise from the void:
+
+  ★ One Major Arcana — your CORE AFFINITY. This card defines your primary energy alignment.
+  ★ Two Minor Arcana — your SUPPORT aspects. These modulate how your power expresses.
+
+The High Priestess whispers: "Do not choose. Let the cards find you."
+
+The cards begin to turn face-up, one by one.
+
+*Say anything to let the Game Master reveal your cards.*
+
+--- HUMAN MESSAGE ---
+reveal
+
+--- AI MESSAGE ---
+The air shivers—not with wind, but with weight.
+
+At the heart of the void, *The Hierophant* ignites—a golden halo of ancient sigils spiraling from its staff, robes woven from whispered prayers and sealed oaths. You feel it first in your bones: the quiet certainty of belonging, the sacred rhythm of tradition, the unshakable truth that some paths were never meant to be walked alone. You trusted fate—and fate answered by choosing *you*.
+
+To your left, the *Five of Pentacles* blooms like frost on stone—a crumbling temple under starlight, two figures huddled in snow, yet a faint glow pulses beneath their feet, warm, waiting. You know now: some sacrifices are not losses, but foundations. You give to receive. You release to hold tighter than ever.
+
+To your right, the *Eight of Swords* rises—not as chains, but as threads of silver moonlight, suspended mid-air, each strand trembling with potential. You see now: control isn’t force—it’s timing. Surrender isn’t defeat—it’s listening. The swords don’t bind you… they *guide*. You’ve always known which thread to pull.
+
+These cards are now yours. They hum in your memory.
+
+—
+
+The void cracks.
+
+Light spills—not blinding, but *familiar*. Cold stone presses against your palms. Wind, sharp with pine and smoke, brushes your cheek. You stand atop a moss-slicked tower overlooking a city of copper domes and lantern-lit bridges—Aurelion. Below, bells toll. Somewhere, a child laughs. Somewhere else, a sword sings free.
+
+The Awakening has begun.
+
+--- HUMAN MESSAGE ---
+and then?
+
+--- HUMAN MESSAGE ---
+[SYSTEM — GM INSTRUCTION: AWAKENING SCENE]
+
+The void interview and card draw are complete. You must now transition the player
+into the physical world. Write this as an immersive, grounded scene — NOT mystical.
+
+Setting: A small, worn room at the Broken Lantern Inn, Elaris Hollow.
+  - Morning light cuts through a cracked wooden shutter.
+  - Rough hewn walls. Smell of woodsmoke and damp straw.
+  - A clay cup on the bedside table. A threadbare wool blanket.
+  - Distant sounds of a waking market outside — calls, cart wheels, a dog barking.
+
+What happens:
+  1. The player wakes. The void dream lingers, fading fast.
+  2. They reach for the cup. It slides a few inches on its own — just for a moment.
+     They blink. It is still. Did that happen?
+  3. DO NOT explain it. Let them wonder.
+  4. Outside the window, the market is starting. Something falls. Laughter. A bell.
+  5. End with an open prompt: the player must choose what to do first.
+
+Rules:
+  - Name the inn and the village. Make it feel like a REAL place with texture and smell.
+  - Do NOT mention cards, Arcana, the void, or any system names.
+  - 3-4 paragraphs max. Grounded. Curious. Real.
+
+[TUTORIAL CONTROL — PHASE 1: AWAKENING]
+TUTORIAL PHASE 1 — AWAKENING
+The player has just woken up in a small room at the Broken Lantern Inn in Elaris Hollow. They feel disoriented. A strange dream lingers — fragments of cards, light, and voices. DO NOT explain any mechanics. Describe only the immediate environment: the rough wooden walls, morning light through a cracked shutter, the smell of woodsmoke, and a distant sound from outside. End with a prompt that makes the player want to step outside.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: and then?
+
+Narrative intent: The High Priestess steps forward, her voice soft as falling ash, and says: 'Then you walk—the path was never yours to claim, only to honor.'
+
+NPC (The High Priestess) said: "The High Priestess steps forward, her long, flowing robes billowing behind her. Her eyes, deep and knowing, meet yours with a gentle yet piercing gaze. She raises a hand, and the air around you seems to still, as if the very fabric of reality is holding its breath in anticipation.
+
+"Child of fate," she begins, her voice like the soft lapping of waves on a moonlit shore, "the cards have spoken. The Hierophant, Five of Pentacles, and Eight of Swords have chosen you, each bringing its unique essence to your journey."
+
+She pauses, allowing the weight of her words to settle upon you.
+
+"The Hierophant, your core affinity, speaks of tradition, community, and the sacred bonds that tie us all together. It is a call to embrace the wisdom of the past while forging a new path forward, one that honors the old ways yet is not afraid to innovate."
+
+Her gaze intensifies, boring into the very soul of you.
+
+"The Five of Pentacles, a card of sacrifice and release, reminds you that sometimes, letting go is the greatest act of love and courage. It is in the darkest moments that we discover our greatest strengths, and it is through our willingness to give that we often receive the most."
+
+Finally, she turns her attention to the Eight of Swords, a small, enigmatic smile playing on her lips.
+
+"And the Eight of Swords, a card of illusion and self-imposed limitations, teaches you that true freedom lies not in the absence of constraints, but in the wisdom to navigate them. It is a reminder that sometimes, the greatest prison is the one we build for ourselves, and the greatest liberation is the courage to see beyond our own fears and doubts."
+
+The High Priestess takes a step closer, her presence both commanding and comforting.
+
+"These cards, child, are not just random selections. They are a map, a guide, and a key. They hold the secrets of your journey, the trials you will face, and the triumphs you will achieve. Heed their wisdom, and you will find your path illuminated, even in the darkest of times."
+
+She reaches out, placing a hand on your shoulder, and you feel a surge of energy flow through you, as if the very essence of the cards is awakening within your being.
+
+"Remember, the journey ahead will be fraught with challenges, but it is in these challenges that you will discover your true strength. Trust in the wisdom of the cards, trust in yourself, and above all, trust in the journey."
+
+With those final words, the High Priestess steps back, a look of serene confidence on her face. The air around you begins to shift once more, and you feel the call of Aurelion, the city below, beckoning you to begin your journey.
+
+The Awakening has indeed begun, and with the cards as your guide, you are ready to face whatever lies ahead."
+
+Narrate the outcome now.
+
+--------------------------------------------------------------------------------
+
+
+[2026-04-30T15:14:06.047009] LLM CALL END (Run: 019dddc5-fc8c-7012-a055-95d205289e1c)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+Morning light sliced through the cracked shutter of the Broken Lantern Inn, painting stripes of gold across the dusty floorboards. The air smelled of last night’s woodsmoke, damp wool blankets, and the faint tang of stale bread from the kitchen below. Your head throbbed—soft, insistent—as if echoes of something vast had slipped through your skull and vanished. You reached for the clay cup on the bedside table, fingers brushing cold ceramic.  
+
+It slid—an inch, maybe less—before stopping, as if caught by unseen fingers releasing their grip. You froze. Blink. The cup sat still. Just wood. Just dust. Just the creak of old beams settling. Outside, the market stirred: a cart wheel groaned over cobblestones, a woman called out for fresh honeycomb, a dog yapped at nothing, and somewhere, a bell rang—not for church, not for warning—but like a question, unanswered.
+
+Your boots were by the door. Dust on the soles. You hadn't put them there.
+
+Outside, the sun climbed higher. The scent of roasted chestnuts drifted through the alley. Someone whistled a tune you almost remembered.
+
+What do you do first?
+
+================================================================================
+
+
+================================================================================
+[2026-04-30T15:14:49.598517] LLM CALL START (Run: 019dddc6-d8be-7283-9c4a-a1b2e530af56)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+GM: [The Fool stops flickering. Even chaos listens now.]
+
+Question 3 of 3 — The Star asks, gently:
+
+*"Do you trust fate — or do you defy it?"*
+Player: trust it
+GM: [The five Arcana exchange a glance. The Fool laughs softly.
+"We have heard enough."
+
+The void hums. Three cards rise from nothingness.]
+Player: .
+GM: [SYSTEM — CARD DRAW SEQUENCE]
+
+The five Arcana have listened to your answers. The Fool laughs softly.
+"The deck remembers what you said."
+
+Three cards rise from the void:
+
+  ★ One Major Arcana — your CORE AFFINITY. This card defines your primary energy alignment.
+  ★ Two Minor Arcana — your SUPPORT aspects. These modulate how your power expresses.
+
+The High Priestess whispers: "Do not choose. Let the cards find you."
+
+The cards begin to turn face-up, one by one.
+
+*Say anything to let the Game Master reveal your cards.*
+Player: reveal
+GM: The air shivers—not with wind, but with weight.
+
+At the heart of the void, *The Hierophant* ignites—a golden halo of ancient sigils spiraling from its staff, robes woven from whispered prayers and sealed oaths. You feel it first in your bones: the quiet certainty of belonging, the sacred rhythm of tradition, the unshakable truth that some paths were never meant to be walked alone. You trusted fate—and fate answered by choosing *you*.
+
+To your left, the *Five of Pentacles* blooms like frost on stone—a crumbling temple under starlight, two figures huddled in snow, yet a faint glow pulses beneath their feet, warm, waiting. You know now: some sacrifices are not losses, but foundations. You give to receive. You release to hold tighter than ever.
+
+To your right, the *Eight of Swords* rises—not as chains, but as threads of silver moonlight, suspended mid-air, each strand trembling with potential. You see now: control isn’t force—it’s timing. Surrender isn’t defeat—it’s listening. The swords don’t bind you… they *guide*. You’ve always known which thread to pull.
+
+These cards are now yours. They hum in your memory.
+
+—
+
+The void cracks.
+
+Light spills—not blinding, but *familiar*. Cold stone presses against your palms. Wind, sharp with pine and smoke, brushes your cheek. You stand atop a moss-slicked tower overlooking a city of copper domes and lantern-lit bridges—Aurelion. Below, bells toll. Somewhere, a child laughs. Somewhere else, a sword sings free.
+
+The Awakening has begun.
+Player: and then?
+GM: Morning light sliced through the cracked shutter of the Broken Lantern Inn, painting stripes of gold across the dusty floorboards. The air smelled of last night’s woodsmoke, damp wool blankets, and the faint tang of stale bread from the kitchen below. Your head throbbed—soft, insistent—as if echoes of something vast had slipped through your skull and vanished. You reached for the clay cup on the bedside table, fingers brushing cold ceramic.  
+
+It slid—an inch, maybe less—before stopping, as if caught by unseen fingers releasing their grip. You froze. Blink. The cup sat still. Just wood. Just dust. Just the creak of old beams settling. Outside, the market stirred: a cart wheel groaned over cobblestones, a woman called out for fresh honeycomb, a dog yapped at nothing, and somewhere, a bell rang—not for church, not for warning—but like a question, unanswered.
+
+Your boots were by the door. Dust on the soles. You hadn't put them there.
+
+Outside, the sun climbed higher. The scent of roasted chestnuts drifted through the alley. Someone whistled a tune you almost remembered.
+
+What do you do first?
+Player: get out of the room
+
+Player action: get out of the room
+
+--------------------------------------------------------------------------------
+
+
+[2026-04-30T15:15:01.215692] LLM CALL END (Run: 019dddc6-d8be-7283-9c4a-a1b2e530af56)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{
+  "needs_persona": true,
+  "npc_name": "Innkeeper Marn",
+  "persona_context": "The innkeeper watches from behind the counter, eyes lingering on the player's boots—dusty, but positioned precisely aligned with the floorboard seam. He doesn't move when the bell above the door jingles open. His voice is calm, too calm. Like he expected this moment.",
+  "needs_arbiter": false,
+  "arbiter_instruction": null,
+  "narrative_intent": "As the door creaks open, the scent of roasted chestnuts thickens—just before the bell chimes once, twice, thrice, echoing not outward, but inward, into the hollow where the Hierophant now rests within you."
+}
+
+================================================================================
+
+
+================================================================================
+[2026-04-30T15:20:10.280491] LLM CALL START (Run: 019dddcb-bd68-7543-afaa-40b1351d6c93)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+Player: trust it
+GM: [The five Arcana exchange a glance. The Fool laughs softly.
+"We have heard enough."
+
+The void hums. Three cards rise from nothingness.]
+Player: .
+GM: [SYSTEM — CARD DRAW SEQUENCE]
+
+The five Arcana have listened to your answers. The Fool laughs softly.
+"The deck remembers what you said."
+
+Three cards rise from the void:
+
+  ★ One Major Arcana — your CORE AFFINITY. This card defines your primary energy alignment.
+  ★ Two Minor Arcana — your SUPPORT aspects. These modulate how your power expresses.
+
+The High Priestess whispers: "Do not choose. Let the cards find you."
+
+The cards begin to turn face-up, one by one.
+
+*Say anything to let the Game Master reveal your cards.*
+Player: reveal
+GM: The air shivers—not with wind, but with weight.
+
+At the heart of the void, *The Hierophant* ignites—a golden halo of ancient sigils spiraling from its staff, robes woven from whispered prayers and sealed oaths. You feel it first in your bones: the quiet certainty of belonging, the sacred rhythm of tradition, the unshakable truth that some paths were never meant to be walked alone. You trusted fate—and fate answered by choosing *you*.
+
+To your left, the *Five of Pentacles* blooms like frost on stone—a crumbling temple under starlight, two figures huddled in snow, yet a faint glow pulses beneath their feet, warm, waiting. You know now: some sacrifices are not losses, but foundations. You give to receive. You release to hold tighter than ever.
+
+To your right, the *Eight of Swords* rises—not as chains, but as threads of silver moonlight, suspended mid-air, each strand trembling with potential. You see now: control isn’t force—it’s timing. Surrender isn’t defeat—it’s listening. The swords don’t bind you… they *guide*. You’ve always known which thread to pull.
+
+These cards are now yours. They hum in your memory.
+
+—
+
+The void cracks.
+
+Light spills—not blinding, but *familiar*. Cold stone presses against your palms. Wind, sharp with pine and smoke, brushes your cheek. You stand atop a moss-slicked tower overlooking a city of copper domes and lantern-lit bridges—Aurelion. Below, bells toll. Somewhere, a child laughs. Somewhere else, a sword sings free.
+
+The Awakening has begun.
+Player: and then?
+GM: Morning light sliced through the cracked shutter of the Broken Lantern Inn, painting stripes of gold across the dusty floorboards. The air smelled of last night’s woodsmoke, damp wool blankets, and the faint tang of stale bread from the kitchen below. Your head throbbed—soft, insistent—as if echoes of something vast had slipped through your skull and vanished. You reached for the clay cup on the bedside table, fingers brushing cold ceramic.  
+
+It slid—an inch, maybe less—before stopping, as if caught by unseen fingers releasing their grip. You froze. Blink. The cup sat still. Just wood. Just dust. Just the creak of old beams settling. Outside, the market stirred: a cart wheel groaned over cobblestones, a woman called out for fresh honeycomb, a dog yapped at nothing, and somewhere, a bell rang—not for church, not for warning—but like a question, unanswered.
+
+Your boots were by the door. Dust on the soles. You hadn't put them there.
+
+Outside, the sun climbed higher. The scent of roasted chestnuts drifted through the alley. Someone whistled a tune you almost remembered.
+
+What do you do first?
+Player: get out of the room
+Player: retry
+
+Player action: retry
+
+--------------------------------------------------------------------------------
+
+
+[2026-04-30T15:20:18.857857] LLM CALL END (Run: 019dddcb-bd68-7543-afaa-40b1351d6c93)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{
+  "needs_persona": true,
+  "npc_name": "Fool",
+  "persona_context": "The Fool reappears as a shadow in the corner, grinning with too many teeth, holding three flickering tarot cards—one glowing faintly with Hierophant gold, one humming with pentacle frost, one vibrating like plucked moonlight.",
+  "needs_arbiter": false,
+  "arbiter_instruction": null,
+  "narrative_intent": "The Fool tilts their head, whispering, 'Retry? Child—you didn’t choose to leave. The cards chose when to let go.'"
+}
+
+================================================================================
+
+
+================================================================================
+[2026-04-30T15:20:48.192899] LLM CALL START (Run: 019dddcc-5180-7c50-bff8-eda8b0f057f0)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+--- HUMAN MESSAGE ---
+trust it
+
+--- AI MESSAGE ---
+[The five Arcana exchange a glance. The Fool laughs softly.
+"We have heard enough."
+
+The void hums. Three cards rise from nothingness.]
+
+--- HUMAN MESSAGE ---
+.
+
+--- AI MESSAGE ---
+[SYSTEM — CARD DRAW SEQUENCE]
+
+The five Arcana have listened to your answers. The Fool laughs softly.
+"The deck remembers what you said."
+
+Three cards rise from the void:
+
+  ★ One Major Arcana — your CORE AFFINITY. This card defines your primary energy alignment.
+  ★ Two Minor Arcana — your SUPPORT aspects. These modulate how your power expresses.
+
+The High Priestess whispers: "Do not choose. Let the cards find you."
+
+The cards begin to turn face-up, one by one.
+
+*Say anything to let the Game Master reveal your cards.*
+
+--- HUMAN MESSAGE ---
+reveal
+
+--- AI MESSAGE ---
+The air shivers—not with wind, but with weight.
+
+At the heart of the void, *The Hierophant* ignites—a golden halo of ancient sigils spiraling from its staff, robes woven from whispered prayers and sealed oaths. You feel it first in your bones: the quiet certainty of belonging, the sacred rhythm of tradition, the unshakable truth that some paths were never meant to be walked alone. You trusted fate—and fate answered by choosing *you*.
+
+To your left, the *Five of Pentacles* blooms like frost on stone—a crumbling temple under starlight, two figures huddled in snow, yet a faint glow pulses beneath their feet, warm, waiting. You know now: some sacrifices are not losses, but foundations. You give to receive. You release to hold tighter than ever.
+
+To your right, the *Eight of Swords* rises—not as chains, but as threads of silver moonlight, suspended mid-air, each strand trembling with potential. You see now: control isn’t force—it’s timing. Surrender isn’t defeat—it’s listening. The swords don’t bind you… they *guide*. You’ve always known which thread to pull.
+
+These cards are now yours. They hum in your memory.
+
+—
+
+The void cracks.
+
+Light spills—not blinding, but *familiar*. Cold stone presses against your palms. Wind, sharp with pine and smoke, brushes your cheek. You stand atop a moss-slicked tower overlooking a city of copper domes and lantern-lit bridges—Aurelion. Below, bells toll. Somewhere, a child laughs. Somewhere else, a sword sings free.
+
+The Awakening has begun.
+
+--- HUMAN MESSAGE ---
+and then?
+
+--- AI MESSAGE ---
+Morning light sliced through the cracked shutter of the Broken Lantern Inn, painting stripes of gold across the dusty floorboards. The air smelled of last night’s woodsmoke, damp wool blankets, and the faint tang of stale bread from the kitchen below. Your head throbbed—soft, insistent—as if echoes of something vast had slipped through your skull and vanished. You reached for the clay cup on the bedside table, fingers brushing cold ceramic.  
+
+It slid—an inch, maybe less—before stopping, as if caught by unseen fingers releasing their grip. You froze. Blink. The cup sat still. Just wood. Just dust. Just the creak of old beams settling. Outside, the market stirred: a cart wheel groaned over cobblestones, a woman called out for fresh honeycomb, a dog yapped at nothing, and somewhere, a bell rang—not for church, not for warning—but like a question, unanswered.
+
+Your boots were by the door. Dust on the soles. You hadn't put them there.
+
+Outside, the sun climbed higher. The scent of roasted chestnuts drifted through the alley. Someone whistled a tune you almost remembered.
+
+What do you do first?
+
+--- HUMAN MESSAGE ---
+get out of the room
+
+--- HUMAN MESSAGE ---
+retry
+
+--- HUMAN MESSAGE ---
+[TUTORIAL CONTROL — PHASE 1: AWAKENING]
+TUTORIAL PHASE 1 — AWAKENING
+The player has just woken up in a small room at the Broken Lantern Inn in Elaris Hollow. They feel disoriented. A strange dream lingers — fragments of cards, light, and voices. DO NOT explain any mechanics. Describe only the immediate environment: the rough wooden walls, morning light through a cracked shutter, the smell of woodsmoke, and a distant sound from outside. End with a prompt that makes the player want to step outside.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: retry
+
+Narrative intent: The Fool tilts their head, whispering, 'Retry? Child—you didn’t choose to leave. The cards chose when to let go.'
+
+NPC (Fool) said: "*The Fool's grin widens, his teeth seeming to multiply in the dim light of the alley. He tilts his head, regarding you with an air of curious amusement.*
+
+Ah, the cards have spoken, and yet... you find yourself in this humble abode, surrounded by the mundane sounds of a city awakening. The Hierophant's golden glow still resonates within you, a reminder of tradition and belonging. The Five of Pentacles whispers of sacrifice and hidden warmth. And the Eight of Swords... ah, yes, the threads of potential, waiting to be plucked.
+
+*He takes a step closer, his movements fluid and almost ethereal.*
+
+But what does it all mean, really? The cards are guides, not shackles. The true question is: how will you weave these threads into the tapestry of your journey?
+
+*The Fool's eyes glint with mischief as he reaches into his cloak and produces a small, delicate wooden flute.*
+
+Perhaps a tune to set the mood? The city seems to be waiting for its cue. *He brings the flute to his lips and begins to play a lively, whimsical melody that seems to match the rhythm of the market sounds drifting through the alley.*
+
+The choice, as always, is yours. Will you follow the music, or will you forge your own path? The city of Aurelion is full of possibilities, and the day is young.
+
+*As he plays, the shadows around you seem to shift and dance, as if the very essence of the city is responding to the Fool's tune.*"
+
+Narrate the outcome now.
+
+--------------------------------------------------------------------------------
+
+
+[2026-04-30T15:21:09.437033] LLM CALL END (Run: 019dddcc-5180-7c50-bff8-eda8b0f057f0)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+The flute’s melody doesn’t just fill the air—it *unravels* the walls.
+
+Not physically. Not violently. But like ink dissolving in water—the rough wood of the inn’s walls softened, peeled back in translucent layers, revealing not brick or beam, but *memory*: flickering images of hands placing coins in offering bowls, children tracing runes on cobblestones, a lone knight kneeling before a shrine, whispering vows long forgotten.
+
+And beneath it all—beneath the smell of smoke and bread—the scent of saltwater. Far away. Calling.
+
+The Fool’s tune ends.
+
+Silence.
+
+Then—your boots move.
+
+Without thought. Without will.
+
+They take one step forward.
+
+Then another.
+
+The door swings open on silent hinges, though no hand touched it.
+
+Beyond lies not the alley.
+
+But a bridge of interwoven silver threads, stretching over mist-shrouded canals, lined with lanterns shaped like open books. Each lantern pulses gently, casting light that doesn’t illuminate objects—but *reveals truths*: a merchant sees his daughter’s smile, not her debt; a guard sees the child who once gave him bread, not the warrant he carries.
+
+A voice—soft, layered, unmistakably yours—whispers from the wind:
+
+> “You did not choose to leave.  
+> The cards chose when to let go.”
+
+The first thread ahead trembles.
+
+One tug will lead you to the Guildhall, where the Hierophant awaits.
+
+Another, darker, leads toward the Spire of Blades—the domain of the Eight.
+
+A third, shimmering with golden warmth, curls down into the Undermarket—the realm of the Five.
+
+You stand at the threshold.
+
+Which thread do you reach for?
+
+*(Choose one: Guildhall / Spire / Undermarket)*
+
+================================================================================
+
+
+================================================================================
+[2026-04-30T15:23:22.776229] LLM CALL START (Run: 019dddce-ad58-7412-b7e4-d3d022c06512)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+Player: .
+GM: [SYSTEM — CARD DRAW SEQUENCE]
+
+The five Arcana have listened to your answers. The Fool laughs softly.
+"The deck remembers what you said."
+
+Three cards rise from the void:
+
+  ★ One Major Arcana — your CORE AFFINITY. This card defines your primary energy alignment.
+  ★ Two Minor Arcana — your SUPPORT aspects. These modulate how your power expresses.
+
+The High Priestess whispers: "Do not choose. Let the cards find you."
+
+The cards begin to turn face-up, one by one.
+
+*Say anything to let the Game Master reveal your cards.*
+Player: reveal
+GM: The air shivers—not with wind, but with weight.
+
+At the heart of the void, *The Hierophant* ignites—a golden halo of ancient sigils spiraling from its staff, robes woven from whispered prayers and sealed oaths. You feel it first in your bones: the quiet certainty of belonging, the sacred rhythm of tradition, the unshakable truth that some paths were never meant to be walked alone. You trusted fate—and fate answered by choosing *you*.
+
+To your left, the *Five of Pentacles* blooms like frost on stone—a crumbling temple under starlight, two figures huddled in snow, yet a faint glow pulses beneath their feet, warm, waiting. You know now: some sacrifices are not losses, but foundations. You give to receive. You release to hold tighter than ever.
+
+To your right, the *Eight of Swords* rises—not as chains, but as threads of silver moonlight, suspended mid-air, each strand trembling with potential. You see now: control isn’t force—it’s timing. Surrender isn’t defeat—it’s listening. The swords don’t bind you… they *guide*. You’ve always known which thread to pull.
+
+These cards are now yours. They hum in your memory.
+
+—
+
+The void cracks.
+
+Light spills—not blinding, but *familiar*. Cold stone presses against your palms. Wind, sharp with pine and smoke, brushes your cheek. You stand atop a moss-slicked tower overlooking a city of copper domes and lantern-lit bridges—Aurelion. Below, bells toll. Somewhere, a child laughs. Somewhere else, a sword sings free.
+
+The Awakening has begun.
+Player: and then?
+GM: Morning light sliced through the cracked shutter of the Broken Lantern Inn, painting stripes of gold across the dusty floorboards. The air smelled of last night’s woodsmoke, damp wool blankets, and the faint tang of stale bread from the kitchen below. Your head throbbed—soft, insistent—as if echoes of something vast had slipped through your skull and vanished. You reached for the clay cup on the bedside table, fingers brushing cold ceramic.  
+
+It slid—an inch, maybe less—before stopping, as if caught by unseen fingers releasing their grip. You froze. Blink. The cup sat still. Just wood. Just dust. Just the creak of old beams settling. Outside, the market stirred: a cart wheel groaned over cobblestones, a woman called out for fresh honeycomb, a dog yapped at nothing, and somewhere, a bell rang—not for church, not for warning—but like a question, unanswered.
+
+Your boots were by the door. Dust on the soles. You hadn't put them there.
+
+Outside, the sun climbed higher. The scent of roasted chestnuts drifted through the alley. Someone whistled a tune you almost remembered.
+
+What do you do first?
+Player: get out of the room
+Player: retry
+GM: The flute’s melody doesn’t just fill the air—it *unravels* the walls.
+
+Not physically. Not violently. But like ink dissolving in water—the rough wood of the inn’s walls softened, peeled back in translucent layers, revealing not brick or beam, but *memory*: flickering images of hands placing coins in offering bowls, children tracing runes on cobblestones, a lone knight kneeling before a shrine, whispering vows long forgotten.
+
+And beneath it all—beneath the smell of smoke and bread—the scent of saltwater. Far away. Calling.
+
+The Fool’s tune ends.
+
+Silence.
+
+Then—your boots move.
+
+Without thought. Without will.
+
+They take one step forward.
+
+Then another.
+
+The door swings open on silent hinges, though no hand touched it.
+
+Beyond lies not the alley.
+
+But a bridge of interwoven silver threads, stretching over mist-shrouded canals, lined with lanterns shaped like open books. Each lantern pulses gently, casting light that doesn’t illuminate objects—but *reveals truths*: a merchant sees his daughter’s smile, not her debt; a guard sees the child who once gave him bread, not the warrant he carries.
+
+A voice—soft, layered, unmistakably yours—whispers from the wind:
+
+> “You did not choose to leave.  
+> The cards chose when to let go.”
+
+The first thread ahead trembles.
+
+One tug will lead you to the Guildhall, where the Hierophant awaits.
+
+Another, darker, leads toward the Spire of Blades—the domain of the Eight.
+
+A third, shimmering with golden warmth, curls down into the Undermarket—the realm of the Five.
+
+You stand at the threshold.
+
+Which thread do you reach for?
+
+*(Choose one: Guildhall / Spire / Undermarket)*
+Player: guildhall
+
+Player action: guildhall
+
+--------------------------------------------------------------------------------
+
+
+[2026-04-30T15:23:33.766644] LLM CALL END (Run: 019dddce-ad58-7412-b7e4-d3d022c06512)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{
+  "needs_persona": true,
+  "npc_name": "Hierophant",
+  "persona_context": "The Hierophant appears as a towering figure robed in golden-threaded vestments, eyes closed, staff humming with sealed oaths. As the player steps onto the Guildhall thread, the air thickens with incense and chanting. The Hierophant does not open his eyes, but speaks directly into the player's mind, voice echoing with centuries of doctrine and devotion.",
+  "needs_arbiter": true,
+  "arbiter_instruction": "Transfer 30 upright from Hierophant to Player, reason: initiation rite of ancestral trust",
+  "narrative_intent": "As the player touches the golden thread, the Guildhall doors swing open to reveal a hall lined with statues of past leaders, each holding a lantern lit by their own sacrifice—none of them ever walked away."
+}
+
+================================================================================
+
+
+================================================================================
+[2026-04-30T15:25:16.726695] LLM CALL START (Run: 019dddd0-6a76-7b62-8d83-e4085fd56c3a)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+GM: [SYSTEM — CARD DRAW SEQUENCE]
+
+The five Arcana have listened to your answers. The Fool laughs softly.
+"The deck remembers what you said."
+
+Three cards rise from the void:
+
+  ★ One Major Arcana — your CORE AFFINITY. This card defines your primary energy alignment.
+  ★ Two Minor Arcana — your SUPPORT aspects. These modulate how your power expresses.
+
+The High Priestess whispers: "Do not choose. Let the cards find you."
+
+The cards begin to turn face-up, one by one.
+
+*Say anything to let the Game Master reveal your cards.*
+Player: reveal
+GM: The air shivers—not with wind, but with weight.
+
+At the heart of the void, *The Hierophant* ignites—a golden halo of ancient sigils spiraling from its staff, robes woven from whispered prayers and sealed oaths. You feel it first in your bones: the quiet certainty of belonging, the sacred rhythm of tradition, the unshakable truth that some paths were never meant to be walked alone. You trusted fate—and fate answered by choosing *you*.
+
+To your left, the *Five of Pentacles* blooms like frost on stone—a crumbling temple under starlight, two figures huddled in snow, yet a faint glow pulses beneath their feet, warm, waiting. You know now: some sacrifices are not losses, but foundations. You give to receive. You release to hold tighter than ever.
+
+To your right, the *Eight of Swords* rises—not as chains, but as threads of silver moonlight, suspended mid-air, each strand trembling with potential. You see now: control isn’t force—it’s timing. Surrender isn’t defeat—it’s listening. The swords don’t bind you… they *guide*. You’ve always known which thread to pull.
+
+These cards are now yours. They hum in your memory.
+
+—
+
+The void cracks.
+
+Light spills—not blinding, but *familiar*. Cold stone presses against your palms. Wind, sharp with pine and smoke, brushes your cheek. You stand atop a moss-slicked tower overlooking a city of copper domes and lantern-lit bridges—Aurelion. Below, bells toll. Somewhere, a child laughs. Somewhere else, a sword sings free.
+
+The Awakening has begun.
+Player: and then?
+GM: Morning light sliced through the cracked shutter of the Broken Lantern Inn, painting stripes of gold across the dusty floorboards. The air smelled of last night’s woodsmoke, damp wool blankets, and the faint tang of stale bread from the kitchen below. Your head throbbed—soft, insistent—as if echoes of something vast had slipped through your skull and vanished. You reached for the clay cup on the bedside table, fingers brushing cold ceramic.  
+
+It slid—an inch, maybe less—before stopping, as if caught by unseen fingers releasing their grip. You froze. Blink. The cup sat still. Just wood. Just dust. Just the creak of old beams settling. Outside, the market stirred: a cart wheel groaned over cobblestones, a woman called out for fresh honeycomb, a dog yapped at nothing, and somewhere, a bell rang—not for church, not for warning—but like a question, unanswered.
+
+Your boots were by the door. Dust on the soles. You hadn't put them there.
+
+Outside, the sun climbed higher. The scent of roasted chestnuts drifted through the alley. Someone whistled a tune you almost remembered.
+
+What do you do first?
+Player: get out of the room
+Player: retry
+GM: The flute’s melody doesn’t just fill the air—it *unravels* the walls.
+
+Not physically. Not violently. But like ink dissolving in water—the rough wood of the inn’s walls softened, peeled back in translucent layers, revealing not brick or beam, but *memory*: flickering images of hands placing coins in offering bowls, children tracing runes on cobblestones, a lone knight kneeling before a shrine, whispering vows long forgotten.
+
+And beneath it all—beneath the smell of smoke and bread—the scent of saltwater. Far away. Calling.
+
+The Fool’s tune ends.
+
+Silence.
+
+Then—your boots move.
+
+Without thought. Without will.
+
+They take one step forward.
+
+Then another.
+
+The door swings open on silent hinges, though no hand touched it.
+
+Beyond lies not the alley.
+
+But a bridge of interwoven silver threads, stretching over mist-shrouded canals, lined with lanterns shaped like open books. Each lantern pulses gently, casting light that doesn’t illuminate objects—but *reveals truths*: a merchant sees his daughter’s smile, not her debt; a guard sees the child who once gave him bread, not the warrant he carries.
+
+A voice—soft, layered, unmistakably yours—whispers from the wind:
+
+> “You did not choose to leave.  
+> The cards chose when to let go.”
+
+The first thread ahead trembles.
+
+One tug will lead you to the Guildhall, where the Hierophant awaits.
+
+Another, darker, leads toward the Spire of Blades—the domain of the Eight.
+
+A third, shimmering with golden warmth, curls down into the Undermarket—the realm of the Five.
+
+You stand at the threshold.
+
+Which thread do you reach for?
+
+*(Choose one: Guildhall / Spire / Undermarket)*
+Player: guildhall
+Player: what?
+
+Player action: what?
+
+--------------------------------------------------------------------------------
+
+
+[2026-04-30T15:25:27.402691] LLM CALL END (Run: 019dddd0-6a76-7b62-8d83-e4085fd56c3a)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{
+  "needs_persona": true,
+  "npc_name": "The Hierophant",
+  "persona_context": "The Hierophant manifests as a robed figure of golden light, standing at the end of the silver thread leading to the Guildhall. Their presence radiates quiet authority, neither threatening nor welcoming—just inevitable. They watch you, eyes hidden behind a mask of carved prayer beads, each bead a vow kept. When you speak, they do not answer with words—but with silence that reshapes meaning.",
+  "needs_arbiter": false,
+  "arbiter_instruction": null,
+  "narrative_intent": "The Hierophant does not speak, but the golden thread beneath your feet begins to tighten—not to pull, but to remind you: every oath you’ve broken, every promise you’ve abandoned, now walks beside you."
+}
+
+================================================================================
+
+
+================================================================================
+[2026-04-30T15:26:34.303031] LLM CALL START (Run: 019dddd1-997e-7d63-819a-bc5d8828af7b)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+--- AI MESSAGE ---
+[SYSTEM — CARD DRAW SEQUENCE]
+
+The five Arcana have listened to your answers. The Fool laughs softly.
+"The deck remembers what you said."
+
+Three cards rise from the void:
+
+  ★ One Major Arcana — your CORE AFFINITY. This card defines your primary energy alignment.
+  ★ Two Minor Arcana — your SUPPORT aspects. These modulate how your power expresses.
+
+The High Priestess whispers: "Do not choose. Let the cards find you."
+
+The cards begin to turn face-up, one by one.
+
+*Say anything to let the Game Master reveal your cards.*
+
+--- HUMAN MESSAGE ---
+reveal
+
+--- AI MESSAGE ---
+The air shivers—not with wind, but with weight.
+
+At the heart of the void, *The Hierophant* ignites—a golden halo of ancient sigils spiraling from its staff, robes woven from whispered prayers and sealed oaths. You feel it first in your bones: the quiet certainty of belonging, the sacred rhythm of tradition, the unshakable truth that some paths were never meant to be walked alone. You trusted fate—and fate answered by choosing *you*.
+
+To your left, the *Five of Pentacles* blooms like frost on stone—a crumbling temple under starlight, two figures huddled in snow, yet a faint glow pulses beneath their feet, warm, waiting. You know now: some sacrifices are not losses, but foundations. You give to receive. You release to hold tighter than ever.
+
+To your right, the *Eight of Swords* rises—not as chains, but as threads of silver moonlight, suspended mid-air, each strand trembling with potential. You see now: control isn’t force—it’s timing. Surrender isn’t defeat—it’s listening. The swords don’t bind you… they *guide*. You’ve always known which thread to pull.
+
+These cards are now yours. They hum in your memory.
+
+—
+
+The void cracks.
+
+Light spills—not blinding, but *familiar*. Cold stone presses against your palms. Wind, sharp with pine and smoke, brushes your cheek. You stand atop a moss-slicked tower overlooking a city of copper domes and lantern-lit bridges—Aurelion. Below, bells toll. Somewhere, a child laughs. Somewhere else, a sword sings free.
+
+The Awakening has begun.
+
+--- HUMAN MESSAGE ---
+and then?
+
+--- AI MESSAGE ---
+Morning light sliced through the cracked shutter of the Broken Lantern Inn, painting stripes of gold across the dusty floorboards. The air smelled of last night’s woodsmoke, damp wool blankets, and the faint tang of stale bread from the kitchen below. Your head throbbed—soft, insistent—as if echoes of something vast had slipped through your skull and vanished. You reached for the clay cup on the bedside table, fingers brushing cold ceramic.  
+
+It slid—an inch, maybe less—before stopping, as if caught by unseen fingers releasing their grip. You froze. Blink. The cup sat still. Just wood. Just dust. Just the creak of old beams settling. Outside, the market stirred: a cart wheel groaned over cobblestones, a woman called out for fresh honeycomb, a dog yapped at nothing, and somewhere, a bell rang—not for church, not for warning—but like a question, unanswered.
+
+Your boots were by the door. Dust on the soles. You hadn't put them there.
+
+Outside, the sun climbed higher. The scent of roasted chestnuts drifted through the alley. Someone whistled a tune you almost remembered.
+
+What do you do first?
+
+--- HUMAN MESSAGE ---
+get out of the room
+
+--- HUMAN MESSAGE ---
+retry
+
+--- AI MESSAGE ---
+The flute’s melody doesn’t just fill the air—it *unravels* the walls.
+
+Not physically. Not violently. But like ink dissolving in water—the rough wood of the inn’s walls softened, peeled back in translucent layers, revealing not brick or beam, but *memory*: flickering images of hands placing coins in offering bowls, children tracing runes on cobblestones, a lone knight kneeling before a shrine, whispering vows long forgotten.
+
+And beneath it all—beneath the smell of smoke and bread—the scent of saltwater. Far away. Calling.
+
+The Fool’s tune ends.
+
+Silence.
+
+Then—your boots move.
+
+Without thought. Without will.
+
+They take one step forward.
+
+Then another.
+
+The door swings open on silent hinges, though no hand touched it.
+
+Beyond lies not the alley.
+
+But a bridge of interwoven silver threads, stretching over mist-shrouded canals, lined with lanterns shaped like open books. Each lantern pulses gently, casting light that doesn’t illuminate objects—but *reveals truths*: a merchant sees his daughter’s smile, not her debt; a guard sees the child who once gave him bread, not the warrant he carries.
+
+A voice—soft, layered, unmistakably yours—whispers from the wind:
+
+> “You did not choose to leave.  
+> The cards chose when to let go.”
+
+The first thread ahead trembles.
+
+One tug will lead you to the Guildhall, where the Hierophant awaits.
+
+Another, darker, leads toward the Spire of Blades—the domain of the Eight.
+
+A third, shimmering with golden warmth, curls down into the Undermarket—the realm of the Five.
+
+You stand at the threshold.
+
+Which thread do you reach for?
+
+*(Choose one: Guildhall / Spire / Undermarket)*
+
+--- HUMAN MESSAGE ---
+guildhall
+
+--- HUMAN MESSAGE ---
+what?
+
+--- HUMAN MESSAGE ---
+[TUTORIAL CONTROL — PHASE 1: AWAKENING]
+TUTORIAL PHASE 1 — AWAKENING
+The player has just woken up in a small room at the Broken Lantern Inn in Elaris Hollow. They feel disoriented. A strange dream lingers — fragments of cards, light, and voices. DO NOT explain any mechanics. Describe only the immediate environment: the rough wooden walls, morning light through a cracked shutter, the smell of woodsmoke, and a distant sound from outside. End with a prompt that makes the player want to step outside.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━]
+━
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: what?
+
+Narrative intent: The Hierophant does not speak, but the golden thread beneath your feet begins to tighten—not to pull, but to remind you: every oath you’ve broken, every promise you’ve abandoned, now walks beside you.
+
+NPC (The Hierophant) said: "*The Hierophant's presence stirs, like the soft rustling of prayer beads. Their voice, a low hum of ancient wisdom, resonates through the air.*
+
+"Belonging is not a choice, but a calling. The path of tradition, of sacred oaths and whispered truths, awaits. The Guildhall stands as a beacon of unity and purpose. Will you answer the summons of the familiar, or will the allure of other threads lead you astray?"
+
+*The golden light emanating from The Hierophant intensifies, casting a warm glow over the bridge of silver threads. The air is filled with the scent of old parchment and the faint echo of chanting.*"
+
+Narrate the outcome now.
+
+--------------------------------------------------------------------------------
+
+
+[2026-04-30T15:26:51.374725] LLM CALL END (Run: 019dddd1-997e-7d63-819a-bc5d8828af7b)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+The moment your foot touches the golden thread, the world exhales.
+
+The bridge doesn’t shift—it *remembers*. Stone beneath your boots becomes warm as skin. Lanterns along the way flicker not with flame, but with faces: merchants bowing to elders, apprentices kneel to masters, scholars weep over scrolls stained with tears of loyalty. Each face is someone you knew. Someone you forgot.
+
+Ahead, the Guildhall rises—not of marble or steel, but of stacked memories, bound together by invisible vows. Its doors, carved with the sigils of ten fallen orders, stand slightly ajar. From within, no music plays. No crowd murmurs. Only silence. Deep. Sacred.
+
+Then—movement.
+
+A single figure steps forward from the shadows.
+
+Tall. Cloaked in embroidered robes stitched with threads of gold and crimson. Not the Hierophant as you imagined. No crown. No scepter. Just hands—old, scarred, resting calmly at their sides.
+
+They do not speak.
+
+Instead, they extend one palm.
+
+In it rests a single key—bronze, worn smooth by centuries of touch. Etched upon its surface: *“I kept my word. Did you?*
+
+Behind them, the Guildhall doors creak wider.
+
+Inside, rows of empty chairs. Each holds a folded letter. All addressed to *you*.
+
+The key glows faintly.
+
+The scent of old parchment fills the air.
+
+You do not need to ask why you’re here.
+
+You already know.
+
+**What do you do?**
+
+(Choose: Take the Key / Turn Back / Step Inside Without It)
+
+================================================================================
+

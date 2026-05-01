@@ -30,6 +30,34 @@ def create_db_and_tables() -> None:
     SQLModel.metadata.create_all(engine)
 
 
+def run_migrations() -> None:
+    """
+    Idempotent column migrations for SQLite.
+    Adds new columns to existing tables without dropping data.
+    Safe to call on every startup.
+    """
+    from sqlalchemy import text
+
+    # (table, column_name, sqlite_column_def)
+    new_columns = [
+        ("inventoryitem", "is_equipped",    "BOOLEAN NOT NULL DEFAULT 0"),
+        ("inventoryitem", "equipped_slot",  "TEXT"),
+        ("inventoryitem", "max_durability", "INTEGER"),
+        ("inventoryitem", "max_stack",      "INTEGER NOT NULL DEFAULT 99"),
+        ("inventoryitem", "weight",         "REAL NOT NULL DEFAULT 0.0"),
+        ("inventoryitem", "attack_bonus",   "INTEGER NOT NULL DEFAULT 0"),
+        ("inventoryitem", "defense_bonus",  "INTEGER NOT NULL DEFAULT 0"),
+    ]
+
+    with engine.begin() as conn:
+        for table, col, col_def in new_columns:
+            rows = conn.execute(text(f"PRAGMA table_info({table})")).fetchall()
+            existing = {row[1] for row in rows}
+            if col not in existing:
+                conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {col_def}"))
+
+
+
 def get_session() -> Session:
     """Return a Session usable as a context manager: `with get_session() as s:`"""
     return Session(engine)

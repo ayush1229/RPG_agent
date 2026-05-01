@@ -127,12 +127,19 @@ async def on_chat_start() -> None:
 
 @cl.on_message
 async def on_message(message: cl.Message) -> None:
+    # ── Slash commands: bypass GM pipeline entirely ────────────────────────────
+    entity_id_for_cmd: int | None = cl.user_session.get("_entity_id_cache")
+    from app.chat.slash_commands import dispatch_slash_command
+    if await dispatch_slash_command(message.content, entity_id_for_cmd):
+        return
+
     # game_user_id is unique per chat thread — binds to a specific TarotEntity/UserSession
     game_user_id: str = cl.user_session.get(_USER_ID_KEY, "unknown")
     # ui_user_id groups all threads under one Chainlit account for the sidebar
     ui_user_id: str = cl.user_session.get(_UI_USER_ID_KEY, "player")
     location_id: Optional[int] = cl.user_session.get(_LOCATION_ID_KEY)
     chat_session_id: str = cl.user_session.get("_chat_session_id", "default")
+
 
     with get_session() as session:
         # ── Step 1: Persist user message (using ui_user_id for sidebar grouping) ─

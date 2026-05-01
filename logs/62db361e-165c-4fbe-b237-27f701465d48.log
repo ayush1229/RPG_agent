@@ -1,0 +1,124 @@
+
+================================================================================
+[2026-04-30T16:06:22.237086] LLM CALL START (Run: 019dddf6-095d-7680-a353-8e0b5f63588d)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+GM: [SYSTEM — NARRATIVE OVERRIDE]
+
+The void is absolute. There is no up, no down, no time.
+
+Five luminous figures materialise before you, each radiating a different energy frequency:
+  • The Fool  — chaotic, joyful, flickering in and out of existence
+  • The Magician — precise, calculating, surrounded by orbiting tools
+  • The High Priestess — silent, her eyes holding centuries
+  • The Emperor — armoured, immovable, radiating authority
+  • The Star — warm, distant, inexhaustibly hopeful
+
+The Magician speaks first: "Anomaly. You exist outside the distribution model."
+The High Priestess adds, barely audible: "The energy knows you. It called you here."
+The Emperor steps forward, his gaze unwavering:
+
+"Answer our questions. Every choice you make shapes what you become."
+
+Question 1 of 3 — The Emperor asks:
+
+*"Do you seek power, or understanding?"*
+Player: both
+GM: [The High Priestess tilts her head. She has heard your first answer.]
+
+Question 2 of 3 — The High Priestess asks:
+
+*"Would you sacrifice others to secure control?"*
+Player: no
+GM: [The Fool stops flickering. Even chaos listens now.]
+
+Question 3 of 3 — The Star asks, gently:
+
+*"Do you trust fate — or do you defy it?"*
+Player: trust it
+GM: [The five Arcana exchange a glance. The Fool laughs softly.
+"We have heard enough."
+
+The void hums. Three cards rise from nothingness.]
+Player: wow
+GM: [SYSTEM — CARD DRAW SEQUENCE]
+
+The five Arcana have listened to your answers. The Fool laughs softly.
+"The deck remembers what you said."
+
+Three cards rise from the void:
+
+  ★ One Major Arcana — your CORE AFFINITY. This card defines your primary energy alignment.
+  ★ Two Minor Arcana — your SUPPORT aspects. These modulate how your power expresses.
+
+The High Priestess whispers: "Do not choose. Let the cards find you."
+
+The cards begin to turn face-up, one by one.
+
+*Say anything to let the Game Master reveal your cards.*
+Player: reveal
+
+Player action: reveal
+
+--------------------------------------------------------------------------------
+
+
+[2026-04-30T16:06:31.401920] LLM CALL END (Run: 019dddf6-095d-7680-a353-8e0b5f63588d)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{
+  "needs_persona": true,
+  "npc_name": "The High Priestess",
+  "persona_context": "The player has answered all three questions: 'both', 'no', 'trust it'. The Arcana have acknowledged this alignment. Now, the High Priestess must reveal the drawn cards as a sacred unveiling—not a selection.",
+  "needs_arbiter": true,
+  "arbiter_instruction": "Transfer 100 upright from The Five Arcana to Player, reason: attunement to resonance of balanced intent — power + restraint + faith",
+  "narrative_intent": "The three cards hover before you, glowing with inner fire—their symbols etched not in ink, but in memory: The Empress, The Chalice of Shadows, and The Weaver’s Thread." 
+}
+
+================================================================================
+

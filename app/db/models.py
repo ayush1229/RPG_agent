@@ -424,8 +424,25 @@ class InventoryItem(SQLModel, table=True):
     durability: Optional[int] = Field(default=None)
     stackable: bool = Field(default=True)
 
+    # ── Equipment & weight fields ─────────────────────────────────────
+    # is_equipped   : whether this item is currently worn/wielded
+    # equipped_slot : "head"|"chest"|"legs"|"weapon"|"offhand"|"accessory"
+    # attack_bonus  : flat ATK while equipped (scaled by rarity at service layer)
+    # defense_bonus : flat DEF while equipped (scaled by rarity at service layer)
+    # weight        : encumbrance per item; total capped at 100
+    # max_stack     : maximum stackable quantity per row
+    # max_durability: None = unbreakable
+    is_equipped: bool = Field(default=False)
+    equipped_slot: Optional[str] = Field(default=None)
+    attack_bonus: int = Field(default=0)
+    defense_bonus: int = Field(default=0)
+    weight: float = Field(default=0.0, ge=0.0)
+    max_stack: int = Field(default=99, ge=1)
+    max_durability: Optional[int] = Field(default=None)
+
     owner_id: int = Field(foreign_key="tarotentity.id")
     owner: Optional[TarotEntity] = Relationship(back_populates="inventory")
+
 
 
 # ---------------------------------------------------------

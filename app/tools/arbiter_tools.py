@@ -331,6 +331,87 @@ def record_trade(entity_name: str, trade_summary: str) -> str:
         return f"SUCCESS: Trade recorded ('{trade_summary}').{phase_note}"
 
 
+# ─── Game-world Item Tools ─────────────────────────────────────────────────────
+
+@tool
+def give_item(
+    entity_name: str,
+    item_name: str,
+    item_type: str,
+    quantity: int,
+    description: str,
+    rarity: str = "common",
+    value: int = 0,
+    effect_type: str = "",
+    effect_value: int = 0,
+    weight: float = 0.0,
+    attack_bonus: int = 0,
+    defense_bonus: int = 0,
+    equipped_slot: str = "",
+) -> str:
+    """
+    Award an item to the player's inventory.
+
+    item_type   : "consumable" | "equipment" | "material" | "quest" | "artifact" | "misc"
+    rarity      : "common" | "uncommon" | "rare" | "epic" | "legendary"
+    effect_type : "heal" | "mana" | "buff" | "damage"  (leave blank for equipment/quest items)
+    equipped_slot: "head" | "chest" | "legs" | "weapon" | "offhand" | "accessory"
+                  (required for equipment, blank for consumables/misc)
+
+    Call this whenever the GM narrates the player receiving an item as loot, a reward, or a gift.
+    """
+    with Session(engine) as session:
+        entity = tarot_service.get_entity_by_name(session, entity_name)
+        if not entity:
+            return f"ERROR: Entity '{entity_name}' not found."
+
+        from app.db.inventory_service import add_item
+        result = add_item(
+            session,
+            entity.id,
+            name=item_name,
+            description=description,
+            quantity=quantity,
+            item_type=item_type,
+            rarity=rarity,
+            value=value,
+            effect_type=effect_type or None,
+            effect_value=effect_value,
+            weight=weight,
+            attack_bonus=attack_bonus,
+            defense_bonus=defense_bonus,
+            equipped_slot=equipped_slot or None,
+        )
+
+        if result["success"]:
+            return (
+                f"SUCCESS: {quantity}x '{item_name}' ({rarity} {item_type}) "
+                f"added to {entity_name}'s inventory."
+            )
+        return f"FAILED: {result.get('reason', 'unknown error')}"
+
+
+@tool
+def give_gold(entity_name: str, amount: int) -> str:
+    """
+    Award gold coins to the player's wallet.
+    Use a positive amount for rewards; negative to deduct (e.g. purchase cost).
+    Call this whenever the GM narrates the player receiving or spending gold.
+    """
+    with Session(engine) as session:
+        entity = tarot_service.get_entity_by_name(session, entity_name)
+        if not entity:
+            return f"ERROR: Entity '{entity_name}' not found."
+
+        from app.db.inventory_service import add_gold
+        result = add_gold(session, entity.id, amount)
+
+        if result["success"]:
+            verb = "received" if amount > 0 else "spent"
+            return f"SUCCESS: {entity_name} {verb} {abs(amount)} gold. Balance: {result['balance']}."
+        return f"FAILED: {result.get('reason', 'unknown error')}"
+
+
 # ─── Tool registry ────────────────────────────────────────────────────────────
 ARBITER_TOOLS = [
     # Tarot economy tools
@@ -346,4 +427,7 @@ ARBITER_TOOLS = [
     record_combat_victory,
     record_item_delivered,
     record_trade,
+    # Inventory tools — award items/gold when GM narrates rewards
+    give_item,
+    give_gold,
 ]

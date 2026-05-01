@@ -190,6 +190,24 @@ def get_max_event_rarity(session: Session, entity_id: int) -> str:
     return TUTORIAL_MAX_RARITY.get(ts.phase, "common")
 
 
+# Public constants used by slash_commands and quest log display
+TUTORIAL_PHASES: dict[int, str] = {
+    0:  "prologue",
+    1:  "awakening",
+    2:  "first_interaction",
+    3:  "first_task",
+    4:  "first_combat",
+    5:  "first_reward",
+    6:  "economy_introduction",
+    7:  "housing_introduction",
+    8:  "night_system",
+    9:  "first_dungeon",
+    10: "dream_hook",
+    11: "tutorial_complete",
+}
+MAX_PHASE: int = 11
+
+
 # =============================================================
 # PHASE DIRECTIVES (injected into GM context)
 # =============================================================
@@ -197,6 +215,7 @@ def get_max_event_rarity(session: Session, entity_id: int) -> str:
 # Each directive is a GM system prompt override for that phase.
 # Written as narrative instructions, NOT mechanic explanations.
 _PHASE_DIRECTIVES: dict[int, str] = {
+
     0: "",
     1: (
         "TUTORIAL PHASE 1 — AWAKENING\n"

@@ -25,8 +25,14 @@ import chainlit.data as cl_data
 
 from app.chat import handlers  # noqa: F401 — registers Chainlit lifecycle hooks
 from app.chainlit_data_layer import RPGDataLayer
+from app.db.database import create_db_and_tables, run_migrations
+
+# ── Ensure DB tables exist and migrations are applied ─────────────────────────
+create_db_and_tables()
+run_migrations()
 
 # ── Register custom data layer ─────────────────────────────────────────────────
+
 # This enables the thread-history sidebar. All reads come from DialogueLog.
 # Writes are still handled exclusively by handlers.py (no duplication).
 cl_data._data_layer = RPGDataLayer()
