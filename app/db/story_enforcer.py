@@ -176,7 +176,33 @@ Rules:
 
 # ── Core enforcer ─────────────────────────────────────────────────────────────
 
+def _grant_starter_deck(session: Session, entity_id: int, alignment: str) -> None:
+    """Actually grant the TarotShard DB rows to the player."""
+    from app.db.models import TarotShard, TarotCardLore
+    
+    # Check if already has cards
+    existing = session.exec(select(TarotShard).where(TarotShard.owner_id == entity_id)).first()
+    if existing:
+        return
+        
+    major_name = "The Fool"
+    if alignment == "order":
+        major_name = "The Emperor"
+    elif alignment == "balance":
+        major_name = "Temperance"
+        
+    minors = ["Ace of Wands", "Two of Pentacles"]
+    
+    for c_name in [major_name] + minors:
+        lore = session.exec(select(TarotCardLore).where(TarotCardLore.name == c_name)).first()
+        if lore:
+            shard = TarotShard(owner_id=entity_id, lore_id=lore.id)
+            session.add(shard)
+            
+    session.commit()
+
 def _load_or_create(session: Session, entity_id: int) -> MainStoryState:
+
     """Fetch or create MainStoryState for the entity. Always returns valid flags."""
     state = session.exec(
         select(MainStoryState).where(MainStoryState.entity_id == entity_id)
@@ -300,10 +326,14 @@ def check_prologue_gates(
             flags["cards_drawn"] = True
             flags["card_draw_phase"] = 2
             _save_flags(session, state, flags)
+            
+            _grant_starter_deck(session, entity_id, alignment)
+            
             return PrologueOverride(                             # GM directive
                 _GM_CARD_REVEAL_DIRECTIVE.format(alignment=alignment),
                 is_gm_directive=True,
             )
+
 
     # -- Gate 3: Awakening ----------------------------------------------------
     if not flags.get("awakening_triggered", False):

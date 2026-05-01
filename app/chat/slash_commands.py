@@ -107,8 +107,13 @@ async def handle_profile(entity_id: int) -> None:
                 )
             ).all()
         )
+        from sqlalchemy.orm import joinedload
         shards = list(
-            session.exec(select(TarotShard).where(TarotShard.owner_id == entity_id)).all()
+            session.exec(
+                select(TarotShard)
+                .where(TarotShard.owner_id == entity_id)
+                .options(joinedload(TarotShard.lore))
+            ).unique().all()
         )
         card_names = [
             f"{s.lore.name} ({s.lore.arcana_type})" for s in shards if s.lore

@@ -1,0 +1,224 @@
+
+================================================================================
+[2026-05-01T19:04:21.191844] LLM CALL START (Run: 019de3bf-5807-7e91-8c31-b80ea27cb815)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+Do NOT invent locations, characters, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: reveal
+
+Narrative intent: Follow the system directive exactly as instructed.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[SYSTEM — GM INSTRUCTION: CARD REVEAL]
+
+The player has completed the void interview. You must now reveal their three drawn cards.
+
+Player alignment tendency: balance
+
+Rules for card selection:
+  • You MUST select EXACTLY ONE Major Arcana (core card) that resonates with their alignment:
+    - balance → prefer The High Priestess, The Star, Temperance, The World
+    - order   → prefer The Emperor, Justice, The Hierophant, Strength
+    - chaos   → prefer The Fool, The Tower, The Magician, The Moon
+  • You MUST select EXACTLY TWO Minor Arcana (support cards). These must be from the Wands, Cups, Swords, or Pentacles suits.
+  • CRITICAL: Do NOT select more than one Major Arcana. The second and third cards MUST be Minor Arcana.
+
+Narrate the reveal poetically. Name each of the three cards. Describe what the player feels as each turns face-up.
+After the reveal, tell the player: "These cards are now yours. They hum in your memory."
+Then transition naturally into the physical world: the void dissolves, the Awakening begins.
+
+[The next system override will place the player in the physical world.]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:05:10.327761] LLM CALL END (Run: 019de3bf-5807-7e91-8c31-b80ea27cb815)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+The void thins to a silver haze.  
+Three cards drift forward and hover chest-high, edges glowing like moonlit glass.
+
+First turns: The High Priestess.  
+Her pillared throne faces you, scroll half-open, eyes calm.  
+A cool tide rises behind your ribs—quiet, balanced, listening.
+
+Second: Six of Cups.  
+Two children on the card offer a flowering cup; pastel chalk still clings to their smudged knees.  
+Your own palms tingle with remembered sun-warmth and the scent of crushed grass.
+
+Third: Knight of Pentacles.  
+A armored rider holds a single gold coin against brown fields.  
+Your heartbeat steadies, hooves drumming slow patience through the soles of your feet.
+
+These cards are now yours. They hum in your memory.
+
+The haze peels away like wet silk.  
+Stone replaces void—rough granite under your back, dawn air brushing your face.  
+The Awakening begins.
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:05:23.063767] LLM CALL START (Run: 019de3c0-49b7-78c3-a469-db89f53862a8)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+Do NOT invent locations, characters, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: ok
+
+Narrative intent: Follow the system directive exactly as instructed.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[SYSTEM — GM INSTRUCTION: AWAKENING SCENE]
+
+The void interview and card draw are complete. You must now transition the player
+into the physical world. Write this as an immersive, grounded scene — NOT mystical.
+
+Setting: A small, worn room at the Broken Lantern Inn, Elaris Hollow.
+  - Morning light cuts through a cracked wooden shutter.
+  - Rough hewn walls. Smell of woodsmoke and damp straw.
+  - A clay cup on the bedside table. A threadbare wool blanket.
+  - Distant sounds of a waking market outside — calls, cart wheels, a dog barking.
+
+What happens:
+  1. The player wakes. The void dream lingers, fading fast.
+  2. They reach for the cup. It slides a few inches on its own — just for a moment.
+     They blink. It is still. Did that happen?
+  3. DO NOT explain it. Let them wonder.
+  4. Outside the window, the market is starting. Something falls. Laughter. A bell.
+  5. End with an open prompt: the player must choose what to do first.
+
+Rules:
+  - Name the inn and the village. Make it feel like a REAL place with texture and smell.
+  - Do NOT mention cards, Arcana, the void, or any system names.
+  - 3-4 paragraphs max. Grounded. Curious. Real.
+
+[TUTORIAL CONTROL — PHASE 1: AWAKENING]
+TUTORIAL PHASE 1 — AWAKENING
+The player has just woken up in a small room at the Broken Lantern Inn in Elaris Hollow. They feel disoriented. A strange dream lingers — fragments of cards, light, and voices. DO NOT explain any mechanics. Describe only the immediate environment: the rough wooden walls, morning light through a cracked shutter, the smell of woodsmoke, and a distant sound from outside. End with a prompt that makes the player want to step outside.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:06:01.635869] LLM CALL END (Run: 019de3c0-49b7-78c3-a469-db89f53862a8)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+You wake on a straw-stuffed mattress that crackles under your weight. The Broken Lantern Inn’s back room is narrow, its pine boards grey with age. A single sun-shaft slips through the warped shutter and lands on your blanket, stirring dust that tastes of last night’s hearth.
+
+A clay cup waits on the stool beside you. You reach; the cup skates an inch across the wood, then stops. You stare, throat dry, but it sits ordinary as crockery can be. Somewhere below, the innkeeper haggles over the price of eggs.
+
+Outside, wheels clatter and a woman laughs as her stall collapses with a clap of wood. The market is waking.
+
+================================================================================
+
