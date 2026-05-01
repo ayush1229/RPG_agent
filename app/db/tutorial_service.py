@@ -363,52 +363,42 @@ def _active_locks_summary(phase: int) -> str:
     return ", ".join(locked) if locked else "none"
 
 
+# Prepended to any phase directive after the first turn in that phase.
+# Instructs the GM not to re-introduce NPCs or re-describe the scene,
+# while still providing the full phase context as background reference.
+# Works for ALL phases without any per-phase special-casing.
+_CONTINUING_PREFIX = (
+    "[SCENE ALREADY ESTABLISHED — DO NOT RESET]\n"
+    "The opening of this phase has already been narrated to the player. "
+    "Do NOT re-introduce any NPCs, re-describe the environment, or repeat any backstory. "
+    "Any named character keeps their exact name and appearance from their first introduction — "
+    "do not invent a new description. "
+    "Respond directly to the player's current action and continue the scene naturally.\n"
+    "The following is reference context for this phase (not a re-narration instruction):\n"
+    "─" * 60 + "\n"
+)
+
+
 def _phase_directive_stateful(phase: int, phase_data: dict) -> str:
     """
-    Return a directive that is aware of how many turns have already passed in
-    the current phase. For the first turn, return the full scene-setting directive.
-    For subsequent turns, return a shorter 'continue' directive so the GM does
-    not re-introduce NPCs or reset the scene on every player message.
+    Generic stateful directive selector.
+
+    Turn 0 of a phase  → return the full intro directive verbatim.
+    Turn 1+ of a phase → prepend _CONTINUING_PREFIX to the intro directive.
+
+    This single function handles every phase (2–11) without any per-phase
+    branching, so new phases or NPC introductions are automatically covered.
     """
+    base = _PHASE_DIRECTIVES.get(phase, "")
+    if not base:
+        return base
+
     turns_done = phase_data.get(f"turns_in_phase_{phase}", 0)
+    if turns_done == 0:
+        return base   # First turn: present the full scene-setting directive
 
-    if phase == 2:
-        if turns_done == 0:
-            return _PHASE_DIRECTIVES[2]
-        return (
-            "TUTORIAL PHASE 2 — FIRST INTERACTION (continuing)\n"
-            "Callum has already introduced himself and made his request. "
-            "DO NOT re-introduce him or repeat his backstory. "
-            "Callum is stocky, around fifty, with a salt-and-pepper beard and a patched trader's vest. "
-            "Always call him Callum. "
-            "Respond naturally to the player's current action. "
-            "If the player agreed to help, the scene should progress toward the forest path. "
-            "If the player is still hesitating, let Callum gently press — do not repeat his full speech."
-        )
-
-    if phase == 3:
-        if turns_done == 0:
-            return _PHASE_DIRECTIVES[3]
-        return (
-            "TUTORIAL PHASE 3 — FIRST TASK (continuing)\n"
-            "The player is already at the Whispering Forest Edge. "
-            "The lockbox is near the fallen log; a creature or shadow is in the area. "
-            "Do NOT re-describe the journey or the player's arrival. "
-            "Continue directly from the current situation and respond to the player's action."
-        )
-
-    if phase == 4:
-        if turns_done == 0:
-            return _PHASE_DIRECTIVES[4]
-        return (
-            "TUTORIAL PHASE 4 — FIRST COMBAT (continuing)\n"
-            "Combat with the Hollow Stalker is already underway. "
-            "Continue the fight from where it left off. Do NOT restart it or re-describe the creature appearing. "
-            "The player MUST win. Respond to their current action."
-        )
-
-    # All other phases: static directive (they are single-beat moments)
-    return _PHASE_DIRECTIVES.get(phase, "")
+    # Subsequent turns: tell the GM the scene is established, keep context as ref
+    return _CONTINUING_PREFIX + base
 
 
 # =============================================================
