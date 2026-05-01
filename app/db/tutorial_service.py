@@ -216,8 +216,7 @@ _PHASE_DIRECTIVES: dict[int, str] = {
         "and a small lockbox of trade samples was left behind in the Whispering Forest Edge. "
         "He asks the player to retrieve it — nothing dangerous, he says, though he looks uncertain. "
         "ALWAYS refer to the merchant as Callum. Never invent a different name or appearance for him. "
-        "DO NOT mention quest systems, objectives, or UI elements. "
-        "Let Callum speak naturally. The player must feel like they are helping a person, not accepting a task."
+        "Let Callum speak naturally."
     ),
     3: (
         "TUTORIAL PHASE 3 — FIRST TASK\n"
@@ -242,36 +241,30 @@ _PHASE_DIRECTIVES: dict[int, str] = {
         "The player returns to Old Well Square with Callum's lockbox. "
         "Callum is relieved, grateful. He presses a small coin pouch and a worn leather satchel into "
         "the player's hands, saying he has no better way to thank them. "
-        "DO NOT name XP, inventory slots, or item stats. "
-        "The player simply has new things. Let them feel the weight of earning something."
+        "Narrate the handover warmly — the weight of the coins, the smell of the old leather."
     ),
     6: (
         "TUTORIAL PHASE 6 — ECONOMY INTRODUCTION\n"
         "Callum opens his modest market stall — a few crates of goods arranged on a cloth. "
         "He explains he buys and sells what travelers need, and gestures at his wares. "
         "Let the player browse and trade naturally. "
-        "DO NOT show price lists or menu prompts. "
         "Callum names prices conversationally: 'That one? Four marks. Fair for the quality.'"
     ),
     7: (
         "TUTORIAL PHASE 7 — HOUSING INTRODUCTION\n"
-        "MANDATORY GM INSTRUCTION: The sky is visibly darkening. You MUST include the line: "
-        "\"The light is fading. You should find shelter.\"\n"
+        "The sky is visibly darkening. Mention that the light is fading and shelter would be wise.\n"
         "Direct the player toward the Broken Lantern Inn. "
         "The innkeeper, a broad woman named Maren, is already lighting lamps at the entrance. "
         "She offers a room for the night — simple, safe, warm. "
-        "She names a small price. Nothing threatening. "
-        "DO NOT describe the rental UI. The player pays Maren directly in the story."
+        "She names a small price. Nothing threatening."
     ),
     8: (
         "TUTORIAL PHASE 8 — NIGHT SYSTEM\n"
         "Night has fully fallen over Elaris Hollow. "
-        "If the player is inside (sheltered), describe the muffled sounds of the dark outside — "
-        "safe and distant. "
+        "If the player is inside (sheltered), describe the muffled sounds of the dark outside — safe and distant. "
         "If the player is still outside: describe shadows deepening, distant sounds of movement, "
         "the feeling of being watched. A minor ambush event IS possible. "
-        "Enemies are slightly stronger at night — narrate this through atmosphere, not numbers. "
-        "Never break narrative to explain the night multiplier."
+        "Enemies are slightly stronger at night — narrate this through atmosphere, not numbers."
     ),
     9: (
         "TUTORIAL PHASE 9 — FIRST DUNGEON (OPTIONAL)\n"
@@ -456,9 +449,27 @@ def on_trade_completed(session: Session, entity_id: int) -> dict:
 # TURN-BASED AUTO-ADVANCE (called once per player message)
 # =============================================================
 
+# System UI messages sent to the player when a phase transition fires.
+# These are game-layer notifications distinct from the GM narrative — shown as
+# a separate Chainlit message so the player gets both story and game feedback.
+# Key = new_phase the player just entered.
+_PHASE_EVENTS: dict[int, str] = {
+    2:  "📜 **Quest:** Retrieve the Lockbox\n🎯 *Goal:* Find Callum's sample box near the Whispering Forest Edge",
+    3:  "🌲 *Heading into the Whispering Forest Edge...*",
+    4:  "⚔️ **Enemy Encountered:** Hollow Stalker",
+    5:  "✅ **Quest Complete:** Retrieve the Lockbox\n💰 *Reward:* Coin pouch & leather satchel received",
+    6:  "🏪 **Economy unlocked** — you can now buy and sell goods",
+    7:  "🌙 *Night is falling — find shelter soon*",
+    8:  "🌑 **Night system active** — dangers increase after dark",
+    9:  "🗺️ **New area discovered:** Ruins of Velkar",
+    10: "✨ *Something stirs at the Abandoned Shrine...*",
+    11: "🌍 **Tutorial complete** — the world beyond Elaris Hollow is open",
+}
+
 # Minimum player turns before a phase can auto-advance.
-# Phase 1 is handled separately in handlers.py (instant after Awakening).
+# Phase 1: advance after 1 turn (awakening narrated → open world).
 _PHASE_MIN_TURNS: dict[int, int] = {
+    1: 1,   # After the awakening narrative, advance to Phase 2 (Callum encounter)
     2: 3,   # After 3 turns in Phase 2 (Callum encounter), head to Forest
     3: 3,   # After 3 turns in Phase 3 (approaching Forest), combat starts
     4: 2,   # After 2 turns in Phase 4 (combat), reward follows
@@ -497,7 +508,9 @@ def tick_phase_turn(session: Session, entity_id: int) -> dict:
 
     if turns >= min_turns:
         result = advance_phase(session, entity_id)
-        return {"advanced": True, "new_phase": result.get("phase")}
+        new_phase = result.get("phase")
+        event_msg = _PHASE_EVENTS.get(new_phase, "")
+        return {"advanced": True, "new_phase": new_phase, "event_msg": event_msg}
 
     return {"advanced": False, "new_phase": None, "turns": turns, "min": min_turns}
 

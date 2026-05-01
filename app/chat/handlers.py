@@ -178,15 +178,7 @@ async def on_message(message: cl.Message) -> None:
     # Priority: prologue directive (card reveal / awakening) > tutorial context > None
     with get_session() as session:
         entity_id = cl.user_session.get("_entity_id_cache")
-        if entity_id:
-            from app.db.tutorial_service import get_tutorial_state, advance_phase
-            from app.db.models import TarotEntity
-            ts = get_tutorial_state(session, entity_id)
-            # Phase 1 (Awakening) is already handled by the awakening GM directive.
-            # Auto-advance to Phase 2 (First Interaction / Callum) immediately.
-            if ts.phase == 1:
-                advance_phase(session, entity_id)
-
+        from app.db.models import TarotEntity
         tutorial_ctx = build_tutorial_context(session, entity_id) if entity_id else ""
 
         # Capture entity stats for the HUD footer (before session closes)
@@ -311,12 +303,13 @@ async def on_message(message: cl.Message) -> None:
         if entity_id:
             advance_arc_if_ready(session, entity_id)
 
-        # 9a. Advance tutorial phase by turn count (phases 2–10)
+        # 9a. Advance tutorial phase by turn count (phases 1–10)
         if entity_id:
             from app.db.tutorial_service import tick_phase_turn
             tick_result = tick_phase_turn(session, entity_id)
-            if tick_result.get("advanced") and settings.app_debug:
-                print(f"[DEBUG] Tutorial auto-advanced to phase {tick_result['new_phase']}")
+            event_msg = tick_result.get("event_msg", "") if tick_result.get("advanced") else ""
+            if event_msg:
+                await cl.Message(content=event_msg, author="🎮 System").send()
 
         # 9b. Trigger summary if interval reached or major event fired
         major_event = (
