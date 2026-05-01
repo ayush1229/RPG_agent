@@ -413,3 +413,54 @@ def on_trade_completed(session: Session, entity_id: int) -> dict:
     if ts.phase == 6:
         return advance_phase(session, entity_id)   # → phase 7: housing intro
     return {"success": False, "reason": "wrong_phase"}
+
+
+# =============================================================
+# TURN-BASED AUTO-ADVANCE (called once per player message)
+# =============================================================
+
+# Minimum player turns before a phase can auto-advance.
+# Phase 1 is handled separately in handlers.py (instant after Awakening).
+_PHASE_MIN_TURNS: dict[int, int] = {
+    2: 3,   # After 3 turns in Phase 2 (Callum encounter), head to Forest
+    3: 3,   # After 3 turns in Phase 3 (approaching Forest), combat starts
+    4: 2,   # After 2 turns in Phase 4 (combat), reward follows
+    5: 2,   # After 2 turns in Phase 5 (reward), economy opens
+    6: 3,   # After 3 turns in Phase 6 (economy), housing intro
+    7: 2,   # After 2 turns in Phase 7 (housing), night system
+    8: 3,   # After 3 turns in Phase 8 (night), optional dungeon
+    9: 2,   # After 2 turns in Phase 9 (dungeon), dream hook
+    10: 2,  # After 2 turns in Phase 10 (dream), tutorial complete
+}
+
+
+def tick_phase_turn(session: Session, entity_id: int) -> dict:
+    """
+    Called once per player message (after the GM has responded).
+    Increments the per-phase turn counter stored in phase_data.
+    When the counter reaches the phase minimum, auto-advances to the next phase.
+
+    Returns {"advanced": bool, "new_phase": int | None}.
+    """
+    ts = get_tutorial_state(session, entity_id)
+    phase = ts.phase
+
+    # Only auto-advance phases that have a turn minimum defined
+    min_turns = _PHASE_MIN_TURNS.get(phase)
+    if min_turns is None:
+        return {"advanced": False, "new_phase": None}
+
+    data: dict = json.loads(ts.phase_data or "{}")
+    turns_key = f"turns_in_phase_{phase}"
+    turns = data.get(turns_key, 0) + 1
+    data[turns_key] = turns
+    ts.phase_data = json.dumps(data)
+    session.add(ts)
+    session.commit()
+
+    if turns >= min_turns:
+        result = advance_phase(session, entity_id)
+        return {"advanced": True, "new_phase": result.get("phase")}
+
+    return {"advanced": False, "new_phase": None, "turns": turns, "min": min_turns}
+

@@ -311,7 +311,14 @@ async def on_message(message: cl.Message) -> None:
         if entity_id:
             advance_arc_if_ready(session, entity_id)
 
-        # 9. Trigger summary if interval reached or major event fired
+        # 9a. Advance tutorial phase by turn count (phases 2–10)
+        if entity_id:
+            from app.db.tutorial_service import tick_phase_turn
+            tick_result = tick_phase_turn(session, entity_id)
+            if tick_result.get("advanced") and settings.app_debug:
+                print(f"[DEBUG] Tutorial auto-advanced to phase {tick_result['new_phase']}")
+
+        # 9b. Trigger summary if interval reached or major event fired
         major_event = (
             arbiter_result is not None and getattr(arbiter_result, "success", False)
         )
