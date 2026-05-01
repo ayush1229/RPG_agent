@@ -8,7 +8,7 @@ from app.db.models import Location, SideCharacter, TarotShard
 from app.db.service import tarot_service
 
 
-def build_gm_context(session: Session, location_id: Optional[int] = None) -> str:
+def build_gm_context(session: Session, location_id: Optional[int] = None, sub_location_id: Optional[int] = None) -> str:
     """
     Just-In-Time (JIT) context builder for the Game Master agent.
 
@@ -21,25 +21,42 @@ def build_gm_context(session: Session, location_id: Optional[int] = None) -> str
     Args:
         session: Read-only SQLModel session.
         location_id: If None, returns a brief world overview.
+        sub_location_id: If set, injects specific sub-location details.
     """
     if location_id is not None:
-        return _build_location_context(session, location_id)
+        return _build_location_context(session, location_id, sub_location_id)
     return _build_world_overview(session)
 
 
-def _build_location_context(session: Session, location_id: int) -> str:
+def _build_location_context(session: Session, location_id: int, sub_location_id: Optional[int] = None) -> str:
     loc = session.get(Location, location_id)
     if not loc:
         return "(location not found)"
 
-    lines: list[str] = [
-        f"LOCATION: {loc.name}",
-        f"Description: {loc.description}",
-        f"Safe Zone: {loc.is_safe_zone} | Magic Restricted: {loc.is_magic_restricted}",
+    from app.db.models import CitySubLocation
+    
+    sub_loc = None
+    if sub_location_id:
+        sub_loc = session.get(CitySubLocation, sub_location_id)
+        
+    if sub_loc:
+        lines: list[str] = [
+            f"LOCATION: {sub_loc.name} (Inside {loc.name})",
+            f"Description: {sub_loc.description}",
+            f"Type: {sub_loc.sub_type.title()} | Safe Zone: {sub_loc.is_safe_zone}",
+        ]
+    else:
+        lines: list[str] = [
+            f"LOCATION: {loc.name}",
+            f"Description: {loc.description}",
+            f"Safe Zone: {loc.is_safe_zone} | Magic Restricted: {loc.is_magic_restricted}",
+        ]
+        
+    lines.extend([
         _build_time_context(session),
         "",
-        "CHARACTERS PRESENT:",
-    ]
+        "CHARACTERS PRESENT:"
+    ])
 
     for char in loc.occupants:
         entity = char.tarot_wallet
@@ -66,6 +83,14 @@ def _build_location_context(session: Session, location_id: int) -> str:
             lines.append(mana_line)
         if card_line:
             lines.append(card_line)
+            
+        # Travel status
+        from app.db.models import TravelState
+        travel = session.exec(select(TravelState).where(TravelState.entity_id == entity.id, TravelState.is_completed == False)).first()
+        if travel:
+            lines.append(f"    Travel Status: {travel.status.upper()} (Route: {travel.route_type})")
+            if travel.status == "interrupted":
+                lines.append(f"    [TUTORIAL CONTROL] MANDATORY SYSTEM INSTRUCTION: {char.name}'s journey is currently INTERRUPTED by an event on the road. The GM MUST force the player to resolve this event (combat, dialogue, flight) before continuing. Once resolved, the GM MUST instruct the Arbiter to 'resume travel' or 'cancel travel'.")
 
         # Tarot affinity (archetype, not full lore dump)
         if char.persona and char.persona.tarot_affinity:
@@ -73,6 +98,30 @@ def _build_location_context(session: Session, location_id: int) -> str:
             lines.append(
                 f"    Affinity: {lore.name} — {lore.magical_manifestation}"
             )
+
+    if not sub_loc:
+        discovered_subs = session.exec(
+            select(CitySubLocation)
+            .where(CitySubLocation.city_id == location_id, CitySubLocation.is_discovered == True)
+        ).all()
+        if discovered_subs:
+            lines.append("\nDISCOVERED SUB-LOCATIONS IN THIS CITY:")
+            for s in discovered_subs:
+                lines.append(f"  • {s.name} ({s.sub_type.title()}): {s.description}")
+
+    # World Events
+    from app.db.models import NPCWorldEvent
+    recent_events = session.exec(
+        select(NPCWorldEvent)
+        .where(NPCWorldEvent.location_id == location_id, NPCWorldEvent.resolved == False)
+        .order_by(NPCWorldEvent.created_at.desc())
+        .limit(3)
+    ).all()
+    
+    if recent_events:
+        lines.append("\nRECENT WORLD EVENTS (MANDATORY NARRATIVE CONTEXT):")
+        for ev in recent_events:
+            lines.append(f"  • A {ev.event_type} involving {ev.involved_entities} happened here recently.")
 
     return "\n".join(lines)
 

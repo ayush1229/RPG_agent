@@ -94,6 +94,7 @@ class TarotEntity(SQLModel, table=True):
     pos_x: float = Field(default=0.0)
     pos_y: float = Field(default=0.0)
     current_location_id: Optional[int] = Field(default=None, foreign_key="location.id")
+    sub_location_id: Optional[int] = Field(default=None, foreign_key="citysublocation.id")
 
     # ── DAMAGE MODIFIERS ──────────────────────────────────
     damage_bonus: int = Field(default=0)     # flat bonus to outgoing damage
@@ -233,10 +234,33 @@ class Location(SQLModel, table=True):
     is_magic_restricted: bool = Field(default=False)
     # "major_kingdom" | "minor_kingdom" | "dungeon" | "town" | "void" | "neutral"
     location_type: str = Field(default="neutral")
+    danger_level: float = Field(default=1.0)
+    terrain_type: str = Field(default="plains")
     # If set, completing this main quest invalidates all active events in the region
     region_main_quest_id: Optional[int] = Field(default=None, foreign_key="quest.id")
 
     occupants: List["SideCharacter"] = Relationship(back_populates="current_location")
+
+
+class CitySubLocation(SQLModel, table=True):
+    """Dynamic sub-locations inside cities (e.g., inns, shops, squares)."""
+    __table_args__ = {'extend_existing': True}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    description: str
+
+    city_id: int = Field(foreign_key="location.id")
+
+    sub_type: str  # "inn", "shop", "square", "district", "guild", "hidden", "residence"
+
+    is_safe_zone: bool = Field(default=True)
+    is_discovered: bool = Field(default=False)
+
+    x: Optional[float] = Field(default=None)
+    y: Optional[float] = Field(default=None)
+
+    tags: Optional[str] = Field(default=None)
 
 
 # ---------------------------------------------------------
@@ -250,9 +274,11 @@ class SideCharacter(SQLModel, table=True):
     name: str = Field(index=True)
     position: str
     current_status: str
+    has_met_player: bool = Field(default=False)
 
     tarot_entity_id: Optional[int] = Field(default=None, foreign_key="tarotentity.id")
     location_id: Optional[int] = Field(default=None, foreign_key="location.id")
+    sub_location_id: Optional[int] = Field(default=None, foreign_key="citysublocation.id")
 
     tarot_wallet: Optional[TarotEntity] = Relationship(back_populates="side_character")
     current_location: Optional[Location] = Relationship(back_populates="occupants")
@@ -798,19 +824,40 @@ class MainStoryState(SQLModel, table=True):
 # =============================================================
 
 # ── Terrain modifiers (used by travel_time formula) ──────────────────────
-TERRAIN_MODIFIERS: dict[str, float] = {
-    "city":      1.0,
-    "town":      1.0,
-    "plains":    1.2,
-    "forest":    1.5,
-    "wild":      1.5,
-    "mountain":  2.0,
-    "dungeon":   1.8,
+TERRAIN_SPEED_MODIFIER: dict[str, float] = {
+    "plains": 1.0,
+    "forest": 1.2,
+    "swamp": 1.5,
+    "mountain": 1.7,
+    "ruins": 1.3,
+    "desert": 1.4,
+    "city": 1.0,
+    "town": 1.0,
+    "wild": 1.5,
+    "dungeon": 1.8,
     "corrupted": 2.5,
-    "void":      3.0,
-    "neutral":   1.2,
+    "void": 3.0,
+    "neutral": 1.2,
     "major_kingdom": 1.0,
     "minor_kingdom": 1.1,
+}
+
+TERRAIN_EVENT_MODIFIER: dict[str, float] = {
+    "plains": 0.5,
+    "forest": 1.2,
+    "swamp": 1.5,
+    "mountain": 1.3,
+    "ruins": 2.0,
+    "desert": 1.1,
+    "city": 0.1,
+    "town": 0.2,
+    "wild": 1.5,
+    "dungeon": 2.5,
+    "corrupted": 3.0,
+    "void": 4.0,
+    "neutral": 1.0,
+    "major_kingdom": 0.2,
+    "minor_kingdom": 0.5,
 }
 
 
@@ -853,13 +900,38 @@ class TravelState(SQLModel, table=True):
     target_y: float
     target_location_id: Optional[int] = Field(default=None, foreign_key="location.id")
 
-    terrain_type: str = Field(default="plains")   # key into TERRAIN_MODIFIERS
+    terrain_type: str = Field(default="plains")   # key into TERRAIN_SPEED_MODIFIER
     speed: float = Field(default=1.0, gt=0)        # units per second
     travel_time_seconds: float                     # total journey duration
 
     start_time: datetime = Field(default_factory=utcnow)
     end_time: datetime                              # = start_time + travel_time_seconds
     is_completed: bool = Field(default=False)
+    
+    route_type: str = Field(default="safe")         # "safe", "fast", "dangerous"
+    status: str = Field(default="active")           # "active", "interrupted", "completed"
+    last_event_progress_pct: float = Field(default=0.0) # To track progress since last event check
+
+
+class TravelEvent(SQLModel, table=True):
+    """Event that triggers during travel."""
+    __table_args__ = {'extend_existing': True}
+    id: Optional[int] = Field(default=None, primary_key=True)
+    event_type: str  # "combat", "encounter", "discovery", "anomaly", "quest"
+    description: str
+    difficulty: int
+    location_id: Optional[int] = Field(default=None, foreign_key="location.id")
+
+
+class TravelLog(SQLModel, table=True):
+    """Log of a completed journey."""
+    __table_args__ = {'extend_existing': True}
+    id: Optional[int] = Field(default=None, primary_key=True)
+    entity_id: int = Field(foreign_key="tarotentity.id", index=True)
+    start_location: Optional[int] = Field(default=None) # location_id or coordinates representation
+    end_location: Optional[int] = Field(default=None)
+    events_triggered: str = Field(default="")
+    total_time: float
 
 
 # ---------------------------------------------------------
@@ -1547,3 +1619,35 @@ class TutorialState(SQLModel, table=True):
     phase_data: str = Field(default="{}")   # JSON — arbitrary per-phase state
     started_at: datetime = Field(default_factory=utcnow)
     completed_at: Optional[datetime] = Field(default=None)
+
+
+# ---------------------------------------------------------
+# 46. NPC SIMULATION
+# ---------------------------------------------------------
+class NPCIntent(SQLModel, table=True):
+    """Tracks what an NPC is currently trying to do."""
+    __table_args__ = {'extend_existing': True}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    entity_id: int = Field(foreign_key="tarotentity.id", index=True)
+    intent_type: str  # "travel", "patrol", "trade", "hunt", "flee", "idle"
+    
+    target_location_id: Optional[int] = Field(default=None, foreign_key="location.id")
+    target_entity_id: Optional[int] = Field(default=None, foreign_key="tarotentity.id")
+    
+    priority: int = Field(default=1)
+    expires_at: Optional[datetime] = Field(default=None)
+
+
+class NPCWorldEvent(SQLModel, table=True):
+    """Tracks autonomous events that occurred in the background."""
+    __table_args__ = {'extend_existing': True}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    event_type: str  # "ambush", "trade", "combat", "discovery", "anomaly"
+    location_id: int = Field(foreign_key="location.id", index=True)
+    involved_entities: str  # comma-separated string of names or IDs
+    
+    impact_level: int = Field(default=1)
+    resolved: bool = Field(default=False)
+    created_at: datetime = Field(default_factory=utcnow)

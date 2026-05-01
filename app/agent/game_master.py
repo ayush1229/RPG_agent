@@ -24,8 +24,8 @@ _ANALYSIS_SYSTEM = (
     "  needs_persona   (bool)      : true if an NPC should speak\n"
     "  npc_name        (str|null)  : NPC name if needs_persona is true\n"
     "  persona_context (str|null)  : situation context for Persona Agent\n"
-    "  needs_arbiter   (bool)      : true if an energy/resource transfer must happen\n"
-    "  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'\n"
+    "  needs_arbiter   (bool)      : true if an energy transfer must happen OR if a game state event occurs (movement, combat victory, item delivery, trade, resuming travel, canceling travel, meeting an NPC)\n"
+    "  arbiter_instruction (str|null): instruction for Arbiter. e.g. 'Transfer 50 upright from Merchant to Player', 'Move player to Whispering Forest Edge', 'resume travel', 'mark npc Oren as met'\n"
     "  narrative_intent (str)      : one sentence of what the GM should narrate\n\n"
     "PERSONA AGENT RULES:\n"
     "  • Only set needs_persona=true for an NPC who is explicitly PRESENT in the current scene context.\n"
@@ -33,6 +33,10 @@ _ANALYSIS_SYSTEM = (
     "    introduced yet in the conversation history.\n"
     "  • During tutorial phases, only Callum and Captain Oren are in scope.\n"
     "  • If an NPC appears only in lore or past history but is not physically present, set needs_persona=false.\n\n"
+    "CITY SUB-LOCATION RULES:\n"
+    "  • ONLY use the `create_location_in_city` tool when the player explicitly searches for a specific establishment (inn, shop, etc) or discovers a hidden area.\n"
+    "  • When using the tool, explicitly provide the current macro `city_name`.\n"
+    "  • Do NOT spam locations without narrative purpose. Do NOT create duplicates of existing discovered locations.\n\n"
     "Respond with ONLY the JSON object. No markdown. No explanation."
 )
 
@@ -135,10 +139,11 @@ class GameMasterAgent:
 
     # ── JIT context fetcher (GM's read-only DB access) ────────────────────────
 
-    def _fetch_scene_context(self, location_id: Optional[int] = None) -> str:
+    def _fetch_scene_context(self, location_id: Optional[int] = None, sub_location_id: Optional[int] = None) -> str:
         """Build JIT context string with location + character + lore data."""
         with Session(engine) as session:
-            return build_gm_context(session, location_id)
+            from app.db.context import build_gm_context
+            return build_gm_context(session, location_id, sub_location_id)
 
     # ── Phase 1: Analyze ──────────────────────────────────────────────────────
 
@@ -147,13 +152,14 @@ class GameMasterAgent:
         message: str,
         history: list[ChatMessage],
         location_id: Optional[int] = None,
+        sub_location_id: Optional[int] = None,
         callbacks: Optional[list] = None,
     ) -> GMDecision:
         """
         Parse player message into a structured GMDecision.
         Injects JIT scene context (location + lore) before calling the LLM.
         """
-        scene_context = self._fetch_scene_context(location_id)
+        scene_context = self._fetch_scene_context(location_id, sub_location_id)
         history_text = "\n".join(
             f"{'Player' if m.role == Role.USER else 'GM'}: {m.content}"
             for m in history[-10:]

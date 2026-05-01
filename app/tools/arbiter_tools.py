@@ -212,6 +212,29 @@ def get_card_abilities(card_name: str) -> str:
 # and the DB stays in sync with the story — during AND after the tutorial.
 # ─────────────────────────────────────────────────────────────────────────────
 
+@tool
+def create_location_in_city(city_name: str, name: str, description: str, sub_type: str) -> str:
+    """
+    Creates a new sub-location (inn, shop, square, hidden, etc.) inside a city.
+    Only use this when the player actively searches for a place or uncovers a hidden area.
+    """
+    from app.db.location_service import create_city_sublocation
+    with Session(engine) as session:
+        city = session.exec(select(Location).where(Location.name == city_name)).first()
+        if not city:
+            return f"ERROR: City '{city_name}' not found."
+            
+        result = create_city_sublocation(session, city.id, name, description, sub_type)
+        if result["success"]:
+            import chainlit as cl
+            try:
+                cl.run_sync(cl.Message(content=f"📍 **Discovered Location:** {name} ({sub_type.title()})", author="🎮 System").send())
+            except:
+                pass
+            return f"SUCCESS: Created and discovered sub-location '{name}' in '{city_name}'."
+        return f"FAILED: {result['reason']}"
+
+
 
 @tool
 def move_player(entity_name: str, location_name: str) -> str:
@@ -226,9 +249,21 @@ def move_player(entity_name: str, location_name: str) -> str:
         if not entity:
             return f"ERROR: Entity '{entity_name}' not found."
 
+        # Try to find a main location
         loc = session.exec(
             select(Location).where(Location.name == location_name)
         ).first()
+        
+        sub_loc = None
+        if not loc:
+            # Try to find a sub-location
+            from app.db.models import CitySubLocation
+            sub_loc = session.exec(
+                select(CitySubLocation).where(CitySubLocation.name == location_name)
+            ).first()
+            if sub_loc:
+                loc = session.get(Location, sub_loc.city_id)
+                
         if not loc:
             return f"ERROR: Location '{location_name}' not found in DB."
 
@@ -239,7 +274,11 @@ def move_player(entity_name: str, location_name: str) -> str:
             return f"ERROR: No UserSession found for entity '{entity_name}'."
 
         user_session.last_location_id = loc.id
+        entity.current_location_id = loc.id
+        entity.sub_location_id = sub_loc.id if sub_loc else None
+        
         session.add(user_session)
+        session.add(entity)
         session.commit()
 
         # Fire tutorial location hook
@@ -430,6 +469,82 @@ def give_gold(entity_name: str, amount: int) -> str:
         return f"FAILED: {result.get('reason', 'unknown error')}"
 
 
+@tool
+def mark_npc_met(npc_name: str) -> str:
+    """
+    Mark an NPC as 'met' by the player.
+    Call this whenever the player has a meaningful interaction with an NPC.
+    """
+    from app.db.models import SideCharacter
+    with Session(engine) as session:
+        npc = session.exec(select(SideCharacter).where(SideCharacter.name == npc_name)).first()
+        if not npc:
+            return f"ERROR: NPC '{npc_name}' not found."
+            
+        npc.has_met_player = True
+        session.add(npc)
+        session.commit()
+        return f"SUCCESS: {npc_name} marked as met."
+
+@tool
+def resume_travel(entity_name: str) -> str:
+    """
+    Resume an interrupted travel journey for an entity.
+    Call this when a travel event (like combat) is resolved successfully.
+    """
+    from app.db.models import TravelState
+    import chainlit as cl
+    with Session(engine) as session:
+        entity = tarot_service.get_entity_by_name(session, entity_name)
+        if not entity:
+            return f"ERROR: Entity '{entity_name}' not found."
+            
+        travel = session.exec(select(TravelState).where(TravelState.entity_id == entity.id, TravelState.is_completed == False)).first()
+        if not travel:
+            return f"ERROR: No active or interrupted journey for {entity_name}."
+            
+        if travel.status != "interrupted":
+            return f"ERROR: Journey is already {travel.status}."
+            
+        travel.status = "active"
+        session.add(travel)
+        session.commit()
+        
+        try:
+            cl.run_sync(cl.Message(content=f"🛣️ **Travel Resumed:** {entity_name} continues their journey.").send())
+        except Exception:
+            pass
+            
+        return f"SUCCESS: Journey for {entity_name} resumed."
+
+@tool
+def cancel_travel(entity_name: str) -> str:
+    """
+    Cancel an active or interrupted journey.
+    The entity will be stranded at their current location or last known checkpoint.
+    """
+    from app.db.models import TravelState
+    import chainlit as cl
+    with Session(engine) as session:
+        entity = tarot_service.get_entity_by_name(session, entity_name)
+        if not entity:
+            return f"ERROR: Entity '{entity_name}' not found."
+            
+        travel = session.exec(select(TravelState).where(TravelState.entity_id == entity.id, TravelState.is_completed == False)).first()
+        if not travel:
+            return f"ERROR: No active journey to cancel for {entity_name}."
+            
+        session.delete(travel)
+        session.commit()
+        
+        try:
+            cl.run_sync(cl.Message(content=f"🛑 **Travel Canceled:** {entity_name} abandons their journey.").send())
+        except Exception:
+            pass
+            
+        return f"SUCCESS: Journey for {entity_name} canceled."
+
+
 
 # ─── Tool registry ────────────────────────────────────────────────────────────
 ARBITER_TOOLS = [
@@ -449,4 +564,10 @@ ARBITER_TOOLS = [
     # Inventory tools — award items/gold when GM narrates rewards
     give_item,
     give_gold,
+    # Travel tools
+    resume_travel,
+    cancel_travel,
+    # NPC tools
+    mark_npc_met,
+    create_location_in_city,
 ]

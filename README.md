@@ -47,8 +47,10 @@ The application uses **SQLModel** (built on SQLAlchemy) for its data layer.
 
 ### The World Map, Events, & Travel
 - **`WorldMap` & `Location`**: Includes spatial coordinates (`x`, `y`).
+- **`CitySubLocation`**: Cities dynamically expand into interiors and districts (e.g., inns, shops, hidden areas) constructed by the Game Master during exploration.
 - **`TravelState`**: Movement travel time calculated dynamically based on distance, entity speed, and `TERRAIN_MODIFIERS`.
 - **`WorldEventInstance`**: Spawns dynamic, time-bound side quests/anomalies (probabilistic selection via `EventTemplate`). Weighted by location modifiers (wars, sovereign influence, day/night).
+- **`NPCWorldEvent` & `NPCIntent`**: Fully deterministic NPC simulation engine where actors independently choose goals, travel, and trigger emergent world events (e.g. bandits ambushing merchants) resolved by the lazy-tick engine.
 
 ### Factions, Wars, & Sovereign Influence
 - **`Faction` & `TerritoryControl`**: Factions battle for control via the `War` system.

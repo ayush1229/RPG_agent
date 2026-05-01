@@ -47,6 +47,14 @@ def run_migrations() -> None:
         ("inventoryitem", "weight",         "REAL NOT NULL DEFAULT 0.0"),
         ("inventoryitem", "attack_bonus",   "INTEGER NOT NULL DEFAULT 0"),
         ("inventoryitem", "defense_bonus",  "INTEGER NOT NULL DEFAULT 0"),
+        ("location", "danger_level",        "REAL NOT NULL DEFAULT 1.0"),
+        ("location", "terrain_type",        "TEXT NOT NULL DEFAULT 'plains'"),
+        ("travelstate", "route_type",       "TEXT NOT NULL DEFAULT 'safe'"),
+        ("travelstate", "status",           "TEXT NOT NULL DEFAULT 'active'"),
+        ("travelstate", "last_event_progress_pct", "REAL NOT NULL DEFAULT 0.0"),
+        ("sidecharacter", "has_met_player", "BOOLEAN NOT NULL DEFAULT 0"),
+        ("sidecharacter", "sub_location_id", "INTEGER"),
+        ("tarotentity", "sub_location_id",  "INTEGER"),
     ]
 
     with engine.begin() as conn:

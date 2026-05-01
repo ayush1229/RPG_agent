@@ -148,6 +148,11 @@ async def on_message(message: cl.Message) -> None:
 
         # ── Step 2: Load full state from DB (using game_user_id for game state) ──
         state = load_user_state(session, game_user_id, chat_session_id=chat_session_id)
+        
+        # ── Step 2.5: Advance World Simulation ──────────────────────────────────
+        from app.db.world_service import process_world_delta
+        # Advance world time by 60 seconds for every chat message
+        process_world_delta(session, delta_seconds=60.0, player_location_id=state.location.id if state.location else None)
 
         # ── Step 3: Build minimal LLM context ─────────────────────────────────
         agent_ctx = build_agent_context(state)
@@ -228,6 +233,7 @@ async def on_message(message: cl.Message) -> None:
                 message=message.content,
                 history=history,
                 location_id=location_id,
+                sub_location_id=state.entity.sub_location_id,
                 callbacks=[llm_logger],
             )
             step.output = (

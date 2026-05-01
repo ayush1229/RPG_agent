@@ -229,11 +229,87 @@ async def handle_help() -> None:
             "| `/inventory` | View your items, equipment, and gold |\n"
             "| `/profile` | View character stats, Tarot cards, and equipped gear |\n"
             "| `/quests` | View active and completed quests |\n"
+            "| `/relations`| View faction diplomacy standings |\n"
+            "| `/npcs`     | View NPCs in your area and known contacts |\n"
+            "| `/events`   | View recent background world events |\n"
             "| `/help` | Show this help message |\n\n"
             "*Commands are instant and do not advance the story.*"
         ),
         author="🎮 System",
     ).send()
+
+
+async def handle_relations(entity_id: int) -> None:
+    from app.db.models import Faction, FactionRelation
+    with get_session() as session:
+        factions = {f.id: f.name for f in session.exec(select(Faction)).all()}
+        relations = session.exec(select(FactionRelation)).all()
+        
+    lines = ["## 🤝 Faction Relations"]
+    for r in relations:
+        fa = factions.get(r.faction_a_id, "Unknown")
+        fb = factions.get(r.faction_b_id, "Unknown")
+        status = "Allied 🟢" if r.relation >= 50 else "Hostile 🔴" if r.relation <= -50 else "Neutral ⚪"
+        lines.append(f"- **{fa} & {fb}**: {status} ({r.relation})")
+        
+    if len(lines) == 1: lines.append("*No factions exist yet.*")
+    await cl.Message(content="\n".join(lines), author="🎮 System").send()
+
+
+async def handle_npcs(entity_id: int) -> None:
+    from app.db.models import SideCharacter, TarotEntity, TravelState, Location
+    with get_session() as session:
+        player = session.get(TarotEntity, entity_id)
+        if not player: return
+        
+        local_npcs = session.exec(
+            select(SideCharacter).where(SideCharacter.location_id == player.current_location_id)
+        ).all()
+        
+        met_npcs = session.exec(
+            select(SideCharacter).where(SideCharacter.has_met_player == True)
+        ).all()
+        
+        traveling = session.exec(
+            select(TravelState, SideCharacter)
+            .join(SideCharacter, SideCharacter.tarot_entity_id == TravelState.entity_id)
+            .where(TravelState.is_completed == False)
+        ).all()
+        
+    lines = ["## 👁️ NPC Tracker\n**In your area:**"]
+    for n in local_npcs:
+        lines.append(f"- {n.name} ({n.position}) - {n.current_status}")
+    if not local_npcs: lines.append("- *Nobody around.*")
+    
+    lines.append("\n**Known Met NPCs:**")
+    for n in met_npcs:
+        lines.append(f"- {n.name} ({n.position})")
+    if not met_npcs: lines.append("- *You haven't met anyone yet.*")
+        
+    lines.append("\n**Traveling:**")
+    for t, n in traveling:
+        lines.append(f"- {n.name} is traveling (Route: {t.route_type})")
+    if not traveling: lines.append("- *No known travelers.*")
+        
+    await cl.Message(content="\n".join(lines), author="🎮 System").send()
+
+
+async def handle_events(entity_id: int) -> None:
+    from app.db.models import NPCWorldEvent, Location, TarotEntity
+    with get_session() as session:
+        player = session.get(TarotEntity, entity_id)
+        if not player: return
+        events = session.exec(
+            select(NPCWorldEvent).where(NPCWorldEvent.location_id == player.current_location_id).order_by(NPCWorldEvent.created_at.desc()).limit(5)
+        ).all()
+        
+    lines = ["## 🌍 Recent Local Events"]
+    for e in events:
+        status = "Resolved ✅" if e.resolved else "Active ⏳"
+        lines.append(f"- **{e.event_type.title()}** involving {e.involved_entities} ({status})")
+    if not events: lines.append("*It's quiet around here.*")
+        
+    await cl.Message(content="\n".join(lines), author="🎮 System").send()
 
 
 # ─── Dispatcher ───────────────────────────────────────────────────────────────
@@ -242,6 +318,9 @@ _COMMANDS: dict[str, object] = {
     "/inventory": handle_inventory,
     "/profile":   handle_profile,
     "/quests":    handle_quests,
+    "/relations": handle_relations,
+    "/npcs":      handle_npcs,
+    "/events":    handle_events,
     "/help":      handle_help,
 }
 

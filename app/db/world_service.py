@@ -41,10 +41,13 @@ from math import sqrt
 from typing import Optional
 
 from sqlmodel import Session, col, select
+import random
+import chainlit as cl
 
 from app.db.models import (
     EVENT_EFFECTS,
-    TERRAIN_MODIFIERS,
+    TERRAIN_SPEED_MODIFIER,
+    TERRAIN_EVENT_MODIFIER,
     WORLD_EVENT_TYPES,
     Faction,
     FactionRelation,
@@ -53,6 +56,8 @@ from app.db.models import (
     TarotEntity,
     TerritoryControl,
     TravelState,
+    TravelEvent,
+    TravelLog,
     War,
     WorldEvent,
     WorldMap,
@@ -83,15 +88,18 @@ def calculate_travel_time(
     distance: float,
     speed: float = DEFAULT_PLAYER_SPEED,
     terrain_type: str = "plains",
+    route_type: str = "safe",
 ) -> float:
     """
-    travel_time_seconds = distance / speed * terrain_modifier
+    travel_time_seconds = distance / effective_speed * terrain_modifier
     Returns 0.0 if already at destination.
     """
     if distance <= 0:
         return 0.0
-    modifier = TERRAIN_MODIFIERS.get(terrain_type, 1.2)
-    return (distance / max(speed, 0.01)) * modifier
+    modifier = TERRAIN_SPEED_MODIFIER.get(terrain_type, 1.2)
+    route_speed_mult = {"safe": 0.8, "fast": 1.2, "dangerous": 1.0}.get(route_type, 1.0)
+    effective_speed = max(speed * route_speed_mult, 0.01)
+    return (distance / effective_speed) * modifier
 
 
 # =============================================================
@@ -106,6 +114,7 @@ def travel_entity(
     *,
     terrain_type: str = "plains",
     speed: float = DEFAULT_PLAYER_SPEED,
+    route_type: str = "safe",
     target_location_id: Optional[int] = None,
 ) -> dict:
     """
@@ -133,7 +142,7 @@ def travel_entity(
             session.commit()
         return {"success": True, "travel_time_seconds": 0, "already_there": True}
 
-    travel_time = calculate_travel_time(dist, speed, terrain_type)
+    travel_time = calculate_travel_time(dist, speed, terrain_type, route_type)
     now = _utcnow()
     end_time = now + timedelta(seconds=travel_time)
 
@@ -146,10 +155,12 @@ def travel_entity(
         target_location_id=target_location_id,
         terrain_type=terrain_type,
         speed=speed,
+        route_type=route_type,
         travel_time_seconds=travel_time,
         start_time=now,
         end_time=end_time,
         is_completed=False,
+        status="active"
     )
     session.add(travel)
     session.commit()
@@ -160,6 +171,7 @@ def travel_entity(
         "travel_id": travel.id,
         "distance": round(dist, 2),
         "terrain_type": terrain_type,
+        "route_type": route_type,
         "travel_time_seconds": round(travel_time, 2),
         "eta": end_time.isoformat(),
         "is_traveling": True,
@@ -543,20 +555,117 @@ def get_active_events(session: Session, location_id: int) -> list[dict]:
 # LAZY-TICK WORLD SIMULATION
 # =============================================================
 
+def process_travel_events(session: Session, travel: TravelState) -> bool:
+    """
+    Called periodically during a long journey.
+    Determines if an event triggers and interrupts travel.
+    Returns True if an event triggered.
+    """
+    from app.db.time_service import check_day_night
+    
+    base_rate = 0.15 
+    terrain_mod = TERRAIN_EVENT_MODIFIER.get(travel.terrain_type, 1.0)
+    
+    loc = session.get(Location, travel.target_location_id)
+    danger_level = loc.danger_level if loc else 1.0
+    
+    route_danger_mult = {"safe": 0.5, "fast": 1.3, "dangerous": 1.8}.get(travel.route_type, 1.0)
+    
+    is_night, _ = check_day_night(session)
+    if is_night:
+        danger_level *= 1.7
+        base_rate *= 1.5
+        
+    event_chance = base_rate * terrain_mod * danger_level * route_danger_mult
+    
+    if random.random() < event_chance:
+        event_types = ["combat", "encounter", "discovery", "anomaly"]
+        ev_type = random.choice(event_types)
+        
+        event = TravelEvent(
+            event_type=ev_type,
+            description=f"A sudden {ev_type} interrupted your journey!",
+            difficulty=int(danger_level * 10),
+            location_id=travel.target_location_id
+        )
+        session.add(event)
+        
+        travel.status = "interrupted"
+        session.add(travel)
+        session.commit()
+        session.refresh(event)
+        
+        try:
+            cl.run_sync(cl.Message(content=f"⚠️ **Travel Interrupted!**\n{event.description}").send())
+        except Exception:
+            pass
+        
+        return True
+    return False
+
+def spawn_npc_travel():
+    """
+    Transiently spawn NPCs that trigger encounters without permanent DB bloat.
+    """
+    if random.random() < 0.1: # 10% chance
+        types = ["A merchant caravan passes by in the distance.", "You spot a guild patrol.", "A lone traveler nods at you as they pass."]
+        try:
+            cl.run_sync(cl.Message(content=f"👁️ {random.choice(types)}").send())
+        except Exception:
+            pass
+
 def _update_travel(session: Session, _delta: float) -> int:
-    """Resolve all journeys whose end_time has passed. Returns completed count."""
+    """Resolve journeys, handle progress updates, and check for interruptions."""
     now = _utcnow()
     pending = session.exec(
         select(TravelState).where(TravelState.is_completed == False)  # noqa: E712
     ).all()
     completed = 0
     for travel in pending:
+        if travel.status == "interrupted":
+            continue
+
         end_time = travel.end_time
         if end_time.tzinfo is None:
             end_time = end_time.replace(tzinfo=timezone.utc)
+            
+        start_time = travel.start_time
+        if start_time.tzinfo is None:
+            start_time = start_time.replace(tzinfo=timezone.utc)
+            
+        is_long_journey = travel.travel_time_seconds >= 120.0
+        
         if now >= end_time:
+            # Consume ration logic if long journey
+            if is_long_journey:
+                try:
+                    cl.run_sync(cl.Message(content=f"🍎 You consumed a ration during your long journey.").send())
+                except Exception:
+                    pass
             resolve_travel(session, travel.entity_id)
             completed += 1
+            continue
+            
+        # Check progress events for long journeys
+        if is_long_journey:
+            elapsed = (now - start_time).total_seconds()
+            progress_pct = min(1.0, elapsed / travel.travel_time_seconds)
+            
+            # If progressed by 10% since last check
+            if progress_pct >= travel.last_event_progress_pct + 0.10:
+                travel.last_event_progress_pct = progress_pct
+                session.add(travel)
+                
+                try:
+                    bar = "■" * int(progress_pct * 10) + "□" * (10 - int(progress_pct * 10))
+                    cl.run_sync(cl.Message(content=f"🗺️ **Travel Progress:** {int(progress_pct * 100)}%\n`[{bar}]`").send())
+                except Exception:
+                    pass
+
+                if process_travel_events(session, travel):
+                    continue # interrupted
+                    
+    spawn_npc_travel()
     return completed
 
 
@@ -611,7 +720,7 @@ def _update_events(session: Session, delta_seconds: float) -> int:
     return expired
 
 
-def process_world_delta(session: Session, delta_seconds: float) -> dict:
+def process_world_delta(session: Session, delta_seconds: float, player_location_id: Optional[int] = None) -> dict:
     """
     Main lazy-tick entry point.
     Called at the start of every player interaction with
@@ -622,6 +731,7 @@ def process_world_delta(session: Session, delta_seconds: float) -> dict:
       2. War progression
       3. Sovereign influence spread
       4. Event decay
+      5. NPC Behavior Simulation
     """
     if delta_seconds <= 0:
         return {"skipped": True}
@@ -630,6 +740,13 @@ def process_world_delta(session: Session, delta_seconds: float) -> dict:
     _update_wars(session, delta_seconds)
     _update_sovereign_influence(session, delta_seconds)
     events_expired = _update_events(session, delta_seconds)
+    
+    # Run NPC logic
+    from app.db.npc_simulation_service import simulate_npc_behavior, generate_world_events, resolve_world_events
+    simulate_npc_behavior(session, delta_seconds, player_location_id)
+    generate_world_events(session, player_location_id)
+    resolve_world_events(session)
+    
     session.commit()
 
     return {
