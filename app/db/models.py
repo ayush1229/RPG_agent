@@ -40,7 +40,7 @@ class TarotCardLore(SQLModel, table=True):
     behavioral_bias: str            # "acts before thinking, trusts fate"
 
     # Relationships (back-populated from dependents)
-    affiliated_personas: List["app.db.models.CharacterPersona"] = Relationship(
+    affiliated_personas: List["CharacterPersona"] = Relationship(
         back_populates="tarot_affinity"
     )
     affiliated_shards: List["TarotShard"] = Relationship(
@@ -257,7 +257,7 @@ class SideCharacter(SQLModel, table=True):
     tarot_wallet: Optional[TarotEntity] = Relationship(back_populates="side_character")
     current_location: Optional[Location] = Relationship(back_populates="occupants")
     history_logs: List["CharacterHistory"] = Relationship(back_populates="character")
-    persona: Optional["app.db.models.CharacterPersona"] = Relationship(back_populates="character")
+    persona: Optional["CharacterPersona"] = Relationship(back_populates="character")
 
 
 # ---------------------------------------------------------
