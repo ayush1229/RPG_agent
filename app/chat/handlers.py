@@ -55,7 +55,8 @@ from app.db.tutorial_service import build_tutorial_context
 from app.schemas import ChatMessage, Role
 
 _LOCATION_ID_KEY = "location_id"
-_USER_ID_KEY = "user_id"
+_USER_ID_KEY = "user_id"       # game identity — unique per chat session (= thread id)
+_UI_USER_ID_KEY = "ui_user_id" # Chainlit auth identity — groups sessions in the sidebar
 
 
 # ─── App startup ──────────────────────────────────────────────────────────────
@@ -75,20 +76,28 @@ async def on_chat_start() -> None:
     """
     Resolve user identity → load_user_state (creates entity if new player)
     → restore last location → send welcome with persisted state summary.
+
+    Identity split:
+      ui_user_id  = Chainlit auth identifier ('player') — groups sessions in the sidebar
+      game_user_id = chat_session_id (unique per tab) — binds to a distinct TarotEntity
+                     so every new chat is a completely independent game save.
     """
-    # Resolve user_id from Chainlit auth or fall back to session-id
-    user = cl.user_session.get("user")
-    user_id: str = (
-        getattr(user, "identifier", None)
-        or f"guest_{cl.user_session.get('id', 'unknown')}"
-    )
     # Chainlit gives each browser tab a unique session id
     chat_session_id: str = cl.user_session.get("id", "default")
-    cl.user_session.set(_USER_ID_KEY, user_id)
+
+    # ui_user_id: used only for DialogueLog and the sidebar — stays constant per auth user
+    user = cl.user_session.get("user")
+    ui_user_id: str = getattr(user, "identifier", None) or "player"
+
+    # game_user_id: used for UserSession / TarotEntity — unique per chat thread
+    game_user_id: str = chat_session_id
+
+    cl.user_session.set(_UI_USER_ID_KEY, ui_user_id)
+    cl.user_session.set(_USER_ID_KEY, game_user_id)
     cl.user_session.set("_chat_session_id", chat_session_id)
 
     with get_session() as session:
-        state = load_user_state(session, user_id, chat_session_id=chat_session_id)
+        state = load_user_state(session, game_user_id, chat_session_id=chat_session_id)
         location_id = state.session_row.last_location_id
 
     cl.user_session.set(_LOCATION_ID_KEY, location_id)
@@ -98,7 +107,7 @@ async def on_chat_start() -> None:
     is_returning = state.summary != "No history yet."
     if is_returning:
         welcome_body = (
-            f"Welcome back, **{user_id}**. Your adventure continues.\n\n"
+            f"Welcome back. Your adventure continues.\n\n"
             f"**Level {state.entity.level}** | "
             f"HP {state.entity.current_health}/{state.entity.max_health} | "
             f"Location: {state.location.name if state.location else 'Unknown'}\n\n"
@@ -107,7 +116,7 @@ async def on_chat_start() -> None:
     else:
         welcome_body = (
             f"# ⚔️ {settings.app_name}\n\n"
-            f"Welcome, **{user_id}**. Your soul awakens in a world of Tarot energy.\n\n"
+            "Welcome. Your soul awakens in a world of Tarot energy.\n\n"
             "Type anything to begin your adventure!"
         )
 
@@ -118,17 +127,20 @@ async def on_chat_start() -> None:
 
 @cl.on_message
 async def on_message(message: cl.Message) -> None:
-    user_id: str = cl.user_session.get(_USER_ID_KEY, "unknown")
+    # game_user_id is unique per chat thread — binds to a specific TarotEntity/UserSession
+    game_user_id: str = cl.user_session.get(_USER_ID_KEY, "unknown")
+    # ui_user_id groups all threads under one Chainlit account for the sidebar
+    ui_user_id: str = cl.user_session.get(_UI_USER_ID_KEY, "player")
     location_id: Optional[int] = cl.user_session.get(_LOCATION_ID_KEY)
     chat_session_id: str = cl.user_session.get("_chat_session_id", "default")
 
     with get_session() as session:
-        # ── Step 1: Persist user message ─────────────────────────────────────
-        save_dialogue(session, user_id, role="user",
+        # ── Step 1: Persist user message (using ui_user_id for sidebar grouping) ─
+        save_dialogue(session, ui_user_id, role="user",
                       message=message.content, chat_session_id=chat_session_id)
 
-        # ── Step 2: Load full state from DB ───────────────────────────────────
-        state = load_user_state(session, user_id, chat_session_id=chat_session_id)
+        # ── Step 2: Load full state from DB (using game_user_id for game state) ──
+        state = load_user_state(session, game_user_id, chat_session_id=chat_session_id)
 
         # ── Step 3: Build minimal LLM context ─────────────────────────────────
         agent_ctx = build_agent_context(state)
@@ -142,10 +154,10 @@ async def on_message(message: cl.Message) -> None:
 
         if prologue and not prologue.is_gm_directive:
             # Player-visible override: persist it (GM bypassed)
-            save_dialogue(session, user_id, role="assistant",
+            save_dialogue(session, ui_user_id, role="assistant",
                           message=prologue.text, chat_session_id=chat_session_id)
-            update_user_session(session, user_id, location_id=location_id)
-            await maybe_update_summary(session, user_id,
+            update_user_session(session, game_user_id, location_id=location_id)
+            await maybe_update_summary(session, ui_user_id,
                                        chat_session_id=chat_session_id)
 
         # Convert recent_messages -> ChatMessage list for GM
@@ -287,12 +299,12 @@ async def on_message(message: cl.Message) -> None:
 
     # ── Steps 7–9: Persist reply + update session + maybe summarise ───────────
     with get_session() as session:
-        # 7. Save assistant reply
-        save_dialogue(session, user_id, role="assistant",
+        # 7. Save assistant reply (ui_user_id for sidebar grouping)
+        save_dialogue(session, ui_user_id, role="assistant",
                       message=reply_msg.content, chat_session_id=chat_session_id)
 
-        # 8. Update session (location may have changed via Arbiter / GM decision)
-        update_user_session(session, user_id, location_id=location_id)
+        # 8. Update session (game_user_id for game state)
+        update_user_session(session, game_user_id, location_id=location_id)
 
         # Advance arc if all gate quests completed
         entity_id = cl.user_session.get("_entity_id_cache")
@@ -303,7 +315,7 @@ async def on_message(message: cl.Message) -> None:
         major_event = (
             arbiter_result is not None and getattr(arbiter_result, "success", False)
         )
-        await maybe_update_summary(session, user_id, force=major_event,
+        await maybe_update_summary(session, ui_user_id, force=major_event,
                                    chat_session_id=chat_session_id)
 
 
@@ -315,13 +327,14 @@ async def on_chat_end() -> None:
     On disconnect: force a summary update so the next session starts with
     fresh compressed context, regardless of message count.
     """
-    user_id: str = cl.user_session.get(_USER_ID_KEY, "unknown")
-    if user_id == "unknown":
+    game_user_id: str = cl.user_session.get(_USER_ID_KEY, "unknown")
+    ui_user_id: str = cl.user_session.get(_UI_USER_ID_KEY, "player")
+    if game_user_id == "unknown":
         return
     chat_session_id: str = cl.user_session.get("_chat_session_id", "default")
     with get_session() as session:
-        await maybe_update_summary(session, user_id, force=True,
+        await maybe_update_summary(session, ui_user_id, force=True,
                                    chat_session_id=chat_session_id)
 
     if settings.app_debug:
-        print(f"[DEBUG] Session ended for user_id={user_id}")
+        print(f"[DEBUG] Session ended for game_user_id={game_user_id}")
