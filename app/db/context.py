@@ -36,6 +36,7 @@ def _build_location_context(session: Session, location_id: int) -> str:
         f"LOCATION: {loc.name}",
         f"Description: {loc.description}",
         f"Safe Zone: {loc.is_safe_zone} | Magic Restricted: {loc.is_magic_restricted}",
+        _build_time_context(session),
         "",
         "CHARACTERS PRESENT:",
     ]
@@ -82,7 +83,7 @@ def _build_world_overview(session: Session) -> str:
     if not locations:
         return "(no locations seeded yet)"
 
-    parts: list[str] = ["WORLD OVERVIEW:"]
+    parts: list[str] = ["WORLD OVERVIEW:", _build_time_context(session)]
     for loc in locations:
         occupant_names = [c.name for c in loc.occupants] or ["empty"]
         parts.append(
@@ -90,6 +91,25 @@ def _build_world_overview(session: Session) -> str:
             f" [safe={loc.is_safe_zone}, magic_restricted={loc.is_magic_restricted}]"
         )
     return "\n".join(parts)
+
+
+def _build_time_context(session: Session) -> str:
+    """One-line in-game time block for GM context injection."""
+    try:
+        from app.db.time_service import check_day_night
+        dn = check_day_night(session)
+        hour = dn.get("hour", 12)
+        period = dn.get("period", "day")
+        phase_name = dn.get("phase_name", "midday")
+        is_night = dn.get("is_night", False)
+        night_flag = " ⚠️ NIGHT — NPCs less safe, outdoor encounters risk" if is_night else ""
+        return (
+            f"\nTIME: {hour:02d}:00 — {phase_name.replace('_', ' ').title()} "
+            f"({'Night' if is_night else 'Day'}){night_flag}"
+        )
+    except Exception:
+        return ""
+
 
 
 def get_character_lore_block(character_name: str, session: Session) -> str:
