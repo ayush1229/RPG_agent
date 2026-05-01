@@ -362,6 +362,7 @@ class TarotAbility(SQLModel, table=True):
     tags: Optional[str] = Field(default=None, regex=r"^[a-z0-9\-]+(,[a-z0-9\-]+)*$")
     ability_category: str = Field(default="combat", regex="^(combat|utility|passive|healing)$")
     description: str = Field(default="")
+    tier: int = Field(default=0)
 
     # ── Combat / healing stats ─────────────────────────────
     base_damage: Optional[int] = Field(default=None, ge=0)
