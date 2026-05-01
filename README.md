@@ -33,7 +33,9 @@ The application routes player input through a 3-agent orchestration pipeline. Ea
 The application uses **SQLModel** (built on SQLAlchemy) for its data layer.
 
 ### Narrative Control, Persistence & Isolation
-- **`UserSession` & `DialogueLog`**: Fully persists player states across restarts. Includes `chat_session_id` to isolate message windows per browser tab, ensuring fresh starts while preserving underlying DB entity state.
+- **`UserSession` & `DialogueLog`**: Fully persists player states across restarts. Includes `chat_session_id` to isolate message windows per browser tab.
+- **Custom Chainlit Data Layer**: `app/chainlit_data_layer.py` exposes the `DialogueLog` table to Chainlit's UI. This provides a persistent **Thread History Sidebar**, allowing players to view past chat sessions and seamlessly resume them exactly where they left off. 
+- **Silent Authentication**: Uses `@cl.header_auth_callback` to silently authenticate all visitors as a unified player profile, bypassing login forms while still grouping sessions.
 - **`ConversationSummary`**: Uses an LLM summarizer to compress long-term, cross-session chat history into key facts, injected into the context window to save tokens.
 - **`TutorialEnforcer` (Elaris Hollow)**: An 11-phase controlled onboarding pipeline disguised as narrative. Gates mechanics (combat, economy, housing) progressively.
 - **`StoryEnforcer` (MainStoryState)**: Tracks canonical main quest progression across 7 Arcs. Enforces mandatory gates (e.g., Prologue Interview).
