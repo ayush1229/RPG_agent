@@ -210,10 +210,12 @@ _PHASE_DIRECTIVES: dict[int, str] = {
     2: (
         "TUTORIAL PHASE 2 — FIRST INTERACTION\n"
         "The player has entered Old Well Square. "
-        "A merchant named Callum is anxiously pacing near the old stone well. "
+        "A merchant named Callum — stocky, around fifty, salt-and-pepper beard, patched trader's vest — "
+        "is anxiously pacing near the old stone well. "
         "He notices the player and addresses them: his cart was raided during the night, "
         "and a small lockbox of trade samples was left behind in the Whispering Forest Edge. "
         "He asks the player to retrieve it — nothing dangerous, he says, though he looks uncertain. "
+        "ALWAYS refer to the merchant as Callum. Never invent a different name or appearance for him. "
         "DO NOT mention quest systems, objectives, or UI elements. "
         "Let Callum speak naturally. The player must feel like they are helping a person, not accepting a task."
     ),
@@ -332,7 +334,8 @@ def build_tutorial_context(session: Session, entity_id: int) -> str:
     if ts.phase >= MAX_PHASE:
         return ""   # tutorial over — GM runs free
 
-    directive = _phase_directive(ts.phase)
+    phase_data: dict = json.loads(ts.phase_data or "{}")
+    directive = _phase_directive_stateful(ts.phase, phase_data)
     dn = check_day_night(session)
     night_warning = (
         "\n[SYSTEM: It is currently NIGHT. "
@@ -358,6 +361,54 @@ def _active_locks_summary(phase: int) -> str:
         sys for sys, req in TUTORIAL_SYSTEM_LOCKS.items() if phase < req
     ]
     return ", ".join(locked) if locked else "none"
+
+
+def _phase_directive_stateful(phase: int, phase_data: dict) -> str:
+    """
+    Return a directive that is aware of how many turns have already passed in
+    the current phase. For the first turn, return the full scene-setting directive.
+    For subsequent turns, return a shorter 'continue' directive so the GM does
+    not re-introduce NPCs or reset the scene on every player message.
+    """
+    turns_done = phase_data.get(f"turns_in_phase_{phase}", 0)
+
+    if phase == 2:
+        if turns_done == 0:
+            return _PHASE_DIRECTIVES[2]
+        return (
+            "TUTORIAL PHASE 2 — FIRST INTERACTION (continuing)\n"
+            "Callum has already introduced himself and made his request. "
+            "DO NOT re-introduce him or repeat his backstory. "
+            "Callum is stocky, around fifty, with a salt-and-pepper beard and a patched trader's vest. "
+            "Always call him Callum. "
+            "Respond naturally to the player's current action. "
+            "If the player agreed to help, the scene should progress toward the forest path. "
+            "If the player is still hesitating, let Callum gently press — do not repeat his full speech."
+        )
+
+    if phase == 3:
+        if turns_done == 0:
+            return _PHASE_DIRECTIVES[3]
+        return (
+            "TUTORIAL PHASE 3 — FIRST TASK (continuing)\n"
+            "The player is already at the Whispering Forest Edge. "
+            "The lockbox is near the fallen log; a creature or shadow is in the area. "
+            "Do NOT re-describe the journey or the player's arrival. "
+            "Continue directly from the current situation and respond to the player's action."
+        )
+
+    if phase == 4:
+        if turns_done == 0:
+            return _PHASE_DIRECTIVES[4]
+        return (
+            "TUTORIAL PHASE 4 — FIRST COMBAT (continuing)\n"
+            "Combat with the Hollow Stalker is already underway. "
+            "Continue the fight from where it left off. Do NOT restart it or re-describe the creature appearing. "
+            "The player MUST win. Respond to their current action."
+        )
+
+    # All other phases: static directive (they are single-beat moments)
+    return _PHASE_DIRECTIVES.get(phase, "")
 
 
 # =============================================================
