@@ -6,10 +6,9 @@ from sqlmodel import Session, select
 from app.db.database import engine
 from app.db.models import (
     Location,
-    TarotAbility,
     TarotCardLore,
     TarotEntity,
-    TarotShard,
+    UserSession,
 )
 from app.db.service import tarot_service
 
@@ -204,8 +203,137 @@ def get_card_abilities(card_name: str) -> str:
         return f"Abilities for '{card_name}':\n" + "\n".join(lines)
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Game Event Tools — bridge GM narrative → DB world state
+#
+# The GM narrates events but cannot update the DB directly.
+# These tools let the Arbiter record what actually happened in the world
+# so hooks like on_location_entered, on_combat_won, on_trade_completed fire
+# and the DB stays in sync with the story — during AND after the tutorial.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+@tool
+def move_player(entity_name: str, location_name: str) -> str:
+    """
+    Move the player entity to a named location and update the DB.
+    Updates UserSession.last_location_id so the player's position persists.
+    Also fires tutorial phase triggers (e.g. entering Old Well Square → phase 2).
+    Call this whenever the GM narrates that the player travels to or arrives at a place.
+    """
+    with Session(engine) as session:
+        entity = tarot_service.get_entity_by_name(session, entity_name)
+        if not entity:
+            return f"ERROR: Entity '{entity_name}' not found."
+
+        loc = session.exec(
+            select(Location).where(Location.name == location_name)
+        ).first()
+        if not loc:
+            return f"ERROR: Location '{location_name}' not found in DB."
+
+        user_session = session.exec(
+            select(UserSession).where(UserSession.entity_id == entity.id)
+        ).first()
+        if not user_session:
+            return f"ERROR: No UserSession found for entity '{entity_name}'."
+
+        user_session.last_location_id = loc.id
+        session.add(user_session)
+        session.commit()
+
+        # Fire tutorial location hook
+        from app.db.tutorial_service import on_location_entered
+        result = on_location_entered(session, entity.id, location_name)
+        phase_note = (
+            f" Tutorial advanced to phase {result['phase']}."
+            if result.get("success") and result.get("phase")
+            else ""
+        )
+
+        return f"SUCCESS: '{entity_name}' moved to '{location_name}'.{phase_note}"
+
+
+@tool
+def record_combat_victory(entity_name: str, enemy_name: str) -> str:
+    """
+    Record that the player won a combat encounter and award XP.
+    Also fires tutorial on_combat_won hook (phase 4 → 5 transition).
+    Call this immediately after the GM narrates a combat victory.
+    """
+    with Session(engine) as session:
+        entity = tarot_service.get_entity_by_name(session, entity_name)
+        if not entity:
+            return f"ERROR: Entity '{entity_name}' not found."
+
+        XP_REWARD = 25
+        entity.current_xp = (entity.current_xp or 0) + XP_REWARD
+        session.add(entity)
+        session.commit()
+
+        from app.db.tutorial_service import on_combat_won
+        result = on_combat_won(session, entity.id)
+        phase_note = (
+            f" Tutorial advanced to phase {result['phase']}."
+            if result.get("success") and result.get("phase")
+            else ""
+        )
+
+        return (
+            f"SUCCESS: Combat victory recorded. '{entity_name}' defeated '{enemy_name}' "
+            f"and earned {XP_REWARD} XP.{phase_note}"
+        )
+
+
+@tool
+def record_item_delivered(entity_name: str, item_description: str) -> str:
+    """
+    Record that the player delivered or handed over an item or quest object.
+    Fires tutorial on_item_returned hook (phase 3 → 4 transition).
+    Call this when the GM narrates the player returning an item to an NPC.
+    """
+    with Session(engine) as session:
+        entity = tarot_service.get_entity_by_name(session, entity_name)
+        if not entity:
+            return f"ERROR: Entity '{entity_name}' not found."
+
+        from app.db.tutorial_service import on_item_returned
+        result = on_item_returned(session, entity.id)
+        phase_note = (
+            f" Tutorial advanced to phase {result['phase']}."
+            if result.get("success") and result.get("phase")
+            else ""
+        )
+
+        return f"SUCCESS: Item delivery recorded ('{item_description}').{phase_note}"
+
+
+@tool
+def record_trade(entity_name: str, trade_summary: str) -> str:
+    """
+    Record that the player completed a buy or sell transaction.
+    Fires tutorial on_trade_completed hook (phase 6 → 7 transition).
+    Call this after the GM narrates any successful purchase or sale.
+    """
+    with Session(engine) as session:
+        entity = tarot_service.get_entity_by_name(session, entity_name)
+        if not entity:
+            return f"ERROR: Entity '{entity_name}' not found."
+
+        from app.db.tutorial_service import on_trade_completed
+        result = on_trade_completed(session, entity.id)
+        phase_note = (
+            f" Tutorial advanced to phase {result['phase']}."
+            if result.get("success") and result.get("phase")
+            else ""
+        )
+
+        return f"SUCCESS: Trade recorded ('{trade_summary}').{phase_note}"
+
+
 # ─── Tool registry ────────────────────────────────────────────────────────────
 ARBITER_TOOLS = [
+    # Tarot economy tools
     get_entity_info,
     transfer_energy,
     transfer_card,
@@ -213,4 +341,9 @@ ARBITER_TOOLS = [
     check_location_rules,
     get_transaction_log,
     get_card_abilities,
+    # Game event tools — bridge narrative to DB state
+    move_player,
+    record_combat_victory,
+    record_item_delivered,
+    record_trade,
 ]

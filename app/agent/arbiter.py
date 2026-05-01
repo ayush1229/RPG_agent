@@ -64,8 +64,16 @@ RULES (non-negotiable):
 6. Call transfer_energy only after all checks pass.
 7. End with a concise factual summary: SUCCESS or REJECTED + amounts.
 
+GAME EVENT RULES:
+8. If the instruction mentions the player MOVING TO or ARRIVING AT a location → call move_player.
+9. If the instruction mentions the player WINNING a fight or DEFEATING an enemy → call record_combat_victory.
+10. If the instruction mentions the player HANDING OVER or DELIVERING an item to an NPC → call record_item_delivered.
+11. If the instruction mentions the player BUYING or SELLING anything → call record_trade.
+These four tools update the game database so the world state matches what the GM narrated.
+
 Here are the available tools:
 {_TOOLS_XML}"""
+
 
 # ─── Tool name → callable map ─────────────────────────────────────────────────
 _TOOL_MAP = {tool.name: tool for tool in ARBITER_TOOLS}
