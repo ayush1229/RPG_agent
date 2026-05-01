@@ -384,6 +384,14 @@ def give_item(
         )
 
         if result["success"]:
+            # Send UI System Message
+            try:
+                import chainlit as cl
+                msg = f"📦 **Gained Item:** {quantity}x {item_name} ({rarity} {item_type})"
+                cl.run_sync(cl.Message(content=msg, author="🎮 System").send())
+            except Exception:
+                pass
+
             return (
                 f"SUCCESS: {quantity}x '{item_name}' ({rarity} {item_type}) "
                 f"added to {entity_name}'s inventory."
@@ -408,8 +416,19 @@ def give_gold(entity_name: str, amount: int) -> str:
 
         if result["success"]:
             verb = "received" if amount > 0 else "spent"
+            # Send UI System Message
+            try:
+                import chainlit as cl
+                icon = "💰" if amount > 0 else "💸"
+                action = "Gained" if amount > 0 else "Lost"
+                msg = f"{icon} **{action} Gold:** {abs(amount)} (Balance: {result['balance']})"
+                cl.run_sync(cl.Message(content=msg, author="🎮 System").send())
+            except Exception:
+                pass
+
             return f"SUCCESS: {entity_name} {verb} {abs(amount)} gold. Balance: {result['balance']}."
         return f"FAILED: {result.get('reason', 'unknown error')}"
+
 
 
 # ─── Tool registry ────────────────────────────────────────────────────────────
