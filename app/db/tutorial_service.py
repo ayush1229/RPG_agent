@@ -349,10 +349,7 @@ def build_tutorial_context(session: Session, entity_id: int) -> str:
         f"{TUTORIAL_PHASES.get(ts.phase, 'unknown').upper()}]\n"
         f"{directive}"
         f"{night_warning}"
-        "\n[SYSTEM LOCKS ACTIVE: "
-        + _active_locks_summary(ts.phase)
-        + "]\n"
-        "━" * 60
+        f"\n[SYSTEM LOCKS ACTIVE: {_active_locks_summary(ts.phase)}]"
     )
 
 
@@ -375,7 +372,6 @@ _CONTINUING_PREFIX = (
     "do not invent a new description. "
     "Respond directly to the player's current action and continue the scene naturally.\n"
     "The following is reference context for this phase (not a re-narration instruction):\n"
-    "─" * 60 + "\n"
 )
 
 
