@@ -486,19 +486,22 @@ _PHASE_EVENTS: dict[int, str] = {
 }
 
 # Minimum player turns before a phase can auto-advance.
-# Phase 1: advance after 1 turn (awakening narrated → open world).
+# These are intentionally HIGH so the timer is a LAST RESORT fallback,
+# not the primary advancement mechanism. Story-driven hooks (on_combat_won,
+# on_item_returned, record_trade etc.) should advance most phases first.
 _PHASE_MIN_TURNS: dict[int, int] = {
-    1: 1,   # After the awakening narrative, advance to Phase 2 (Callum encounter)
-    2: 3,   # After 3 turns in Phase 2 (Callum encounter), head to Forest
-    3: 3,   # After 3 turns in Phase 3 (approaching Forest), combat starts
-    4: 2,   # After 2 turns in Phase 4 (combat), reward follows
-    5: 2,   # After 2 turns in Phase 5 (reward), economy opens
-    6: 3,   # After 3 turns in Phase 6 (economy), housing intro
-    7: 2,   # After 2 turns in Phase 7 (housing), night system
-    8: 3,   # After 3 turns in Phase 8 (night), optional dungeon
-    9: 2,   # After 2 turns in Phase 9 (dungeon), dream hook
-    10: 2,  # After 2 turns in Phase 10 (dream), tutorial complete
+    1: 1,   # Awakening — advance after 1 turn (GM sets the scene, then move on)
+    2: 8,   # Callum encounter — 8 turns gives player time to get the quest and leave
+    3: 6,   # Forest approach — 6 turns of exploration before combat is forced
+    4: 5,   # Combat — 5 turns for the fight to resolve
+    5: 6,   # Reward — 6 turns for Callum to pay the player
+    6: 8,   # Economy — 8 turns to actually buy/sell something
+    7: 6,   # Housing intro — 6 turns to find a room
+    8: 8,   # Night system — 8 turns to experience night
+    9: 6,   # Dungeon — 6 turns of exploration
+    10: 4,  # Dream hook — 4 turns (atmospheric only)
 }
+
 
 
 def tick_phase_turn(session: Session, entity_id: int) -> dict:

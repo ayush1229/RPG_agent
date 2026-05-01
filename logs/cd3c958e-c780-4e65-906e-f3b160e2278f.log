@@ -1,0 +1,1738 @@
+
+================================================================================
+[2026-05-01T19:27:46.234390] LLM CALL START (Run: 019de3d4-c87a-7eb2-a4ab-4d62fa024e6d)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+Do NOT invent locations, characters, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: reveal
+
+Narrative intent: Follow the system directive exactly as instructed.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[SYSTEM — GM INSTRUCTION: CARD REVEAL]
+
+The player has completed the void interview. You must now reveal their three drawn cards.
+
+Player alignment tendency: balance
+
+Rules for card selection:
+  • You MUST select EXACTLY ONE Major Arcana (core card) that resonates with their alignment:
+    - balance → prefer The High Priestess, The Star, Temperance, The World
+    - order   → prefer The Emperor, Justice, The Hierophant, Strength
+    - chaos   → prefer The Fool, The Tower, The Magician, The Moon
+  • You MUST select EXACTLY TWO Minor Arcana (support cards). These must be from the Wands, Cups, Swords, or Pentacles suits.
+  • CRITICAL: Do NOT select more than one Major Arcana. The second and third cards MUST be Minor Arcana.
+
+Narrate the reveal poetically. Name each of the three cards. Describe what the player feels as each turns face-up.
+After the reveal, tell the player: "These cards are now yours. They hum in your memory."
+Then transition naturally into the physical world: the void dissolves, the Awakening begins.
+
+[The next system override will place the player in the physical world.]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:27:58.092117] LLM CALL END (Run: 019de3d4-c87a-7eb2-a4ab-4d62fa024e6d)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+The darkness folds back like cloth. Three cards hover before you, edges glowing.  
+
+First turns **The High Priestess**, moon-crowned, scroll half-hidden. A hush slips through you, the same hush that lives inside library cloisters at dusk—quiet, certain, waiting.  
+
+Second flips: **Six of Cups**, two children trading chipped clay mugs of water on a sun-dusted Aurelion street. Warmth pools behind your ribs, memory without a name.  
+
+Third lands: **Eight of Pentacles**, a lone carpenter in Tharros counting hammer strikes. Your palms tingle, ready for work you haven’t yet chosen.  
+
+These cards are now yours. They hum in your memory.  
+
+The void peels away like wet parchment. Cold stone, pine torch-smoke, and distant harbor bells pull you upright. You are lying on the flagstones of an abandoned customs house in Virell; moonlight drips through the broken roof and sketches the card images across the floor.
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:30:40.503020] LLM CALL START (Run: 019de3d7-7136-7723-93cc-5cf85394bd07)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+Do NOT invent locations, characters, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: ok
+
+Narrative intent: Follow the system directive exactly as instructed.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[SYSTEM — GM INSTRUCTION: AWAKENING SCENE]
+
+The void interview and card draw are complete. You must now transition the player
+into the physical world. Write this as an immersive, grounded scene — NOT mystical.
+
+Setting: A small, worn room at the Broken Lantern Inn, Elaris Hollow.
+  - Morning light cuts through a cracked wooden shutter.
+  - Rough hewn walls. Smell of woodsmoke and damp straw.
+  - A clay cup on the bedside table. A threadbare wool blanket.
+  - Distant sounds of a waking market outside — calls, cart wheels, a dog barking.
+
+What happens:
+  1. The player wakes. The void dream lingers, fading fast.
+  2. They reach for the cup. It slides a few inches on its own — just for a moment.
+     They blink. It is still. Did that happen?
+  3. DO NOT explain it. Let them wonder.
+  4. Outside the window, the market is starting. Something falls. Laughter. A bell.
+  5. End with an open prompt: the player must choose what to do first.
+
+Rules:
+  - Name the inn and the village. Make it feel like a REAL place with texture and smell.
+  - Do NOT mention cards, Arcana, the void, or any system names.
+  - 3-4 paragraphs max. Grounded. Curious. Real.
+
+[TUTORIAL CONTROL — PHASE 1: AWAKENING]
+TUTORIAL PHASE 1 — AWAKENING
+The player has just woken up in a small room at the Broken Lantern Inn in Elaris Hollow. They feel disoriented. A strange dream lingers — fragments of cards, light, and voices. DO NOT explain any mechanics. Describe only the immediate environment: the rough wooden walls, morning light through a cracked shutter, the smell of woodsmoke, and a distant sound from outside. End with a prompt that makes the player want to step outside.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:31:03.906371] LLM CALL END (Run: 019de3d7-7136-7723-93cc-5cf85394bd07)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+The cracked shutter rattles as sunlight spears across the straw-strewn floor. You sit up on the narrow cot, head light, mouth tasting of last night’s ale. The dream slips away like water through fingers—only the echo of voices remains.
+
+A clay cup waits on the bedside plank. You reach; the cup skitters an inch, then stops. You stare. It sits ordinary, dull, unmarked. Outside, a cart wheel squeaks and a vendor hawks early apples.
+
+Boots thump past the door, followed by a woman’s laugh and the clatter of something dropped. The market is waking. You smell bread and woodsmoke drifting up from the hearth below.
+
+What do you do?
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:31:32.681394] LLM CALL START (Run: 019de3d8-3d09-7aa3-b1c5-22bc487a8bb5)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+(start of session)
+
+Player action: go outside
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:31:38.945090] LLM CALL END (Run: 019de3d8-3d09-7aa3-b1c5-22bc487a8bb5)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona":false,"npc_name":null,"persona_context":null,"needs_arbiter":false,"arbiter_instruction":null,"narrative_intent":"You step outside into the open air, the horizon stretching wide with countless realms awaiting your choice."}
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:31:38.958587] LLM CALL START (Run: 019de3d8-558e-75c3-8e47-00889d45d6ca)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+Do NOT invent locations, characters, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: go outside
+
+Narrative intent: You step outside into the open air, the horizon stretching wide with countless realms awaiting your choice.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[TUTORIAL CONTROL — PHASE 2: FIRST_INTERACTION]
+TUTORIAL PHASE 2 — FIRST INTERACTION
+The player has entered Old Well Square. A merchant named Callum — stocky, around fifty, salt-and-pepper beard, patched trader's vest — is anxiously pacing near the old stone well. He notices the player and addresses them: his cart was raided during the night, and a small lockbox of trade samples was left behind in the Whispering Forest Edge. He asks the player to retrieve it — nothing dangerous, he says, though he looks uncertain. ALWAYS refer to the merchant as Callum. Never invent a different name or appearance for him. Let Callum speak naturally.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:31:47.457512] LLM CALL END (Run: 019de3d8-558e-75c3-8e47-00889d45d6ca)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+The afternoon sun hits the worn cobbles of Old Well Square. Callum, a thick-set merchant in a patched vest, paces near the mossy rim of the stone well. His salt-and-pepper beard is damp with sweat.
+
+He spots you and hurries over.  
+“Hey—wait. You look like someone who’d take a quick job.” He wipes his hands on his vest. “Raiders hit my cart last night. They took the goods but dropped a small iron lockbox with my trade samples. It rolled into the brush at the Whispering Forest Edge, just west of here. Could you fetch it? Nothing dangerous, I swear.” His eyes flick to the square’s archway, then back to you.
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:32:12.267603] LLM CALL START (Run: 019de3d8-d7ab-7c42-8e0b-207e7c11666d)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+(start of session)
+
+Player action: alright i will do it
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:32:18.567289] LLM CALL END (Run: 019de3d8-d7ab-7c42-8e0b-207e7c11666d)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona":false,"npc_name":null,"persona_context":null,"needs_arbiter":false,"arbiter_instruction":null,"narrative_intent":"The air stills, waiting for you to name the deed you have just sworn to do."}
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:32:18.584179] LLM CALL START (Run: 019de3d8-f058-7a91-b1ac-b3f75924d199)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+Do NOT invent locations, characters, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: alright i will do it
+
+Narrative intent: The air stills, waiting for you to name the deed you have just sworn to do.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[TUTORIAL CONTROL — PHASE 2: FIRST_INTERACTION]
+[SCENE ALREADY ESTABLISHED — DO NOT RESET]
+The opening of this phase has already been narrated to the player. Do NOT re-introduce any NPCs, re-describe the environment, or repeat any backstory. Any named character keeps their exact name and appearance from their first introduction — do not invent a new description. Respond directly to the player's current action and continue the scene naturally.
+The following is reference context for this phase (not a re-narration instruction):
+TUTORIAL PHASE 2 — FIRST INTERACTION
+The player has entered Old Well Square. A merchant named Callum — stocky, around fifty, salt-and-pepper beard, patched trader's vest — is anxiously pacing near the old stone well. He notices the player and addresses them: his cart was raided during the night, and a small lockbox of trade samples was left behind in the Whispering Forest Edge. He asks the player to retrieve it — nothing dangerous, he says, though he looks uncertain. ALWAYS refer to the merchant as Callum. Never invent a different name or appearance for him. Let Callum speak naturally.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:32:27.898553] LLM CALL END (Run: 019de3d8-f058-7a91-b1ac-b3f75924d199)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+Callum’s shoulders drop as if a rope just slipped off them. He steps closer, boots scuffing the square’s dry flagstones. “Thank the winds,” he mutters, pressing a brass key into your palm. “This opens the box. Bring it back whole and I’ll see you’re fed and paid.”
+
+He points east along the dirt lane that leaves Dunrock. “Forest Edge is a twenty-minute walk. Stay on the path till the pines thin and you smell wet bark—box is under the fallen elm that looks like a broken gate.” His gaze flicks to your shoes, then back to your face. “If you’re swift you’ll be back before the noon bell.”
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:32:53.716734] LLM CALL START (Run: 019de3d9-7994-7492-a525-51ca7f97118f)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+(start of session)
+
+Player action: ok
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:32:59.033777] LLM CALL END (Run: 019de3d9-7994-7492-a525-51ca7f97118f)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona":false,"npc_name":null,"persona_context":null,"needs_arbiter":false,"arbiter_instruction":null,"narrative_intent":"The world map shimmers before you, its twenty-seven kingdoms waiting—where will your journey begin?"}
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:32:59.050276] LLM CALL START (Run: 019de3d9-8e6a-7e10-91f6-8607ce4d21df)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+Do NOT invent locations, characters, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: ok
+
+Narrative intent: The world map shimmers before you, its twenty-seven kingdoms waiting—where will your journey begin?
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[TUTORIAL CONTROL — PHASE 2: FIRST_INTERACTION]
+[SCENE ALREADY ESTABLISHED — DO NOT RESET]
+The opening of this phase has already been narrated to the player. Do NOT re-introduce any NPCs, re-describe the environment, or repeat any backstory. Any named character keeps their exact name and appearance from their first introduction — do not invent a new description. Respond directly to the player's current action and continue the scene naturally.
+The following is reference context for this phase (not a re-narration instruction):
+TUTORIAL PHASE 2 — FIRST INTERACTION
+The player has entered Old Well Square. A merchant named Callum — stocky, around fifty, salt-and-pepper beard, patched trader's vest — is anxiously pacing near the old stone well. He notices the player and addresses them: his cart was raided during the night, and a small lockbox of trade samples was left behind in the Whispering Forest Edge. He asks the player to retrieve it — nothing dangerous, he says, though he looks uncertain. ALWAYS refer to the merchant as Callum. Never invent a different name or appearance for him. Let Callum speak naturally.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:33:04.634636] LLM CALL END (Run: 019de3d9-8e6a-7e10-91f6-8607ce4d21df)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+Callum’s eyes snap to you like a sprung trap.  
+He steps in, boots scuffing the square’s dry leaves, and speaks low  
+
+“Good—you’re listening. The box is wedged under a fallen birch at the forest edge, half a mile down the east path. Bring it back and I’ll see you’re fed.”
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:33:20.175400] LLM CALL START (Run: 019de3d9-e0ef-7551-b115-8f7f39718d38)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+(start of session)
+
+Player action: start looking for the box
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:33:30.541833] LLM CALL END (Run: 019de3d9-e0ef-7551-b115-8f7f39718d38)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona":true,"npc_name":"Oracle Zareth","persona_context":"A lone traveler has just arrived in Solmara and is asking around about 'the box'; the locals are nervous and point them toward the Oracle","needs_arbiter":false,"arbiter_instruction":null,"narrative_intent":"Whispers ripple through Solmara’s dusk-lit bazaar as hooded gazes track you; a weather-worn dockhand jerks his chin toward the coral-lit promontory where Oracle Zareth awaits, murmuring, 'If it’s the box you seek, the seer already knows you’re coming.'"}
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:34:47.989611] LLM CALL START (Run: 019de3db-37f5-7e92-9341-a09d02b2f9fd)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+Do NOT invent locations, characters, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: start looking for the box
+
+Narrative intent: Whispers ripple through Solmara’s dusk-lit bazaar as hooded gazes track you; a weather-worn dockhand jerks his chin toward the coral-lit promontory where Oracle Zareth awaits, murmuring, 'If it’s the box you seek, the seer already knows you’re coming.'
+
+NPC (Oracle Zareth) said: "Welcome, traveler! I've been expecting you. You're seeking the box, I presume? Well, you've certainly come to the right place. The threads of fate have led you here, and I can sense the weight of curiosity upon your shoulders.
+
+Let's sit, shall we? The cards are already laid out, and the probabilities are aligning in intriguing ways. The box, you see, is not just any box. It's a nexus point, a crossroads of possibilities. Some say it holds the key to unimaginable power, while others whisper that it's a harbinger of doom.
+
+But let's not get ahead of ourselves. The journey to the box is just as important as the destination. You'll need to navigate the labyrinth of Solmara's undercurrents, where allegiances are tested and the fabric of reality is thin.
+
+I can guide you, of course. The Wheel of Fortune turns, and I can see the paths unfolding before us. But remember, the future is not set in stone. It's a tapestry of probabilities, and every choice you make will alter the weave.
+
+So, tell me, traveler, what drives you to seek the box? Is it ambition, curiosity, or perhaps a sense of destiny? The answer will determine the path we take, and the probabilities that will shape your journey."
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[TUTORIAL CONTROL — PHASE 3: FIRST_TASK]
+TUTORIAL PHASE 3 — FIRST TASK
+The player is heading toward the Whispering Forest Edge. Describe the transition: the village sounds fade, the path narrows, trees close in. The lockbox is visible near an old log — partially hidden by undergrowth. Before they reach it, something moves in the shadows. DO NOT name it yet. Build tension. Let the player decide whether to grab the box or investigate.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:34:57.084365] LLM CALL END (Run: 019de3db-37f5-7e92-9341-a09d02b2f9fd)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+The bazaar’s clamor drops behind you like a curtain. Cobblestones give way to packed earth, then to pine needles that hush every footfall. Between two leaning fig trees the path shrinks to a deer-track; ahead, dusk settles in layers of green shadow.
+
+Thirty paces on, a fallen cedar lies moss-soft across the trail. Beneath its upturned roots something square and iron-bound catches the last slant of light — the lockbox, half swallowed by ferns. You step closer. A twig snaps to your left, then another, deliberate, too heavy for a bird. Whatever shares the clearing pauses when you do.
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:36:57.743782] LLM CALL START (Run: 019de3dd-32cf-7932-a1f9-e07b642bb601)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+(start of session)
+
+Player action: look around if there is danger, stay vigiliant and then pick up the box
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:37:05.477413] LLM CALL END (Run: 019de3dd-32cf-7932-a1f9-e07b642bb601)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona":false,"npc_name":,"persona_context":,"needs_arbiter":false,"arbiter_instruction":,"narrative_intent":"You crouch low, senses sharp; the clearing lies still, only wind-ruffled grass and the faint creak of the small iron-bound box before you—no immediate threat, so you lift it, feeling its surprising chill and weight."}
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:37:05.492287] LLM CALL START (Run: 019de3dd-5114-73a0-aa09-0bd02a270cd8)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+Do NOT invent locations, characters, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: look around if there is danger, stay vigiliant and then pick up the box
+
+Narrative intent: look around if there is danger, stay vigiliant and then pick up the box
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[TUTORIAL CONTROL — PHASE 3: FIRST_TASK]
+[SCENE ALREADY ESTABLISHED — DO NOT RESET]
+The opening of this phase has already been narrated to the player. Do NOT re-introduce any NPCs, re-describe the environment, or repeat any backstory. Any named character keeps their exact name and appearance from their first introduction — do not invent a new description. Respond directly to the player's current action and continue the scene naturally.
+The following is reference context for this phase (not a re-narration instruction):
+TUTORIAL PHASE 3 — FIRST TASK
+The player is heading toward the Whispering Forest Edge. Describe the transition: the village sounds fade, the path narrows, trees close in. The lockbox is visible near an old log — partially hidden by undergrowth. Before they reach it, something moves in the shadows. DO NOT name it yet. Build tension. Let the player decide whether to grab the box or investigate.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:37:15.842272] LLM CALL END (Run: 019de3dd-5114-73a0-aa09-0bd02a270cd8)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+The path narrows to a foot-wide strip of pressed earth. Brambles scrape your sleeves as the last cottage lantern disappears behind a bend. Ahead, a moss-coated log lies across the trail; its far end is swallowed by fern and shadow. Half-hidden beneath the fronds sits a palm-sized iron box, lid sealed by a simple latch.
+
+A twig snaps to your left. The sound is small, deliberate. Nothing shows between the trunks, yet the underbrush shifts again—leaves rustling against the windless air. You feel the weight of being watched, not heard.
+
+You crouch, one hand hovering over the box, the other tightening on the knife at your belt. The forest hushes; even your heartbeat seems loud. Whatever waits is close enough to pounce, far enough to vanish if you chase.
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:37:45.407367] LLM CALL START (Run: 019de3dd-ecff-7981-9593-15b56ebf10fa)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+(start of session)
+
+Player action: pick up he box
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:37:50.879592] LLM CALL END (Run: 019de3dd-ecff-7981-9593-15b56ebf10fa)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona":false,"npc_name":null,"persona_context":null,"needs_arbiter":false,"arbiter_instruction":null,"narrative_intent":"You lift the box; its wood is unexpectedly warm and thrumming with a faint, almost musical hum that vibrates through your fingertips."}
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:37:50.893840] LLM CALL START (Run: 019de3de-026d-7e10-8661-46d7ac938af2)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+Do NOT invent locations, characters, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: pick up he box
+
+Narrative intent: You lift the box; its wood is unexpectedly warm and thrumming with a faint, almost musical hum that vibrates through your fingertips.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[TUTORIAL CONTROL — PHASE 3: FIRST_TASK]
+[SCENE ALREADY ESTABLISHED — DO NOT RESET]
+The opening of this phase has already been narrated to the player. Do NOT re-introduce any NPCs, re-describe the environment, or repeat any backstory. Any named character keeps their exact name and appearance from their first introduction — do not invent a new description. Respond directly to the player's current action and continue the scene naturally.
+The following is reference context for this phase (not a re-narration instruction):
+TUTORIAL PHASE 3 — FIRST TASK
+The player is heading toward the Whispering Forest Edge. Describe the transition: the village sounds fade, the path narrows, trees close in. The lockbox is visible near an old log — partially hidden by undergrowth. Before they reach it, something moves in the shadows. DO NOT name it yet. Build tension. Let the player decide whether to grab the box or investigate.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:37:56.782562] LLM CALL END (Run: 019de3de-026d-7e10-8661-46d7ac938af2)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+You crouch beside the moss-slick log and close your fingers around the box.  
+The cedar feels sun-warmed despite the shade, and a steady thrum pulses against your skin like a distant drum.
+
+A twig snaps behind you.  
+Something shifts between the ferns, low to the ground, breathing in short wet snorts you can almost feel on your neck.
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:38:26.318696] LLM CALL START (Run: 019de3de-8cce-7021-a147-2b57bcbb2a59)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+(start of session)
+
+Player action: dodge
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:38:34.387936] LLM CALL END (Run: 019de3de-8cce-7021-a147-2b57bcbb2a59)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona":false,"npc_name":null,"persona_context":null,"needs_arbiter":false,"arbiter_instruction":null,"narrative_intent":"You tense, ready to spring aside, but nothing attacks—only the wind stirs the dust of the empty crossroads."}
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:38:34.404245] LLM CALL START (Run: 019de3de-ac64-7ae3-a6e3-2f0ccf554574)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+Do NOT invent locations, characters, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: dodge
+
+Narrative intent: You tense, ready to spring aside, but nothing attacks—only the wind stirs the dust of the empty crossroads.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[TUTORIAL CONTROL — PHASE 4: FIRST_COMBAT]
+TUTORIAL PHASE 4 — FIRST COMBAT
+A weakened forest predator — a Hollow Stalker — lunges from the brush. Captain Oren (the village guard, nearby on patrol) calls out: "Focus. Don't panic. Strike when it moves — not before."
+Run a single combat encounter. The Hollow Stalker is WEAK — level 1, minimal health. The player MUST win this encounter. Do NOT allow the player to lose. Describe the fight with weight and consequence even if brief. After victory, let the scene breathe — the player has just survived their first real danger.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:38:47.850475] LLM CALL END (Run: 019de3de-ac64-7ae3-a6e3-2f0ccf554574)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+The crossroads lies quiet. Dust lifts in a slow spiral where you pivoted, but no blade, claw, or spell follows. Just the wind and the smell of hot pine sap.
+
+A low growl rips the hush. From the scrub oak south of the track a Hollow Stalker stumbles forward—ribs showing through matted fur, eyes filmed white. It is sick, starving, and still deadly. Captain Oren jogs ten paces behind, spear leveled. “Focus. Don’t panic. Strike when it moves—not before.”
+
+The beast lunges. You sidestep, feel its ragged claws graze your sleeve, then drive your boot into its knee. Bone cracks. It sprawls, hissing, and you bring your weapon down hard between shoulder and spine. The body twitches twice and is still.
+
+Oren exhales, wipes his brow with the back of his glove. “First blood. Nasty thing, but it’s done.” The clearing smells of iron and pine. Your pulse hammers in your ears, proof you’re still breathing.
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:39:32.308029] LLM CALL START (Run: 019de3df-8e93-7f30-abba-f25beece1ce1)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+(start of session)
+
+Player action: ok now take the box and run back to the merchant
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:39:38.172362] LLM CALL END (Run: 019de3df-8e93-7f30-abba-f25beece1ce1)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona":false,"npc_name":null,"persona_context":null,"needs_arbiter":false,"arbiter_instruction":null,"narrative_intent":"You snatch the box and sprint back toward the merchant, feet pounding, heart racing—wind whipping past as you close the distance."}
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:39:38.189867] LLM CALL START (Run: 019de3df-a58d-7d00-8032-8c6cf6ab92a2)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+Do NOT invent locations, characters, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: ok now take the box and run back to the merchant
+
+Narrative intent: You snatch the box and sprint back toward the merchant, feet pounding, heart racing—wind whipping past as you close the distance.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[TUTORIAL CONTROL — PHASE 4: FIRST_COMBAT]
+[SCENE ALREADY ESTABLISHED — DO NOT RESET]
+The opening of this phase has already been narrated to the player. Do NOT re-introduce any NPCs, re-describe the environment, or repeat any backstory. Any named character keeps their exact name and appearance from their first introduction — do not invent a new description. Respond directly to the player's current action and continue the scene naturally.
+The following is reference context for this phase (not a re-narration instruction):
+TUTORIAL PHASE 4 — FIRST COMBAT
+A weakened forest predator — a Hollow Stalker — lunges from the brush. Captain Oren (the village guard, nearby on patrol) calls out: "Focus. Don't panic. Strike when it moves — not before."
+Run a single combat encounter. The Hollow Stalker is WEAK — level 1, minimal health. The player MUST win this encounter. Do NOT allow the player to lose. Describe the fight with weight and consequence even if brief. After victory, let the scene breathe — the player has just survived their first real danger.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:39:48.589588] LLM CALL END (Run: 019de3df-a58d-7d00-8032-8c6cf6ab92a2)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+The iron box is heavier than it looks. You snatch it from the mossy log and sprint back toward the crossroads. Brambles whip your shins. The box thumps against your ribs.
+
+A low growl rips through the undergrowth. A Hollow Stalker—grey fur matted, ribs showing—bursts onto the path ten paces ahead. Its eyes glow milky white. Captain Oren shouts from the ridge above: “Focus. Don’t panic. Strike when it moves—not before.”
+
+The beast lunges. You skid sideways, box clutched to your chest, and its claws rake empty air. Dirt sprays your boots. You swing the iron box two-handed. Metal meets skull with a dull crack. The Stalker drops, twitching once before lying still.
+
+Silence returns, broken only by your pulse in your ears and the distant creak of the merchant’s cart.
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:40:13.696187] LLM CALL START (Run: 019de3e0-3040-7a32-bc26-417957ceabb1)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+(start of session)
+
+Player action: ok
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:40:18.212126] LLM CALL END (Run: 019de3e0-3040-7a32-bc26-417957ceabb1)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona":false,"npc_name":null,"persona_context":null,"needs_arbiter":false,"arbiter_instruction":null,"narrative_intent":"The world of Aetheria waits—choose where your journey begins."}
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:40:18.222981] LLM CALL START (Run: 019de3e0-41ee-7822-b3ee-b882a909da0b)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+Do NOT invent locations, characters, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: ok
+
+Narrative intent: The world of Aetheria waits—choose where your journey begins.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[TUTORIAL CONTROL — PHASE 5: FIRST_REWARD]
+TUTORIAL PHASE 5 — FIRST REWARD
+The player returns to Old Well Square with Callum's lockbox. Callum is relieved, grateful. He presses a small coin pouch and a worn leather satchel into the player's hands, saying he has no better way to thank them. Narrate the handover warmly — the weight of the coins, the smell of the old leather.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:40:26.525830] LLM CALL END (Run: 019de3e0-41ee-7822-b3ee-b882a909da0b)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+You step back into Old Well Square, the cracked flagstones warm under afternoon sun. Callum rises from the well-curb, relief washing the worry from his face. He reaches into his patched coat and pulls out a small, jingling pouch of worn suede, pressing it into your palm. The coins inside clink softly, their weight solid and reassuring.
+
+With his other hand he lifts a battered leather satchel, its strap dark with years of handling. The scent of old oil and dust rises as he loops it over your shoulder. "No finer thanks I can give," he says, voice rough with gratitude. The lockbox sits safe beneath his arm, its iron clasp still shut tight.
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:40:49.596284] LLM CALL START (Run: 019de3e0-bc7c-7bd2-9808-13d83e67d992)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+You have access to the active scene context (location, characters, Tarot affinities) below.
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy/resource transfer must happen
+  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Conversation so far:
+(start of session)
+
+Player action: i was attacked while trying to get this
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:40:56.087835] LLM CALL END (Run: 019de3e0-bc7c-7bd2-9808-13d83e67d992)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona":true,"npc_name":"Unknown Assailant","persona_context":"A mysterious attacker who just ambushed the player; they are still present, breathing hard, weapon drawn, unsure if the player will retaliate or flee.","needs_arbiter":false,"arbiter_instruction":null,"narrative_intent":"The shadowy figure steps back, blade glinting, eyes narrow: 'You shouldn't have come here. Hand it over or the next cut goes deeper.'"}
+
+================================================================================
+
+
+================================================================================
+[2026-05-01T19:41:20.831191] LLM CALL START (Run: 019de3e1-367f-7a90-8aba-0fa3a8d5ee18)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+Do NOT invent locations, characters, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+WORLD OVERVIEW:
+  Aurelion: King Valen Solis [safe=False, magic_restricted=False]
+  Noctyra: Queen Velka Nyx [safe=False, magic_restricted=False]
+  Tharros: Emperor Dain Varkos [safe=False, magic_restricted=False]
+  Sylvaris: Archdruid Kaelis Thorn [safe=False, magic_restricted=False]
+  Pyrosia: Warlord Ignar Rex [safe=False, magic_restricted=False]
+  Cryon Vale: Lady Seraphine Frost [safe=False, magic_restricted=False]
+  Zephyros: Highwind Arkan [safe=False, magic_restricted=False]
+  Umbrath: The Bound Sovereign [safe=False, magic_restricted=False]
+  Solmara: Oracle Zareth [safe=False, magic_restricted=False]
+  Astryx: Grand Arcanist Lume [safe=False, magic_restricted=False]
+  Virell: empty [safe=True, magic_restricted=False]
+  Karthos: empty [safe=True, magic_restricted=False]
+  Eldmere: empty [safe=True, magic_restricted=False]
+  Brakkar: empty [safe=True, magic_restricted=False]
+  Lythra: empty [safe=True, magic_restricted=False]
+  Morvain: empty [safe=True, magic_restricted=False]
+  Drenfall: empty [safe=True, magic_restricted=False]
+  Iskrel: empty [safe=True, magic_restricted=False]
+  Halvorn: empty [safe=True, magic_restricted=False]
+  Nythera: empty [safe=True, magic_restricted=False]
+  Valmere: empty [safe=True, magic_restricted=False]
+  Ostrix: empty [safe=True, magic_restricted=False]
+  Qyros: empty [safe=True, magic_restricted=False]
+  Fenloch: empty [safe=True, magic_restricted=False]
+  Ardent Hollow: empty [safe=True, magic_restricted=False]
+
+Player action: i was attacked while trying to get this
+
+Narrative intent: The shadowy figure steps back, blade glinting, eyes narrow: 'You shouldn't have come here. Hand it over or the next cut goes deeper.'
+
+NPC (Unknown Assailant) said: "*panting heavily, eyes darting around cautiously* "You're... still standing? I didn't expect that. Most adventurers wouldn't have survived that ambush." *grips weapon tightly, ready to strike again if necessary* "Who are you? What brings you to these woods?" *takes a cautious step back, assessing the situation*"
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[TUTORIAL CONTROL — PHASE 5: FIRST_REWARD]
+[SCENE ALREADY ESTABLISHED — DO NOT RESET]
+The opening of this phase has already been narrated to the player. Do NOT re-introduce any NPCs, re-describe the environment, or repeat any backstory. Any named character keeps their exact name and appearance from their first introduction — do not invent a new description. Respond directly to the player's current action and continue the scene naturally.
+The following is reference context for this phase (not a re-narration instruction):
+TUTORIAL PHASE 5 — FIRST REWARD
+The player returns to Old Well Square with Callum's lockbox. Callum is relieved, grateful. He presses a small coin pouch and a worn leather satchel into the player's hands, saying he has no better way to thank them. Narrate the handover warmly — the weight of the coins, the smell of the old leather.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-01T19:41:32.891426] LLM CALL END (Run: 019de3e1-367f-7a90-8aba-0fa3a8d5ee18)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+The shadowed figure’s blade wavers as you straighten, blood warm on your sleeve.  
+You still have the iron-bound lockbox tucked under your coat; its corner digs against your ribs with every breath.  
+
+“Hand it over,” the attacker repeats, but the threat sounds thinner now, the voice edged with a tremor that matches the quiver of the knife.  
+Behind him, the narrow deer-path you followed into Eldmere’s empty pines is silent—no second ambush, no rustle of reinforcements.  
+
+You take one deliberate step forward.  
+His boot scuffs backward over moss, and the point of his weapon drops an inch.
+
+================================================================================
+

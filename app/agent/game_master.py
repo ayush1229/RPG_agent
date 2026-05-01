@@ -27,8 +27,15 @@ _ANALYSIS_SYSTEM = (
     "  needs_arbiter   (bool)      : true if an energy/resource transfer must happen\n"
     "  arbiter_instruction (str|null): e.g. 'Transfer 50 upright from Merchant to Player, reason: intimidation'\n"
     "  narrative_intent (str)      : one sentence of what the GM should narrate\n\n"
+    "PERSONA AGENT RULES:\n"
+    "  • Only set needs_persona=true for an NPC who is explicitly PRESENT in the current scene context.\n"
+    "  • NEVER invoke an NPC that is not listed in the nearby_characters or who has not been "
+    "    introduced yet in the conversation history.\n"
+    "  • During tutorial phases, only Callum and Captain Oren are in scope.\n"
+    "  • If an NPC appears only in lore or past history but is not physically present, set needs_persona=false.\n\n"
     "Respond with ONLY the JSON object. No markdown. No explanation."
 )
+
 
 # ─── Phase 3: Narrative prompt ──────────────────────────────────────────────────────
 _NARRATIVE_SYSTEM = (
