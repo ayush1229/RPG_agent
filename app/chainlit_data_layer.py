@@ -33,7 +33,7 @@ from chainlit.types import (
     ThreadDict,
     ThreadFilter,
 )
-from chainlit.user import User
+from chainlit.user import PersistedUser, User
 from sqlmodel import Session, select, func
 
 from app.db.database import engine
@@ -86,19 +86,35 @@ class RPGDataLayer(BaseDataLayer):
 
     # ── User ──────────────────────────────────────────────────────────────────
 
-    async def get_user(self, identifier: str) -> Optional[User]:
-        """Return a User object if we have any dialogue for this identifier."""
+    async def get_user(self, identifier: str) -> Optional[PersistedUser]:
+        """Return a PersistedUser (with .id) if we have any dialogue for this identifier."""
         with Session(engine) as session:
             row = session.exec(
                 select(DialogueLog).where(DialogueLog.user_id == identifier).limit(1)
             ).first()
             if row:
-                return User(identifier=identifier, metadata={})
-        return None
+                return PersistedUser(
+                    identifier=identifier,
+                    metadata={},
+                    id=identifier,          # use identifier as stable id
+                    createdAt=row.timestamp.isoformat() if row.timestamp else _utcnow_iso(),
+                )
+        # First-time visitor: return a PersistedUser so Chainlit doesn't crash
+        return PersistedUser(
+            identifier=identifier,
+            metadata={},
+            id=identifier,
+            createdAt=_utcnow_iso(),
+        )
 
-    async def create_user(self, user: User) -> Optional[User]:
+    async def create_user(self, user: User) -> Optional[PersistedUser]:
         """User creation is handled by our on_chat_start pipeline."""
-        return user
+        return PersistedUser(
+            identifier=user.identifier,
+            metadata=user.metadata,
+            id=user.identifier,
+            createdAt=_utcnow_iso(),
+        )
 
     # ── Threads ───────────────────────────────────────────────────────────────
 
