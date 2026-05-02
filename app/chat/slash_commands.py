@@ -232,6 +232,8 @@ async def handle_help() -> None:
             "| `/relations`| View faction diplomacy standings |\n"
             "| `/npcs`     | View NPCs in your area and known contacts |\n"
             "| `/events`   | View recent background world events |\n"
+            "| `/news`     | View global world events and faction wars |\n"
+            "| `/gm <msg>` | Speak out-of-character to the GM without affecting the game |\n"
             "| `/help` | Show this help message |\n\n"
             "*Commands are instant and do not advance the story.*"
         ),
@@ -312,6 +314,20 @@ async def handle_events(entity_id: int) -> None:
     await cl.Message(content="\n".join(lines), author="🎮 System").send()
 
 
+async def handle_news(entity_id: int) -> None:
+    from app.db.context import get_recent_events
+    with get_session() as session:
+        events = get_recent_events(session, player_id=entity_id, global_only=True)
+        
+    lines = ["## 📰 The World Chronicle\n*Major events happening across the realm:*"]
+    for e in events:
+        lines.append(f"- {e}")
+    if not events:
+        lines.append("- *No major news to report.*")
+        
+    await cl.Message(content="\n".join(lines), author="🎮 System").send()
+
+
 # ─── Dispatcher ───────────────────────────────────────────────────────────────
 
 _COMMANDS: dict[str, object] = {
@@ -321,6 +337,7 @@ _COMMANDS: dict[str, object] = {
     "/relations": handle_relations,
     "/npcs":      handle_npcs,
     "/events":    handle_events,
+    "/news":      handle_news,
     "/help":      handle_help,
 }
 
@@ -334,6 +351,10 @@ async def dispatch_slash_command(
     """
     token = message_content.strip().split()[0].lower() if message_content.strip() else ""
     if not token.startswith("/"):
+        return False
+
+    # Let handlers.py deal with the /gm command since it requires the GM agent pipeline
+    if token == "/gm":
         return False
 
     handler = _COMMANDS.get(token)

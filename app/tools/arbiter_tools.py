@@ -208,7 +208,7 @@ def get_card_abilities(card_name: str) -> str:
 #
 # The GM narrates events but cannot update the DB directly.
 # These tools let the Arbiter record what actually happened in the world
-# so hooks like on_location_entered, on_combat_won, on_trade_completed fire
+# These tools let the Arbiter record what actually happened in the world
 # and the DB stays in sync with the story — during AND after the tutorial.
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -281,23 +281,13 @@ def move_player(entity_name: str, location_name: str) -> str:
         session.add(entity)
         session.commit()
 
-        # Fire tutorial location hook
-        from app.db.tutorial_service import on_location_entered
-        result = on_location_entered(session, entity.id, location_name)
-        phase_note = (
-            f" Tutorial advanced to phase {result['phase']}."
-            if result.get("success") and result.get("phase")
-            else ""
-        )
-
-        return f"SUCCESS: '{entity_name}' moved to '{location_name}'.{phase_note}"
+        return f"SUCCESS: '{entity_name}' moved to '{location_name}'."
 
 
 @tool
 def record_combat_victory(entity_name: str, enemy_name: str) -> str:
     """
     Record that the player won a combat encounter and award XP.
-    Also fires tutorial on_combat_won hook (phase 4 → 5 transition).
     Call this immediately after the GM narrates a combat victory.
     """
     with Session(engine) as session:
@@ -310,17 +300,9 @@ def record_combat_victory(entity_name: str, enemy_name: str) -> str:
         session.add(entity)
         session.commit()
 
-        from app.db.tutorial_service import on_combat_won
-        result = on_combat_won(session, entity.id)
-        phase_note = (
-            f" Tutorial advanced to phase {result['phase']}."
-            if result.get("success") and result.get("phase")
-            else ""
-        )
-
         return (
             f"SUCCESS: Combat victory recorded. '{entity_name}' defeated '{enemy_name}' "
-            f"and earned {XP_REWARD} XP.{phase_note}"
+            f"and earned {XP_REWARD} XP."
         )
 
 
@@ -328,7 +310,6 @@ def record_combat_victory(entity_name: str, enemy_name: str) -> str:
 def record_item_delivered(entity_name: str, item_description: str) -> str:
     """
     Record that the player delivered or handed over an item or quest object.
-    Fires tutorial on_item_returned hook (phase 3 → 4 transition).
     Call this when the GM narrates the player returning an item to an NPC.
     """
     with Session(engine) as session:
@@ -336,22 +317,13 @@ def record_item_delivered(entity_name: str, item_description: str) -> str:
         if not entity:
             return f"ERROR: Entity '{entity_name}' not found."
 
-        from app.db.tutorial_service import on_item_returned
-        result = on_item_returned(session, entity.id)
-        phase_note = (
-            f" Tutorial advanced to phase {result['phase']}."
-            if result.get("success") and result.get("phase")
-            else ""
-        )
-
-        return f"SUCCESS: Item delivery recorded ('{item_description}').{phase_note}"
+        return f"SUCCESS: Item delivery recorded ('{item_description}')."
 
 
 @tool
 def record_trade(entity_name: str, trade_summary: str) -> str:
     """
     Record that the player completed a buy or sell transaction.
-    Fires tutorial on_trade_completed hook (phase 6 → 7 transition).
     Call this after the GM narrates any successful purchase or sale.
     """
     with Session(engine) as session:
@@ -359,15 +331,7 @@ def record_trade(entity_name: str, trade_summary: str) -> str:
         if not entity:
             return f"ERROR: Entity '{entity_name}' not found."
 
-        from app.db.tutorial_service import on_trade_completed
-        result = on_trade_completed(session, entity.id)
-        phase_note = (
-            f" Tutorial advanced to phase {result['phase']}."
-            if result.get("success") and result.get("phase")
-            else ""
-        )
-
-        return f"SUCCESS: Trade recorded ('{trade_summary}').{phase_note}"
+        return f"SUCCESS: Trade recorded ('{trade_summary}')."
 
 
 # ─── Game-world Item Tools ─────────────────────────────────────────────────────
@@ -545,6 +509,33 @@ def cancel_travel(entity_name: str) -> str:
         return f"SUCCESS: Journey for {entity_name} canceled."
 
 
+@tool
+def advance_tutorial_phase(entity_name: str) -> str:
+    """
+    Advance the tutorial to the next phase.
+    Call this when the GM's phase directive says "ONCE THE PLAYER... issue the arbiter_instruction: 'advance tutorial phase'".
+    This fires the UI notifications and progresses the internal quest state.
+    """
+    from app.db.tutorial_service import advance_phase, PHASE_EVENTS
+    with Session(engine) as session:
+        entity = tarot_service.get_entity_by_name(session, entity_name)
+        if not entity:
+            return f"ERROR: Entity '{entity_name}' not found."
+            
+        result = advance_phase(session, entity.id)
+        if result.get("success"):
+            new_phase = result.get("phase")
+            event_msg = PHASE_EVENTS.get(new_phase, "")
+            if event_msg:
+                try:
+                    import chainlit as cl
+                    cl.run_sync(cl.Message(content=event_msg, author="🎮 System").send())
+                except Exception:
+                    pass
+            return f"SUCCESS: Tutorial advanced to phase {new_phase}."
+        return f"FAILED: {result.get('reason', 'already complete')}"
+
+
 
 # ─── Tool registry ────────────────────────────────────────────────────────────
 ARBITER_TOOLS = [
@@ -570,4 +561,6 @@ ARBITER_TOOLS = [
     # NPC tools
     mark_npc_met,
     create_location_in_city,
+    # Tutorial
+    advance_tutorial_phase,
 ]

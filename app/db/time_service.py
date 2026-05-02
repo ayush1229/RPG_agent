@@ -75,29 +75,19 @@ def get_world_time(session: Session) -> WorldTime:
     return wt
 
 
-def update_time(session: Session) -> dict:
+def update_time(session: Session, advance_minutes: int = 15) -> dict:
     """
-    LAZY-TICK: advance game time based on real-world seconds elapsed
-    since last_real_tick.
-
-    game_seconds_passed = real_seconds_elapsed * time_scale
-    current_time += timedelta(seconds=game_seconds_passed)
+    TURN-BASED TICK: advance game time by a fixed amount of game minutes.
+    By default, each interaction advances the clock by 15 minutes.
     """
     wt = get_world_time(session)
-    now_real = _utcnow()
-
-    last = wt.last_real_tick
-    if last.tzinfo is None:
-        last = last.replace(tzinfo=timezone.utc)
-
-    real_elapsed = (now_real - last).total_seconds()
-    game_seconds = real_elapsed * wt.time_scale
-    wt.current_time = wt.current_time + timedelta(seconds=game_seconds)
-    wt.last_real_tick = now_real
+    
+    wt.current_time = wt.current_time + timedelta(minutes=advance_minutes)
+    wt.last_real_tick = _utcnow()
     session.add(wt)
     session.commit()
 
-    return _time_snapshot(wt, real_elapsed, game_seconds)
+    return _time_snapshot(wt, 0, advance_minutes * 60)
 
 
 def _time_snapshot(wt: WorldTime, real_elapsed: float = 0, game_seconds: float = 0) -> dict:

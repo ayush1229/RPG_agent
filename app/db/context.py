@@ -8,138 +8,134 @@ from app.db.models import Location, SideCharacter, TarotShard
 from app.db.service import tarot_service
 
 
-def build_gm_context(session: Session, location_id: Optional[int] = None, sub_location_id: Optional[int] = None) -> str:
+def build_gm_context(session: Session, player_id: int, location_id: Optional[int] = None, sub_location_id: Optional[int] = None) -> dict:
     """
-    Just-In-Time (JIT) context builder for the Game Master agent.
-
-    Injects ONLY active scene data to avoid token limit exhaustion:
-      - Location name, description, and mechanic flags
-      - Characters present and their current status
-      - Each character's held Tarot cards (name + magic style)
-      - Each character's upright/reversed mana (NOT all global lore)
-
-    Args:
-        session: Read-only SQLModel session.
-        location_id: If None, returns a brief world overview.
-        sub_location_id: If set, injects specific sub-location details.
+    Constructs a structured context dictionary from the database.
+    This replaces reliance on conversational memory.
     """
-    if location_id is not None:
-        return _build_location_context(session, location_id, sub_location_id)
-    return _build_world_overview(session)
+    from app.db.models import TarotEntity, Location, CitySubLocation, SideCharacter, InventoryItem, StatusEffect, Quest, QuestProgress, NPCIntent, TravelState
+    from app.db.service import tarot_service
 
+    # Fetch Player
+    player = session.get(TarotEntity, player_id)
+    if not player:
+        return {}
 
-def _build_location_context(session: Session, location_id: int, sub_location_id: Optional[int] = None) -> str:
-    loc = session.get(Location, location_id)
-    if not loc:
-        return "(location not found)"
+    # Fetch Location
+    loc_dict = {}
+    loc = session.get(Location, location_id) if location_id else None
+    if loc:
+        sub_loc = session.get(CitySubLocation, sub_location_id) if sub_location_id else None
+        if sub_loc:
+            loc_dict = {
+                "id": sub_loc.id,
+                "name": f"{sub_loc.name} (Inside {loc.name})",
+                "type": sub_loc.sub_type,
+                "description": sub_loc.description,
+                "danger_level": loc.danger_level if not sub_loc.is_safe_zone else 0.0
+            }
+        else:
+            loc_dict = {
+                "id": loc.id,
+                "name": loc.name,
+                "type": loc.location_type,
+                "description": loc.description,
+                "danger_level": loc.danger_level if not loc.is_safe_zone else 0.0
+            }
 
-    from app.db.models import CitySubLocation
-    
-    sub_loc = None
-    if sub_location_id:
-        sub_loc = session.get(CitySubLocation, sub_location_id)
-        
-    if sub_loc:
-        lines: list[str] = [
-            f"LOCATION: {sub_loc.name} (Inside {loc.name})",
-            f"Description: {sub_loc.description}",
-            f"Type: {sub_loc.sub_type.title()} | Safe Zone: {sub_loc.is_safe_zone}",
-        ]
-    else:
-        lines: list[str] = [
-            f"LOCATION: {loc.name}",
-            f"Description: {loc.description}",
-            f"Safe Zone: {loc.is_safe_zone} | Magic Restricted: {loc.is_magic_restricted}",
-        ]
-        
-    lines.extend([
-        _build_time_context(session),
-        "",
-        "CHARACTERS PRESENT:"
-    ])
-
-    for char in loc.occupants:
-        entity = char.tarot_wallet
-        mana_line = ""
-        card_line = ""
-
-        if entity:
-            # Lazy mana regen before injecting context
-            tarot_service._regen_mana(entity)
-            mana_line = (
-                f"    Mana: ↑{entity.current_upright_mana}/{entity.upright_capacity} "
-                f"↓{entity.current_reversed_mana}/{entity.reversed_capacity}"
-            )
-
-            cards = tarot_service.get_held_cards(session, entity.id)
-            if cards:
-                card_parts = []
-                for c in cards:
-                    card_parts.append(f"{c['card_name']} ({c['arcana_type']}): {c['magic_style']}")
-                card_line = "    Cards: " + " | ".join(card_parts)
-
-        lines.append(f"  • {char.name} [{char.position}] — {char.current_status}")
-        if mana_line:
-            lines.append(mana_line)
-        if card_line:
-            lines.append(card_line)
+    # Fetch Nearby NPCs
+    nearby_npcs = []
+    if loc:
+        for char in loc.occupants:
+            # Check intent
+            intent = session.exec(select(NPCIntent).where(NPCIntent.entity_id == char.tarot_entity_id)).first()
+            intent_str = intent.intent_type if intent else "idle"
             
-        # Travel status
-        from app.db.models import TravelState
-        travel = session.exec(select(TravelState).where(TravelState.entity_id == entity.id, TravelState.is_completed == False)).first()
-        if travel:
-            lines.append(f"    Travel Status: {travel.status.upper()} (Route: {travel.route_type})")
-            if travel.status == "interrupted":
-                lines.append(f"    [TUTORIAL CONTROL] MANDATORY SYSTEM INSTRUCTION: {char.name}'s journey is currently INTERRUPTED by an event on the road. The GM MUST force the player to resolve this event (combat, dialogue, flight) before continuing. Once resolved, the GM MUST instruct the Arbiter to 'resume travel' or 'cancel travel'.")
+            # Check travel status
+            travel = session.exec(select(TravelState).where(TravelState.entity_id == char.tarot_entity_id, TravelState.is_completed == False)).first()
+            if travel and travel.status == "interrupted":
+                intent_str = f"travel interrupted - [TUTORIAL CONTROL] MANDATORY SYSTEM INSTRUCTION: {char.name}'s journey is currently INTERRUPTED by an event on the road. The GM MUST force the player to resolve this event before continuing."
 
-        # Tarot affinity (archetype, not full lore dump)
-        if char.persona and char.persona.tarot_affinity:
-            lore = char.persona.tarot_affinity
-            lines.append(
-                f"    Affinity: {lore.name} — {lore.magical_manifestation}"
-            )
+            # Fetch cards and affinity
+            cards_summary = []
+            if char.tarot_entity_id:
+                cards = tarot_service.get_held_cards(session, char.tarot_entity_id)
+                cards_summary = [f"{c['card_name']} ({c['arcana_type']}): {c['magic_style']}" for c in cards] if cards else []
+                
+            affinity_str = None
+            if char.persona and char.persona.tarot_affinity:
+                lore = char.persona.tarot_affinity
+                affinity_str = f"{lore.name} — {lore.magical_manifestation}"
 
-    if not sub_loc:
-        discovered_subs = session.exec(
+            nearby_npcs.append({
+                "name": char.name,
+                "type": char.position,
+                "intent": intent_str,
+                "status": char.current_status,
+                "cards": cards_summary,
+                "affinity": affinity_str
+            })
+
+    # Fetch Active Quests
+    active_quests = []
+    quests = session.exec(select(QuestProgress).where(QuestProgress.entity_id == player_id, QuestProgress.is_completed == False)).all()
+    for qp in quests:
+        q = session.get(Quest, qp.quest_id)
+        if q:
+            active_quests.append({
+                "id": q.id,
+                "title": q.name,
+                "objective": qp.goal,
+                "progress": qp.progress
+            })
+
+    # Fetch Inventory
+    inventory = []
+    items = session.exec(select(InventoryItem).where(InventoryItem.owner_id == player_id)).all()
+    for item in items:
+        inventory.append({
+            "item_name": item.name,
+            "quantity": item.quantity
+        })
+        
+    statuses = [s.name for s in session.exec(select(StatusEffect).where(StatusEffect.target_entity_id == player_id)).all()]
+    
+    tarot_service._regen_mana(player)
+
+    # Compile Context
+    
+    player_cards = tarot_service.get_held_cards(session, player_id)
+    player_cards_summary = [f"{c['card_name']} ({c['arcana_type']}): {c['magic_style']}" for c in player_cards] if player_cards else []
+    
+    discovered_subs = []
+    if location_id and not sub_location_id:
+        discovered_subs = [s.name for s in session.exec(
             select(CitySubLocation)
             .where(CitySubLocation.city_id == location_id, CitySubLocation.is_discovered == True)
-        ).all()
-        if discovered_subs:
-            lines.append("\nDISCOVERED SUB-LOCATIONS IN THIS CITY:")
-            for s in discovered_subs:
-                lines.append(f"  • {s.name} ({s.sub_type.title()}): {s.description}")
+        ).all()]
+        
+    time_str = _build_time_context(session)
 
-    # World Events
-    from app.db.models import NPCWorldEvent
-    recent_events = session.exec(
-        select(NPCWorldEvent)
-        .where(NPCWorldEvent.location_id == location_id, NPCWorldEvent.resolved == False)
-        .order_by(NPCWorldEvent.created_at.desc())
-        .limit(3)
-    ).all()
+    context = {
+        "time": time_str.strip(),
+        "player": {
+            "id": player.id,
+            "name": player.entity_name,
+            "level": player.level,
+            "health": player.current_health,
+            "mana": player.current_upright_mana + player.current_reversed_mana,
+            "statuses": statuses,
+            "cards": player_cards_summary
+        },
+        "location": loc_dict,
+        "discovered_sub_locations": discovered_subs,
+        "nearby_npcs": nearby_npcs,
+        "active_quests": active_quests,
+        "recent_events": get_recent_events(session, player_id=player.id, global_only=False),
+        "inventory": inventory
+    }
     
-    if recent_events:
-        lines.append("\nRECENT WORLD EVENTS (MANDATORY NARRATIVE CONTEXT):")
-        for ev in recent_events:
-            lines.append(f"  • A {ev.event_type} involving {ev.involved_entities} happened here recently.")
-
-    return "\n".join(lines)
-
-
-def _build_world_overview(session: Session) -> str:
-    """Fallback: brief summary of all locations and their occupants."""
-    locations = session.exec(select(Location)).all()
-    if not locations:
-        return "(no locations seeded yet)"
-
-    parts: list[str] = ["WORLD OVERVIEW:", _build_time_context(session)]
-    for loc in locations:
-        occupant_names = [c.name for c in loc.occupants] or ["empty"]
-        parts.append(
-            f"  {loc.name}: {', '.join(occupant_names)}"
-            f" [safe={loc.is_safe_zone}, magic_restricted={loc.is_magic_restricted}]"
-        )
-    return "\n".join(parts)
+    return context
 
 
 def _build_time_context(session: Session) -> str:
@@ -185,3 +181,46 @@ def get_character_lore_block(character_name: str, session: Session) -> str:
         f"Power domains: {lore.power_domains}\n"
         f"Behavioral bias: {lore.behavioral_bias}"
     )
+
+
+def get_recent_events(session: Session, player_id: Optional[int] = None, global_only: bool = False) -> list[str]:
+    """
+    Returns the last N important world events.
+    If global_only is True, skips player-specific history and only shows NPCWorldEvents/Wars.
+    """
+    from app.db.models import NPCWorldEvent, CharacterHistory, War, Faction
+    events = []
+
+    # 1. Global World Events
+    npc_events = session.exec(
+        select(NPCWorldEvent).order_by(NPCWorldEvent.created_at.desc()).limit(10)
+    ).all()
+    
+    for e in npc_events:
+        status = "Resolved" if e.resolved else "Active"
+        events.append(f"[Global] {e.event_type.title()}: {e.involved_entities} ({status})")
+
+    # 2. Wars
+    wars = session.exec(
+        select(War).order_by(War.start_time.desc()).limit(3)
+    ).all()
+    for w in wars:
+        fa = session.get(Faction, w.faction_a_id)
+        fb = session.get(Faction, w.faction_b_id)
+        status = "Active" if w.is_active else "Ended"
+        events.append(f"[War] {fa.name if fa else 'Unknown'} vs {fb.name if fb else 'Unknown'} ({status})")
+
+    # 3. Player History (if applicable)
+    if player_id and not global_only:
+        histories = session.exec(
+            select(CharacterHistory)
+            .where(CharacterHistory.character_id == player_id)
+            .order_by(CharacterHistory.timestamp.desc())
+            .limit(5)
+        ).all()
+        for h in histories:
+            events.append(f"[Player] {h.event_type}: {h.event_description}")
+
+    # Return top 10 combined (we just sort them roughly by recency if we had a unified timestamp, but string list is fine)
+    # The prompt handles them as an unordered list of facts anyway.
+    return events[:10]

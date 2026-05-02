@@ -1,0 +1,402 @@
+
+================================================================================
+[2026-05-02T11:35:45.982634] LLM CALL START (Run: 019de74b-027e-7732-8512-1ba98c9affe8)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+CRITICAL RULE: You do NOT rely on chat memory for facts. You ONLY rely on the structured SCENE CONTEXT JSON.
+If an NPC, location, quest, or item is not present in the SCENE CONTEXT, it does NOT exist.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+NEVER invent locations, characters, items, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+{
+  "time": "TIME: 12:00 \u2014 Midday (Day)",
+  "player": {
+    "id": 99,
+    "name": "a5f0b939-0992-4ab0-a47d-98b39449b645",
+    "level": 1,
+    "health": 100,
+    "mana": 14,
+    "statuses": [],
+    "cards": [
+      "The Emperor (Major): Barrier creation, command magic, control fields",
+      "Ace of Wands (Minor): Fire ignition",
+      "Two of Pentacles (Minor): Energy balancing"
+    ]
+  },
+  "location": {
+    "id": 37,
+    "name": "Broken Lantern Inn (Inside Ardent Hollow)",
+    "type": "inn",
+    "description": "A cozy, dimly lit tavern smelling of woodsmoke and old ale.",
+    "danger_level": 0.0
+  },
+  "discovered_sub_locations": [],
+  "nearby_npcs": [],
+  "active_quests": [],
+  "recent_events": [],
+  "inventory": []
+}
+
+Player action: reveal
+
+Narrative intent: Follow the system directive exactly as instructed.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[SYSTEM — GM INSTRUCTION: CARD REVEAL]
+
+The player has completed the void interview. You must now reveal their three drawn cards.
+
+Player alignment tendency: order
+
+Rules for card selection:
+  • You MUST select EXACTLY ONE Major Arcana (core card) that resonates with their alignment:
+    - balance → prefer The High Priestess, The Star, Temperance, The World
+    - order   → prefer The Emperor, Justice, The Hierophant, Strength
+    - chaos   → prefer The Fool, The Tower, The Magician, The Moon
+  • You MUST select EXACTLY TWO Minor Arcana (support cards). These must be from the Wands, Cups, Swords, or Pentacles suits.
+  • CRITICAL: Do NOT select more than one Major Arcana. The second and third cards MUST be Minor Arcana.
+
+Narrate the reveal poetically. Name each of the three cards. Describe what the player feels as each turns face-up.
+After the reveal, tell the player: "These cards are now yours. They hum in your memory."
+Then transition naturally into the physical world: the void dissolves, the Awakening begins.
+
+[The next system override will place the player in the physical world.]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-02T11:38:11.623269] LLM ERROR (Run: 019de74b-027e-7732-8512-1ba98c9affe8)
+--------------------------------------------------------------------------------
+
+
+================================================================================
+
+
+================================================================================
+[2026-05-02T11:38:14.837911] LLM CALL START (Run: 019de74d-47f5-7a10-a409-8aaa1ccccf42)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+CRITICAL RULE: You do NOT rely on chat memory for facts. You ONLY rely on the structured SCENE CONTEXT JSON.
+If an NPC, location, quest, or item is not present in the SCENE CONTEXT, it does NOT exist.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+NEVER invent locations, characters, items, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+{
+  "time": "TIME: 12:00 \u2014 Midday (Day)",
+  "player": {
+    "id": 99,
+    "name": "a5f0b939-0992-4ab0-a47d-98b39449b645",
+    "level": 1,
+    "health": 100,
+    "mana": 44,
+    "statuses": [],
+    "cards": [
+      "The Emperor (Major): Barrier creation, command magic, control fields",
+      "Ace of Wands (Minor): Fire ignition",
+      "Two of Pentacles (Minor): Energy balancing"
+    ]
+  },
+  "location": {
+    "id": 37,
+    "name": "Broken Lantern Inn (Inside Ardent Hollow)",
+    "type": "inn",
+    "description": "A cozy, dimly lit tavern smelling of woodsmoke and old ale.",
+    "danger_level": 0.0
+  },
+  "discovered_sub_locations": [],
+  "nearby_npcs": [],
+  "active_quests": [],
+  "recent_events": [],
+  "inventory": []
+}
+
+Player action: retry
+
+Narrative intent: Follow the system directive exactly as instructed.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[SYSTEM — GM INSTRUCTION: AWAKENING SCENE]
+
+The void interview and card draw are complete. You must now transition the player
+into the physical world. Write this as an immersive, grounded scene — NOT mystical.
+
+Setting: A small, worn room at the Broken Lantern Inn, Elaris Hollow.
+  - Morning light cuts through a cracked wooden shutter.
+  - Rough hewn walls. Smell of woodsmoke and damp straw.
+  - A clay cup on the bedside table. A threadbare wool blanket.
+  - Distant sounds of a waking market outside — calls, cart wheels, a dog barking.
+
+What happens:
+  1. The player wakes. The void dream lingers, fading fast.
+  2. They reach for the cup. It slides a few inches on its own — just for a moment.
+     They blink. It is still. Did that happen?
+  3. DO NOT explain it. Let them wonder.
+  4. Outside the window, the market is starting. Something falls. Laughter. A bell.
+  5. End with an open prompt: the player must choose what to do first.
+
+Rules:
+  - Name the inn and the village. Make it feel like a REAL place with texture and smell.
+  - Do NOT mention cards, Arcana, the void, or any system names.
+  - 3-4 paragraphs max. Grounded. Curious. Real.
+
+[PLAYER LOCATION DATA]
+Hometown/Region: Ardent Hollow
+Current Sublocation: Broken Lantern Inn
+
+[TUTORIAL CONTROL — PHASE 1: AWAKENING]
+TUTORIAL PHASE 1 — AWAKENING
+The player has just woken up in a small room at the Broken Lantern Inn in Ardent Hollow. They feel disoriented. A strange dream lingers — fragments of cards, light, and voices. DO NOT explain any mechanics. Describe only the immediate environment: the rough wooden walls, morning light through a cracked shutter, the smell of woodsmoke, and a distant sound from outside. End with a prompt that makes the player want to step outside.
+ONCE THE PLAYER LEAVES THE INN OR GOES OUTSIDE: set needs_arbiter=true and issue the arbiter_instructions: 'move player to Old Well Square' AND 'advance tutorial phase'.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-02T11:39:03.290924] LLM CALL END (Run: 019de74d-47f5-7a10-a409-8aaa1ccccf42)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+Morning light slips through the cracked shutter and lands across your face. You wake on a straw mattress that crackles under your weight. The room is small: rough pine walls, a stool, a clay cup on the bedside table. The air tastes of last night’s hearth smoke.
+
+You reach for the cup. It skitters an inch toward you, then stops. You stare. The clay looks ordinary, cool against your fingers. Maybe the table is warped. Maybe you’re still dreaming. Outside, a cart groans over cobbles and someone hawks apples.
+
+Boots thump past the door. A dog barks, then yelps as a pot clatters to the ground. Laughter follows. The Broken Lantern Inn is stirring, and the market square beyond the window sounds wide awake.
+
+What do you do?
+
+================================================================================
+
+
+================================================================================
+[2026-05-02T11:39:28.577406] LLM CALL START (Run: 019de74e-6801-74b2-bd63-57a74da8ca07)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+CRITICAL RULE: You do NOT rely on chat memory for facts. You ONLY rely on the structured SCENE CONTEXT JSON.
+If an NPC, location, quest, or item is not present in the SCENE CONTEXT, it does NOT exist.
+NEVER invent locations, NPCs, items, or quest progress. All must come from the provided context.
+
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy transfer must happen OR if a game state event occurs (movement, combat victory, item delivery, trade, resuming travel, canceling travel, meeting an NPC, advancing tutorial)
+  arbiter_instruction (str|null): instruction for Arbiter. e.g. 'Transfer 50 upright from Merchant to Player', 'Move player to Whispering Forest Edge', 'advance tutorial phase', 'mark npc Oren as met'
+  location_name   (str|null)  : explicit location name the player intends to target
+  item_name       (str|null)  : explicit item name the player interacts with
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+PERSONA AGENT RULES:
+  • Only set needs_persona=true for an NPC who is explicitly PRESENT in the current scene context.
+  • NEVER invoke an NPC that is not listed in the nearby_npcs array.
+  • During tutorial phases, only Callum and Captain Oren are in scope.
+  • If an NPC appears only in past history but is not physically present, set needs_persona=false.
+
+CITY SUB-LOCATION RULES:
+  • ONLY use the `create_location_in_city` tool when the player explicitly searches for a specific establishment (inn, shop, etc) or discovers a hidden area.
+  • When using the tool, explicitly provide the current macro `city_name`.
+  • Do NOT spam locations without narrative purpose. Do NOT create duplicates of existing discovered locations.
+
+TUTORIAL / TRIGGER RULES:
+  • If the SCENE CONTEXT contains an 'ONCE THE PLAYER...' instruction, and the player's action meets the condition, you MUST set needs_arbiter=true and copy the EXACT arbiter_instructions provided.
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+{
+  "time": "TIME: 12:00 \u2014 Midday (Day)",
+  "player": {
+    "id": 99,
+    "name": "a5f0b939-0992-4ab0-a47d-98b39449b645",
+    "level": 1,
+    "health": 100,
+    "mana": 58,
+    "statuses": [],
+    "cards": [
+      "The Emperor (Major): Barrier creation, command magic, control fields",
+      "Ace of Wands (Minor): Fire ignition",
+      "Two of Pentacles (Minor): Energy balancing"
+    ]
+  },
+  "location": {
+    "id": 37,
+    "name": "Broken Lantern Inn (Inside Ardent Hollow)",
+    "type": "inn",
+    "description": "A cozy, dimly lit tavern smelling of woodsmoke and old ale.",
+    "danger_level": 0.0
+  },
+  "discovered_sub_locations": [],
+  "nearby_npcs": [],
+  "active_quests": [],
+  "recent_events": [],
+  "inventory": []
+}
+
+Conversation so far:
+(start of session)
+
+Player action: lets go out
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-02T11:39:36.245985] LLM CALL END (Run: 019de74e-6801-74b2-bd63-57a74da8ca07)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona": false, "npc_name": null, "persona_context": null, "needs_arbiter": true, "arbiter_instruction": "Move player to Ardent Hollow", "location_name": "Ardent Hollow", "item_name": null, "narrative_intent": "You push open the inn’s heavy oaken door and step back into the sunlit bustle of Ardent Hollow’s main thoroughfare."}
+
+================================================================================
+
+
+================================================================================
+[2026-05-02T11:40:09.754225] LLM CALL START (Run: 019de74f-08da-7411-b7bd-f6ef02344e50)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+CRITICAL RULE: You do NOT rely on chat memory for facts. You ONLY rely on the structured SCENE CONTEXT JSON.
+If an NPC, location, quest, or item is not present in the SCENE CONTEXT, it does NOT exist.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+NEVER invent locations, characters, items, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+{
+  "time": "TIME: 12:00 \u2014 Midday (Day)",
+  "player": {
+    "id": 99,
+    "name": "a5f0b939-0992-4ab0-a47d-98b39449b645",
+    "level": 1,
+    "health": 100,
+    "mana": 66,
+    "statuses": [],
+    "cards": [
+      "The Emperor (Major): Barrier creation, command magic, control fields",
+      "Ace of Wands (Minor): Fire ignition",
+      "Two of Pentacles (Minor): Energy balancing"
+    ]
+  },
+  "location": {
+    "id": 37,
+    "name": "Broken Lantern Inn (Inside Ardent Hollow)",
+    "type": "inn",
+    "description": "A cozy, dimly lit tavern smelling of woodsmoke and old ale.",
+    "danger_level": 0.0
+  },
+  "discovered_sub_locations": [],
+  "nearby_npcs": [],
+  "active_quests": [],
+  "recent_events": [],
+  "inventory": []
+}
+
+Player action: lets go out
+
+Narrative intent: You push open the inn’s heavy oaken door and step back into the sunlit bustle of Ardent Hollow’s main thoroughfare.
+
+Energy transfer succeeded: I'm sorry but I do not have the capability to perform this task for you, I am happy to help you with any other queries you may have.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[PLAYER LOCATION DATA]
+Hometown/Region: Ardent Hollow
+Current Sublocation: Broken Lantern Inn
+
+[TUTORIAL CONTROL — PHASE 1: AWAKENING]
+[SCENE ALREADY ESTABLISHED — DO NOT RESET]
+The opening of this phase has already been narrated to the player. Do NOT re-introduce any NPCs, re-describe the environment, or repeat any backstory. Any named character keeps their exact name and appearance from their first introduction — do not invent a new description. Respond directly to the player's current action and continue the scene naturally.
+The following is reference context for this phase (not a re-narration instruction):
+TUTORIAL PHASE 1 — AWAKENING
+The player has just woken up in a small room at the Broken Lantern Inn in Ardent Hollow. They feel disoriented. A strange dream lingers — fragments of cards, light, and voices. DO NOT explain any mechanics. Describe only the immediate environment: the rough wooden walls, morning light through a cracked shutter, the smell of woodsmoke, and a distant sound from outside. End with a prompt that makes the player want to step outside.
+ONCE THE PLAYER LEAVES THE INN OR GOES OUTSIDE: set needs_arbiter=true and issue the arbiter_instructions: 'move player to Old Well Square' AND 'advance tutorial phase'.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-02T11:40:18.811275] LLM CALL END (Run: 019de74f-08da-7411-b7bd-f6ef02344e50)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+You shoulder the door open. Midday light floods the taproom and spills across your boots. The street outside hums with cart wheels and haggling voices.
+
+You step onto the packed dirt of Ardent Hollow’s main lane. Timbered shops lean together like old friends, their signs creaking in the breeze. A girl in a patched apron hurries past, balancing a tray of fresh barley loaves.
+
+The scent of hot iron and horse drifts from the smithy across the way. Somewhere ahead, a bell clangs twice. The crowd flows toward the sound, leaving you space to move.
+
+================================================================================
+

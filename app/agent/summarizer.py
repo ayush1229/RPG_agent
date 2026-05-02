@@ -47,6 +47,13 @@ Do NOT include:
 - Flavour narration
 - Repeated information
 - Meta-commentary
+- Descriptive prose or adjectives
+
+BAD EXAMPLE:
+"The player walked through the dark and foreboding forest, their boots crunching on the leaves, and bravely fought a group of vicious bandits."
+
+GOOD EXAMPLE:
+"Player reached Whispering Forest, defeated a bandit group, gained item 'Rust Blade'."
 
 DIALOGUE:
 {dialogue}

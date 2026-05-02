@@ -219,12 +219,13 @@ _PHASE_DIRECTIVES: dict[int, str] = {
     0: "",
     1: (
         "TUTORIAL PHASE 1 — AWAKENING\n"
-        "The player has just woken up in a small room at the Broken Lantern Inn in Elaris Hollow. "
+        "The player has just woken up in a small room at the Broken Lantern Inn in Ardent Hollow. "
         "They feel disoriented. A strange dream lingers — fragments of cards, light, and voices. "
         "DO NOT explain any mechanics. "
         "Describe only the immediate environment: the rough wooden walls, morning light through a cracked shutter, "
         "the smell of woodsmoke, and a distant sound from outside. "
-        "End with a prompt that makes the player want to step outside."
+        "End with a prompt that makes the player want to step outside.\n"
+        "ONCE THE PLAYER LEAVES THE INN OR GOES OUTSIDE: set needs_arbiter=true and issue the arbiter_instructions: 'move player to Old Well Square' AND 'advance tutorial phase'."
     ),
     2: (
         "TUTORIAL PHASE 2 — FIRST INTERACTION\n"
@@ -235,7 +236,8 @@ _PHASE_DIRECTIVES: dict[int, str] = {
         "and a small lockbox of trade samples was left behind in the Whispering Forest Edge. "
         "He asks the player to retrieve it — nothing dangerous, he says, though he looks uncertain. "
         "ALWAYS refer to the merchant as Callum. Never invent a different name or appearance for him. "
-        "Let Callum speak naturally."
+        "Let Callum speak naturally.\n"
+        "ONCE THE PLAYER AGREES TO HELP CALLUM AND SETS OFF TO THE FOREST: set needs_arbiter=true and issue the arbiter_instructions: 'move player to Whispering Forest Edge' AND 'advance tutorial phase'."
     ),
     3: (
         "TUTORIAL PHASE 3 — FIRST TASK\n"
@@ -243,7 +245,8 @@ _PHASE_DIRECTIVES: dict[int, str] = {
         "Describe the transition: the village sounds fade, the path narrows, trees close in. "
         "The lockbox is visible near an old log — partially hidden by undergrowth. "
         "Before they reach it, something moves in the shadows. "
-        "DO NOT name it yet. Build tension. Let the player decide whether to grab the box or investigate."
+        "DO NOT name it yet. Build tension. Let the player decide whether to grab the box or investigate.\n"
+        "ONCE THE PLAYER INVESTIGATES THE SHADOWS OR GRABS THE BOX: set needs_arbiter=true and issue the arbiter_instructions: 'advance tutorial phase'."
     ),
     4: (
         "TUTORIAL PHASE 4 — FIRST COMBAT\n"
@@ -253,21 +256,24 @@ _PHASE_DIRECTIVES: dict[int, str] = {
         "Run a single combat encounter. The Hollow Stalker is WEAK — level 1, minimal health. "
         "The player MUST win this encounter. Do NOT allow the player to lose. "
         "Describe the fight with weight and consequence even if brief. "
-        "After victory, let the scene breathe — the player has just survived their first real danger."
+        "After victory, let the scene breathe — the player has just survived their first real danger.\n"
+        "ONCE THE PLAYER DEFEATS THE STALKER AND RECOVERS THE LOCKBOX: set needs_arbiter=true and issue the arbiter_instructions: 'record_combat_victory' AND 'advance tutorial phase'."
     ),
     5: (
         "TUTORIAL PHASE 5 — FIRST REWARD\n"
         "The player returns to Old Well Square with Callum's lockbox. "
         "Callum is relieved, grateful. He presses a small coin pouch and a worn leather satchel into "
         "the player's hands, saying he has no better way to thank them. "
-        "Narrate the handover warmly — the weight of the coins, the smell of the old leather."
+        "Narrate the handover warmly — the weight of the coins, the smell of the old leather.\n"
+        "ONCE THE PLAYER GIVES CALLUM THE BOX: set needs_arbiter=true and issue the arbiter_instructions: 'move player to Old Well Square' AND 'record_item_delivered' AND 'give 50 gold' AND 'advance tutorial phase'."
     ),
     6: (
         "TUTORIAL PHASE 6 — ECONOMY INTRODUCTION\n"
         "Callum opens his modest market stall — a few crates of goods arranged on a cloth. "
         "He explains he buys and sells what travelers need, and gestures at his wares. "
         "Let the player browse and trade naturally. "
-        "Callum names prices conversationally: 'That one? Four marks. Fair for the quality.'"
+        "Callum names prices conversationally: 'That one? Four marks. Fair for the quality.'\n"
+        "ONCE THE PLAYER COMPLETES A TRADE OR DECIDES TO LEAVE THE STALL: set needs_arbiter=true and issue the arbiter_instructions: 'advance tutorial phase'."
     ),
     7: (
         "TUTORIAL PHASE 7 — HOUSING INTRODUCTION\n"
@@ -275,7 +281,8 @@ _PHASE_DIRECTIVES: dict[int, str] = {
         "Direct the player toward the Broken Lantern Inn. "
         "The innkeeper, a broad woman named Maren, is already lighting lamps at the entrance. "
         "She offers a room for the night — simple, safe, warm. "
-        "She names a small price. Nothing threatening."
+        "She names a small price. Nothing threatening.\n"
+        "ONCE THE PLAYER RENTS A ROOM OR FINDS SHELTER: set needs_arbiter=true and issue the arbiter_instructions: 'move player to Broken Lantern Inn' AND 'advance tutorial phase'."
     ),
     8: (
         "TUTORIAL PHASE 8 — NIGHT SYSTEM\n"
@@ -283,7 +290,8 @@ _PHASE_DIRECTIVES: dict[int, str] = {
         "If the player is inside (sheltered), describe the muffled sounds of the dark outside — safe and distant. "
         "If the player is still outside: describe shadows deepening, distant sounds of movement, "
         "the feeling of being watched. A minor ambush event IS possible. "
-        "Enemies are slightly stronger at night — narrate this through atmosphere, not numbers."
+        "Enemies are slightly stronger at night — narrate this through atmosphere, not numbers.\n"
+        "ONCE MORNING ARRIVES OR THE PLAYER SURVIVES THE NIGHT: set needs_arbiter=true and issue the arbiter_instruction: 'advance tutorial phase'."
     ),
     9: (
         "TUTORIAL PHASE 9 — FIRST DUNGEON (OPTIONAL)\n"
@@ -293,7 +301,8 @@ _PHASE_DIRECTIVES: dict[int, str] = {
         "The exploration is low-risk but not empty: a hidden cache, a carved symbol, "
         "a passage that goes deeper than expected. "
         "Let the player explore at their pace. Reward curiosity with small finds. "
-        "This is optional — if the player does not seek it, do not force it."
+        "This is optional — if the player does not seek it, do not force it.\n"
+        "ONCE THE PLAYER LEAVES THE RUINS OR EXPLORES SUFFICIENTLY: set needs_arbiter=true and issue the arbiter_instructions: 'move player to Ruins of Velkar' AND 'advance tutorial phase'."
     ),
     10: (
         "TUTORIAL PHASE 10 — DREAM HOOK\n"
@@ -302,7 +311,8 @@ _PHASE_DIRECTIVES: dict[int, str] = {
         "She says only: 'You have seen it before, haven't you? The space behind closed eyes.' "
         "She does not explain. She does not elaborate. She turns away. "
         "The Dreamscape does NOT activate. "
-        "DO NOT mention dream mechanics. This is foreshadowing only — atmosphere, not instruction."
+        "DO NOT mention dream mechanics. This is foreshadowing only — atmosphere, not instruction.\n"
+        "ONCE THE PLAYER FINDS THE ALTAR: set needs_arbiter=true and issue the arbiter_instructions: 'move player to Abandoned Shrine' AND 'advance tutorial phase'."
     ),
     11: (
         "TUTORIAL PHASE 11 — COMPLETE\n"
@@ -356,7 +366,20 @@ def build_tutorial_context(session: Session, entity_id: int) -> str:
         if dn["is_night"] and ts.phase >= 7 else ""
     )
 
+    from app.db.models import TarotEntity, Location, CitySubLocation
+    entity = session.get(TarotEntity, entity_id)
+    loc_name = "Unknown"
+    sub_name = "None"
+    if entity:
+        loc = session.get(Location, entity.current_location_id) if entity.current_location_id else None
+        sub = session.get(CitySubLocation, entity.sub_location_id) if entity.sub_location_id else None
+        if loc: loc_name = loc.name
+        if sub: sub_name = sub.name
+
     return (
+        f"[PLAYER LOCATION DATA]\n"
+        f"Hometown/Region: {loc_name}\n"
+        f"Current Sublocation: {sub_name}\n\n"
         f"[TUTORIAL CONTROL — PHASE {ts.phase}: "
         f"{TUTORIAL_PHASES.get(ts.phase, 'unknown').upper()}]\n"
         f"{directive}"
@@ -413,55 +436,7 @@ def _phase_directive_stateful(phase: int, phase_data: dict) -> str:
 # AUTO-ADVANCE HOOKS (called by other services)
 # =============================================================
 
-def on_location_entered(session: Session, entity_id: int, location_name: str) -> dict:
-    """
-    Called by travel service when entity enters a location.
-    Checks if location matches a phase advancement trigger.
-    """
-    ts = get_tutorial_state(session, entity_id)
-    triggers = {
-        "Old Well Square":           2,
-        "Whispering Forest Edge":    3,
-        "Ruins of Velkar":           9,
-        "Abandoned Shrine":          10,
-    }
-    required_phase = triggers.get(location_name)
-    if required_phase and ts.phase == required_phase - 1:
-        return advance_phase(session, entity_id)
-    return {"success": False, "reason": "no_phase_trigger", "location": location_name}
-
-
-def on_combat_won(session: Session, entity_id: int) -> dict:
-    """Called by combat engine after a combat victory. Advances phase 3→4→5."""
-    ts = get_tutorial_state(session, entity_id)
-    if ts.phase == 4:   # first combat complete → reward phase
-        return advance_phase(session, entity_id)
-    return {"success": False, "reason": "not_combat_phase"}
-
-
-def on_item_returned(session: Session, entity_id: int) -> dict:
-    """Called when player delivers item to Callum (phase 3 task complete)."""
-    ts = get_tutorial_state(session, entity_id)
-    if ts.phase == 3:
-        set_phase_flag(session, entity_id, "item_retrieved", True)
-        return advance_phase(session, entity_id)   # → phase 4: first combat
-    return {"success": False, "reason": "wrong_phase"}
-
-
-def on_housing_rented(session: Session, entity_id: int) -> dict:
-    """Called by time_service.rent_housing() after successful rental."""
-    ts = get_tutorial_state(session, entity_id)
-    if ts.phase == 7:
-        return advance_phase(session, entity_id)   # → phase 8: night system
-    return {"success": False, "reason": "wrong_phase"}
-
-
-def on_trade_completed(session: Session, entity_id: int) -> dict:
-    """Called by economy_service after any buy/sell during phase 6."""
-    ts = get_tutorial_state(session, entity_id)
-    if ts.phase == 6:
-        return advance_phase(session, entity_id)   # → phase 7: housing intro
-    return {"success": False, "reason": "wrong_phase"}
+# We no longer rely on these auto-advance hooks, the Arbiter handles it explicitly.
 
 
 # =============================================================
@@ -472,7 +447,7 @@ def on_trade_completed(session: Session, entity_id: int) -> dict:
 # These are game-layer notifications distinct from the GM narrative — shown as
 # a separate Chainlit message so the player gets both story and game feedback.
 # Key = new_phase the player just entered.
-_PHASE_EVENTS: dict[int, str] = {
+PHASE_EVENTS: dict[int, str] = {
     2:  "📜 **Quest:** Retrieve the Lockbox\n🎯 *Goal:* Find Callum's sample box near the Whispering Forest Edge",
     3:  "🌲 *Heading into the Whispering Forest Edge...*",
     4:  "⚔️ **Enemy Encountered:** Hollow Stalker",
@@ -482,43 +457,20 @@ _PHASE_EVENTS: dict[int, str] = {
     8:  "🌑 **Night system active** — dangers increase after dark",
     9:  "🗺️ **New area discovered:** Ruins of Velkar",
     10: "✨ *Something stirs at the Abandoned Shrine...*",
-    11: "🌍 **Tutorial complete** — the world beyond Elaris Hollow is open",
+    11: "🌍 **Tutorial complete** — the world beyond Ardent Hollow is open",
 }
-
-# Minimum player turns before a phase can auto-advance.
-# These are intentionally HIGH so the timer is a LAST RESORT fallback,
-# not the primary advancement mechanism. Story-driven hooks (on_combat_won,
-# on_item_returned, record_trade etc.) should advance most phases first.
-_PHASE_MIN_TURNS: dict[int, int] = {
-    1: 1,   # Awakening — advance after 1 turn (GM sets the scene, then move on)
-    2: 8,   # Callum encounter — 8 turns gives player time to get the quest and leave
-    3: 6,   # Forest approach — 6 turns of exploration before combat is forced
-    4: 5,   # Combat — 5 turns for the fight to resolve
-    5: 6,   # Reward — 6 turns for Callum to pay the player
-    6: 8,   # Economy — 8 turns to actually buy/sell something
-    7: 6,   # Housing intro — 6 turns to find a room
-    8: 8,   # Night system — 8 turns to experience night
-    9: 6,   # Dungeon — 6 turns of exploration
-    10: 4,  # Dream hook — 4 turns (atmospheric only)
-}
-
-
 
 def tick_phase_turn(session: Session, entity_id: int) -> dict:
     """
     Called once per player message (after the GM has responded).
-    Increments the per-phase turn counter stored in phase_data.
-    When the counter reaches the phase minimum, auto-advances to the next phase.
-
-    Returns {"advanced": bool, "new_phase": int | None}.
+    Increments the per-phase turn counter stored in phase_data for tracking.
+    Does NOT auto-advance the phase anymore; advancement is now strictly handled
+    by explicit GM Arbiter calls.
     """
     ts = get_tutorial_state(session, entity_id)
     phase = ts.phase
-
-    # Only auto-advance phases that have a turn minimum defined
-    min_turns = _PHASE_MIN_TURNS.get(phase)
-    if min_turns is None:
-        return {"advanced": False, "new_phase": None}
+    if phase >= MAX_PHASE or phase == 0:
+        return {"advanced": False}
 
     data: dict = json.loads(ts.phase_data or "{}")
     turns_key = f"turns_in_phase_{phase}"
@@ -528,11 +480,5 @@ def tick_phase_turn(session: Session, entity_id: int) -> dict:
     session.add(ts)
     session.commit()
 
-    if turns >= min_turns:
-        result = advance_phase(session, entity_id)
-        new_phase = result.get("phase")
-        event_msg = _PHASE_EVENTS.get(new_phase, "")
-        return {"advanced": True, "new_phase": new_phase, "event_msg": event_msg}
-
-    return {"advanced": False, "new_phase": None, "turns": turns, "min": min_turns}
+    return {"advanced": False, "turns": turns}
 

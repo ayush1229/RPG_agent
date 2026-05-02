@@ -26,6 +26,7 @@ class Settings(BaseSettings):
 
     # ── Arbiter (tool calling — same key/URL, dedicated tool-use model) ───────
     arbiter_model: str
+    complex_arbiter_model: str
 
     # ── App ───────────────────────────────────────────────────────────────────
     app_name: str = "AI RPG Agent"

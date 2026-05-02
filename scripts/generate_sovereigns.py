@@ -21,6 +21,10 @@ Sovereign rules
 Run:
     uv run python generate_sovereigns.py
 """
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from __future__ import annotations
 
 from sqlmodel import Session, select

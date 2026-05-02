@@ -45,6 +45,10 @@ class GMDecision(BaseModel):
     needs_arbiter: bool = False
     # Natural-language instruction for the Arbiter's tool-calling LLM
     arbiter_instruction: Optional[str] = None
+    
+    # Target validation fields
+    location_name: Optional[str] = None
+    item_name: Optional[str] = None
 
     # What the GM wants to ultimately narrate (used in Phase 3 prompt)
     narrative_intent: str

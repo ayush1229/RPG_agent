@@ -3,6 +3,10 @@ seed_world.py — World structure + main questline seeder.
 Run AFTER seed.py:
     uv run python seed_world.py
 """
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from __future__ import annotations
 import json
 from app.db.database import create_db_and_tables, get_session

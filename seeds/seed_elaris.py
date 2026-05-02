@@ -5,6 +5,10 @@ Run once after all migrations:
 
 Idempotent — skips existing rows by name.
 """
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from __future__ import annotations
 
 from app.db.database import create_db_and_tables, get_session

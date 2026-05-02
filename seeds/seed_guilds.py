@@ -3,6 +3,10 @@ seed_guilds.py — Seeds 5 predefined guilds + full questlines (5 arcs each).
 Run after seed_world.py:
     uv run python seed_guilds.py
 """
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from __future__ import annotations
 
 from app.db.database import create_db_and_tables, get_session

@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from sqlmodel import Session, select
 from app.db.database import engine
 from app.db.models import TarotCardLore

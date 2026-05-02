@@ -9,6 +9,10 @@ Safe to run any number of times. Covers ALL models, past and future.
 Usage:
     uv run python migrate.py
 """
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from __future__ import annotations
 
 import sqlite3

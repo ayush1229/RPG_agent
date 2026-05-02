@@ -140,6 +140,30 @@ async def on_message(message: cl.Message) -> None:
     location_id: Optional[int] = cl.user_session.get(_LOCATION_ID_KEY)
     chat_session_id: str = cl.user_session.get("_chat_session_id", "default")
 
+    if message.content.startswith("/gm "):
+        gm_query = message.content[4:].strip()
+        with get_session() as session:
+            state = load_user_state(session, game_user_id, chat_session_id=chat_session_id)
+            history = [
+                ChatMessage(
+                    role=Role.USER if m["role"] == "user" else Role.ASSISTANT,
+                    content=m["content"],
+                )
+                for m in state.recent_messages
+            ]
+            msg = cl.Message(content="", author="Game Master (OOC)")
+            await msg.send()
+            async for token in game_master.answer_ooc(
+                message=gm_query,
+                history=history,
+                player_id=state.entity.id,
+                location_id=state.location.id if state.location else None,
+                sub_location_id=state.entity.sub_location_id,
+            ):
+                await msg.stream_token(token)
+            await msg.update()
+        return
+
 
     with get_session() as session:
         # ── Step 1: Persist user message (using ui_user_id for sidebar grouping) ─
@@ -159,6 +183,8 @@ async def on_message(message: cl.Message) -> None:
 
         # -- STORY ENFORCER: prologue gate check --------------------------------
         entity_id = state.entity.id
+        sub_location_id = state.entity.sub_location_id
+        
         prologue: Optional[PrologueOverride] = check_prologue_gates(
             session, entity_id, message.content
         )
@@ -189,7 +215,6 @@ async def on_message(message: cl.Message) -> None:
     # -- GM-directive OR normal play: run full GM pipeline ------------------
     # Priority: prologue directive (card reveal / awakening) > tutorial context > None
     with get_session() as session:
-        entity_id = cl.user_session.get("_entity_id_cache")
         from app.db.models import TarotEntity
         tutorial_ctx = build_tutorial_context(session, entity_id) if entity_id else ""
 
@@ -232,8 +257,9 @@ async def on_message(message: cl.Message) -> None:
             decision = await game_master.analyze(
                 message=message.content,
                 history=history,
+                player_id=entity_id,
                 location_id=location_id,
-                sub_location_id=state.entity.sub_location_id,
+                sub_location_id=sub_location_id,
                 callbacks=[llm_logger],
             )
             step.output = (
@@ -273,7 +299,8 @@ async def on_message(message: cl.Message) -> None:
     arbiter_result = None
     if decision.needs_arbiter and decision.arbiter_instruction:
         async with cl.Step(name="⚖️ Arbiter resolving...", show_input=False) as step:
-            arbiter_result = await arbiter_agent.resolve(decision.arbiter_instruction)
+            e_name = _ent.entity_name if _ent else "Unknown"
+            arbiter_result = await arbiter_agent.resolve(decision.arbiter_instruction, e_name)
             status = "✅ Success" if arbiter_result.success else "❌ Rejected"
             step.output = f"{status}: {arbiter_result.message[:300]}"
 
@@ -281,24 +308,45 @@ async def on_message(message: cl.Message) -> None:
     reply_msg = cl.Message(content="", author=settings.app_name)
     await reply_msg.send()
 
-    try:
-        async for token in game_master.narrate(
-            message=message.content,
-            history=history,
-            decision=decision,
-            persona_dialogue=persona_dialogue,
-            arbiter_result=arbiter_result,
-            location_id=location_id,
-            system_directive=system_directive,
-            callbacks=[SessionLLMLogger(chat_session_id)],
-        ):
-            await reply_msg.stream_token(token)
-    except Exception as e:
-        reply_msg.content = f"Narrative error: {e}"
+    if arbiter_result and not arbiter_result.success:
+        # SHORT-CIRCUIT: Do not narrate hallucinated success
+        reply_msg.author = "System"
+        reply_msg.content = f"⚠️ Action failed: {arbiter_result.message}"
+    else:
+        # REFRESH STATE: If Arbiter succeeded, DB state changed mid-turn!
+        if arbiter_result and arbiter_result.success:
+            with get_session() as session:
+                state = load_user_state(session, game_user_id, chat_session_id=chat_session_id)
+                location_id = state.location.id if state.location else None
+                sub_location_id = state.entity.sub_location_id
+                stats_footer = (
+                    f"\n\n---\n"
+                    f"`⚔️ Lv.{state.entity.level}` "
+                    f"`❤️ {state.entity.current_health} HP` "
+                    f"`🔮 {state.entity.current_upright_mana}/{state.entity.upright_capacity} MP` "
+                    f"`✨ {state.entity.current_xp} XP`"
+                )
 
-    # -- Append stats HUD footer -------------------------------------------
-    if stats_footer and reply_msg.content and not reply_msg.content.startswith("Narrative error"):
-        reply_msg.content += stats_footer
+        try:
+            async for token in game_master.narrate(
+                message=message.content,
+                history=history,
+                decision=decision,
+                persona_dialogue=persona_dialogue,
+                arbiter_result=arbiter_result,
+                player_id=entity_id,
+                location_id=location_id,
+                sub_location_id=sub_location_id,
+                system_directive=system_directive,
+                callbacks=[SessionLLMLogger(chat_session_id)],
+            ):
+                await reply_msg.stream_token(token)
+        except Exception as e:
+            reply_msg.content = f"Narrative error: {e}"
+
+        # -- Append stats HUD footer -------------------------------------------
+        if stats_footer and reply_msg.content and not reply_msg.content.startswith("Narrative error"):
+            reply_msg.content += stats_footer
 
     await reply_msg.update()
 
@@ -312,17 +360,13 @@ async def on_message(message: cl.Message) -> None:
         update_user_session(session, game_user_id, location_id=location_id)
 
         # Advance arc if all gate quests completed
-        entity_id = cl.user_session.get("_entity_id_cache")
         if entity_id:
             advance_arc_if_ready(session, entity_id)
 
-        # 9a. Advance tutorial phase by turn count (phases 1–10)
+        # 9a. Advance tutorial phase turn tracking
         if entity_id:
             from app.db.tutorial_service import tick_phase_turn
-            tick_result = tick_phase_turn(session, entity_id)
-            event_msg = tick_result.get("event_msg", "") if tick_result.get("advanced") else ""
-            if event_msg:
-                await cl.Message(content=event_msg, author="🎮 System").send()
+            tick_phase_turn(session, entity_id)
 
         # 9b. Trigger summary if interval reached or major event fired
         major_event = (

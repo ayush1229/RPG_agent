@@ -18,25 +18,36 @@ from app.schemas import ChatMessage, Role
 # ─── Phase 1: Analysis prompt ─────────────────────────────────────────────────
 _ANALYSIS_SYSTEM = (
     "You are the decision engine of an RPG Game Master.\n"
-    "You have access to the active scene context (location, characters, Tarot affinities) below.\n"
+    "CRITICAL RULE: You do NOT rely on chat memory for facts. You ONLY rely on the structured SCENE CONTEXT JSON.\n"
+    "If an NPC, location, quest, or item is not present in the SCENE CONTEXT, it does NOT exist.\n"
+    "NEVER invent locations, NPCs, items, or quest progress. All must come from the provided context.\n\n"
     "When describing characters' magic or actions, align them with their listed Magic Style.\n\n"
     "Analyze the player action and return ONLY a valid JSON object with these exact keys:\n"
     "  needs_persona   (bool)      : true if an NPC should speak\n"
     "  npc_name        (str|null)  : NPC name if needs_persona is true\n"
     "  persona_context (str|null)  : situation context for Persona Agent\n"
-    "  needs_arbiter   (bool)      : true if an energy transfer must happen OR if a game state event occurs (movement, combat victory, item delivery, trade, resuming travel, canceling travel, meeting an NPC)\n"
-    "  arbiter_instruction (str|null): instruction for Arbiter. e.g. 'Transfer 50 upright from Merchant to Player', 'Move player to Whispering Forest Edge', 'resume travel', 'mark npc Oren as met'\n"
+    "  needs_arbiter   (bool)      : true if an energy transfer or state event occurs (movement, combat, trade, location creation, tutorial)\n"
+    "  arbiter_instruction (str|null): instruction for Arbiter. MUST use one of these exact formats (combined with 'AND' if multiple):\n"
+    "      - 'Move player to [Location Name]'\n"
+    "      - 'Advance tutorial phase'\n"
+    "      - 'Create sublocation [Name] in city [City Name]'\n"
+    "      - 'Record combat victory against [Enemy Name]'\n"
+    "      - 'Record item [Item Name] delivered to [NPC Name]'\n"
+    "      - 'Record trade of [Item] for [Amount] gold'\n"
+    "      - 'Transfer [Amount] upright/reversed energy to [Target Entity]'\n"
+    "  location_name   (str|null)  : explicit location name the player intends to target\n"
+    "  item_name       (str|null)  : explicit item name the player interacts with\n"
     "  narrative_intent (str)      : one sentence of what the GM should narrate\n\n"
     "PERSONA AGENT RULES:\n"
     "  • Only set needs_persona=true for an NPC who is explicitly PRESENT in the current scene context.\n"
-    "  • NEVER invoke an NPC that is not listed in the nearby_characters or who has not been "
-    "    introduced yet in the conversation history.\n"
+    "  • NEVER invoke an NPC that is not listed in the nearby_npcs array.\n"
     "  • During tutorial phases, only Callum and Captain Oren are in scope.\n"
-    "  • If an NPC appears only in lore or past history but is not physically present, set needs_persona=false.\n\n"
+    "  • If an NPC appears only in past history but is not physically present, set needs_persona=false.\n\n"
     "CITY SUB-LOCATION RULES:\n"
-    "  • ONLY use the `create_location_in_city` tool when the player explicitly searches for a specific establishment (inn, shop, etc) or discovers a hidden area.\n"
-    "  • When using the tool, explicitly provide the current macro `city_name`.\n"
+    "  • If the player seeks a realistic place (e.g. an inn, a market, a blacksmith) that should exist in the current macro city, but is NOT in the context, set needs_arbiter=true and output 'Create sublocation [Name] in city [City Name] AND Move player to [Name]'.\n"
     "  • Do NOT spam locations without narrative purpose. Do NOT create duplicates of existing discovered locations.\n\n"
+    "TUTORIAL / TRIGGER RULES:\n"
+    "  • If the SCENE CONTEXT contains an 'ONCE THE PLAYER...' instruction, and the player's action meets the condition, you MUST set needs_arbiter=true and copy the EXACT arbiter_instructions provided.\n\n"
     "Respond with ONLY the JSON object. No markdown. No explanation."
 )
 
@@ -44,9 +55,11 @@ _ANALYSIS_SYSTEM = (
 # ─── Phase 3: Narrative prompt ──────────────────────────────────────────────────────
 _NARRATIVE_SYSTEM = (
     "You are an immersive RPG Game Master narrating outcomes vividly.\n"
+    "CRITICAL RULE: You do NOT rely on chat memory for facts. You ONLY rely on the structured SCENE CONTEXT JSON.\n"
+    "If an NPC, location, quest, or item is not present in the SCENE CONTEXT, it does NOT exist.\n"
     "Keep responses engaging and concise (2-4 paragraphs max).\n"
     "Ground your narration in the physical world — real locations, real textures, real NPCs.\n"
-    "Do NOT invent locations, characters, or lore not present in the scene context.\n"
+    "NEVER invent locations, characters, items, or lore not present in the scene context.\n"
     "Do NOT invent energy values — use only what is provided in the context.\n"
     "When a character uses magic, strictly align their abilities with their Tarot Magic Style.\n\n"
     "PROSE STYLE RULES — MANDATORY:\n"
@@ -62,7 +75,10 @@ _NARRATIVE_SYSTEM = (
     "  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.\n\n"
     "CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY "
     "SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. "
-    "Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete."
+    "Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.\n\n"
+    "ARBITER RESULTS:\n"
+    "  • If the SCENE CONTEXT includes an 'Arbiter Result', you MUST incorporate its findings naturally into your narration.\n"
+    "  • E.g., if the Arbiter discovered a new location or revealed a card, describe the player witnessing this event."
 )
 
 
@@ -139,11 +155,11 @@ class GameMasterAgent:
 
     # ── JIT context fetcher (GM's read-only DB access) ────────────────────────
 
-    def _fetch_scene_context(self, location_id: Optional[int] = None, sub_location_id: Optional[int] = None) -> str:
-        """Build JIT context string with location + character + lore data."""
+    def _fetch_scene_context(self, player_id: int, location_id: Optional[int] = None, sub_location_id: Optional[int] = None) -> dict:
+        """Build JIT context dictionary with location + character + lore data."""
         with Session(engine) as session:
             from app.db.context import build_gm_context
-            return build_gm_context(session, location_id, sub_location_id)
+            return build_gm_context(session, player_id, location_id, sub_location_id)
 
     # ── Phase 1: Analyze ──────────────────────────────────────────────────────
 
@@ -151,31 +167,60 @@ class GameMasterAgent:
         self,
         message: str,
         history: list[ChatMessage],
+        player_id: int,
         location_id: Optional[int] = None,
         sub_location_id: Optional[int] = None,
         callbacks: Optional[list] = None,
     ) -> GMDecision:
         """
         Parse player message into a structured GMDecision.
-        Injects JIT scene context (location + lore) before calling the LLM.
+        Injects structured JIT scene context (location + lore) before calling the LLM.
+        Applies python-level validation to prevent NPC hallucination.
         """
-        scene_context = self._fetch_scene_context(location_id, sub_location_id)
+        import json
+        scene_dict = self._fetch_scene_context(player_id, location_id, sub_location_id)
+        scene_json = json.dumps(scene_dict, indent=2)
         history_text = "\n".join(
             f"{'Player' if m.role == Role.USER else 'GM'}: {m.content}"
             for m in history[-10:]
         )
-        try:
-            result = await self._analysis_chain.ainvoke(
-                {
-                    "input": message,
-                    "history": history_text or "(start of session)",
-                    "scene_context": scene_context or "(no active scene data)",
-                },
-                config={"callbacks": callbacks} if callbacks else None,
-            )
-            return GMDecision(**result) if isinstance(result, dict) else result
-        except Exception:
-            return GMDecision(narrative_intent=message)
+        
+        retries = 2
+        error_msg = ""
+        while retries >= 0:
+            try:
+                result = await self._analysis_chain.ainvoke(
+                    {
+                        "input": message + error_msg,
+                        "history": history_text or "(start of session)",
+                        "scene_context": scene_json,
+                    },
+                    config={"callbacks": callbacks} if callbacks else None,
+                )
+                decision = GMDecision(**result) if isinstance(result, dict) else result
+                
+                # VALIDATION PASS
+                if decision.npc_name:
+                    valid_npcs = [npc["name"].lower() for npc in scene_dict.get("nearby_npcs", [])]
+                    if decision.npc_name.lower() not in valid_npcs:
+                        raise ValueError(f"System Error: You attempted to interact with {decision.npc_name}, but they are not in the current location. Choose a valid target from: {', '.join(valid_npcs)} or set npc_name to null.")
+                
+
+                if decision.item_name:
+                    valid_items = [item["item_name"].lower() for item in scene_dict.get("inventory", [])]
+                    if decision.item_name.lower() not in valid_items:
+                        raise ValueError(f"System Error: You attempted to use item {decision.item_name}, but the player does not have it in their inventory. Choose a valid target from: {', '.join(valid_items)} or set item_name to null.")
+                
+                # Assume validation success
+                return decision
+                
+            except ValueError as ve:
+                error_msg = f"\n\n[SYSTEM DIRECTIVE]: {str(ve)}"
+                retries -= 1
+            except Exception:
+                return GMDecision(narrative_intent=message)
+                
+        return GMDecision(narrative_intent=message)
 
     # ── Phase 3: Narrate ──────────────────────────────────────────────────────
 
@@ -186,16 +231,16 @@ class GameMasterAgent:
         decision: GMDecision,
         persona_dialogue: Optional[str],
         arbiter_result: Optional[ArbiterResult],
+        player_id: int,
         location_id: Optional[int] = None,
+        sub_location_id: Optional[int] = None,
         system_directive: Optional[str] = None,
         callbacks: Optional[list] = None,
     ) -> AsyncIterator[str]:
-        """Stream the final narrative, incorporating lore context + sub-agent results.
-
-        system_directive: injected from the StoryEnforcer for GM-directed prologue
-        gates (e.g. card reveal). Never shown verbatim to the player.
-        """
-        scene_context = self._fetch_scene_context(location_id)
+        """Stream the final narrative, incorporating structured context + sub-agent results."""
+        import json
+        scene_dict = self._fetch_scene_context(player_id, location_id, sub_location_id)
+        scene_json = json.dumps(scene_dict, indent=2)
         lc_history = [
             HumanMessage(content=m.content) if m.role == Role.USER
             else AIMessage(content=m.content)
@@ -221,7 +266,7 @@ class GameMasterAgent:
                 "input": message,
                 "history": lc_history,
                 "narrative_intent": decision.narrative_intent,
-                "scene_context": scene_context or "(no active scene data)",
+                "scene_context": scene_json,
                 "npc_block": npc_block,
                 "arbiter_block": arbiter_block,
                 "directive_block": directive_block,
@@ -247,6 +292,55 @@ class GameMasterAgent:
                 event_description=description,
             ))
             session.commit()
+
+    # ── Out of Character (OOC) query ──────────────────────────────────────────
+
+    async def answer_ooc(
+        self,
+        message: str,
+        history: list[ChatMessage],
+        player_id: int,
+        location_id: Optional[int] = None,
+        sub_location_id: Optional[int] = None,
+        callbacks: Optional[list] = None,
+    ):
+        """Answers out-of-character questions directly as the GM."""
+        import json
+        scene_dict = self._fetch_scene_context(player_id, location_id, sub_location_id)
+        scene_json = json.dumps(scene_dict, indent=2)
+        
+        ooc_prompt = ChatPromptTemplate.from_messages([
+            ("system", 
+             "You are the Game Master of this text-based RPG. "
+             "The player is speaking to you directly Out of Character (OOC). "
+             "Answer their question helpfully, referring to the scene context or game mechanics if relevant. "
+             "Do NOT narrate actions, do NOT advance the story, just answer the question."),
+            MessagesPlaceholder("history"),
+            ("human", "SCENE CONTEXT:\n{scene_context}\n\nPlayer OOC Question: {input}"),
+        ])
+        
+        lc_history = [
+            HumanMessage(content=m.content) if m.role == Role.USER else AIMessage(content=m.content)
+            for m in history
+        ]
+        
+        chain = ooc_prompt | self._llm_narrate
+        
+        async for chunk in chain.astream(
+            {
+                "input": message,
+                "history": lc_history,
+                "scene_context": scene_json,
+            },
+            config={"callbacks": callbacks} if callbacks else None,
+        ):
+            content = chunk.content
+            if isinstance(content, str) and content:
+                yield content
+            elif isinstance(content, list) and content:
+                text = content[0].get("text", "")
+                if text:
+                    yield text
 
 
 # Module-level singleton

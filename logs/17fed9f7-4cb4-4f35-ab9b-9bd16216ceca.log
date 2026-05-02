@@ -1,0 +1,702 @@
+
+================================================================================
+[2026-05-02T02:25:37.856082] LLM CALL START (Run: 019de553-5880-7f02-927b-7e5a129b345e)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+CRITICAL RULE: You do NOT rely on chat memory for facts. You ONLY rely on the structured SCENE CONTEXT JSON.
+If an NPC, location, quest, or item is not present in the SCENE CONTEXT, it does NOT exist.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+NEVER invent locations, characters, items, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+{
+  "time": "TIME: 12:00 \u2014 Midday (Day)",
+  "player": {
+    "id": 85,
+    "name": "17fed9f7-4cb4-4f35-ab9b-9bd16216ceca",
+    "level": 1,
+    "health": 100,
+    "mana": 6,
+    "statuses": [],
+    "cards": [
+      "Temperance (Major): Energy blending, elemental fusion, equilibrium fields",
+      "Ace of Wands (Minor): Fire ignition",
+      "Two of Pentacles (Minor): Energy balancing"
+    ]
+  },
+  "location": {},
+  "discovered_sub_locations": [],
+  "nearby_npcs": [],
+  "active_quests": [],
+  "recent_events": [],
+  "inventory": []
+}
+
+Player action: ok
+
+Narrative intent: Follow the system directive exactly as instructed.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[SYSTEM — GM INSTRUCTION: CARD REVEAL]
+
+The player has completed the void interview. You must now reveal their three drawn cards.
+
+Player alignment tendency: balance
+
+Rules for card selection:
+  • You MUST select EXACTLY ONE Major Arcana (core card) that resonates with their alignment:
+    - balance → prefer The High Priestess, The Star, Temperance, The World
+    - order   → prefer The Emperor, Justice, The Hierophant, Strength
+    - chaos   → prefer The Fool, The Tower, The Magician, The Moon
+  • You MUST select EXACTLY TWO Minor Arcana (support cards). These must be from the Wands, Cups, Swords, or Pentacles suits.
+  • CRITICAL: Do NOT select more than one Major Arcana. The second and third cards MUST be Minor Arcana.
+
+Narrate the reveal poetically. Name each of the three cards. Describe what the player feels as each turns face-up.
+After the reveal, tell the player: "These cards are now yours. They hum in your memory."
+Then transition naturally into the physical world: the void dissolves, the Awakening begins.
+
+[The next system override will place the player in the physical world.]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-02T02:25:46.614743] LLM CALL END (Run: 019de553-5880-7f02-927b-7e5a129b345e)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+The darkness folds inward like closing curtains.  
+Three cards drift before you, blank faces glowing.
+
+First turns: Temperance—an angel pours water between silver cups.  
+Balance floods your chest, steady as a held breath.
+
+Second flips: Ace of Wands—new fire sparks at the tip of a sprouting rod.  
+Heat licks your palms, eager but not burning.
+
+Third reveals: Two of Pentacles—coins orbit in an endless loop.  
+Your pulse finds their rhythm, light and sure.
+
+These cards are now yours. They hum in your memory.
+
+The void thins. A seam of daylight cracks open.  
+You step through; the world rushes in with salt wind and gull cries.
+
+================================================================================
+
+
+================================================================================
+[2026-05-02T02:25:57.918997] LLM CALL START (Run: 019de553-a6de-7083-b2f7-8ac872751267)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+CRITICAL RULE: You do NOT rely on chat memory for facts. You ONLY rely on the structured SCENE CONTEXT JSON.
+If an NPC, location, quest, or item is not present in the SCENE CONTEXT, it does NOT exist.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+NEVER invent locations, characters, items, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+{
+  "time": "TIME: 12:00 \u2014 Midday (Day)",
+  "player": {
+    "id": 85,
+    "name": "17fed9f7-4cb4-4f35-ab9b-9bd16216ceca",
+    "level": 1,
+    "health": 100,
+    "mana": 10,
+    "statuses": [],
+    "cards": [
+      "Temperance (Major): Energy blending, elemental fusion, equilibrium fields",
+      "Ace of Wands (Minor): Fire ignition",
+      "Two of Pentacles (Minor): Energy balancing"
+    ]
+  },
+  "location": {},
+  "discovered_sub_locations": [],
+  "nearby_npcs": [],
+  "active_quests": [],
+  "recent_events": [],
+  "inventory": []
+}
+
+Player action: wow
+
+Narrative intent: Follow the system directive exactly as instructed.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[SYSTEM — GM INSTRUCTION: AWAKENING SCENE]
+
+The void interview and card draw are complete. You must now transition the player
+into the physical world. Write this as an immersive, grounded scene — NOT mystical.
+
+Setting: A small, worn room at the Broken Lantern Inn, Elaris Hollow.
+  - Morning light cuts through a cracked wooden shutter.
+  - Rough hewn walls. Smell of woodsmoke and damp straw.
+  - A clay cup on the bedside table. A threadbare wool blanket.
+  - Distant sounds of a waking market outside — calls, cart wheels, a dog barking.
+
+What happens:
+  1. The player wakes. The void dream lingers, fading fast.
+  2. They reach for the cup. It slides a few inches on its own — just for a moment.
+     They blink. It is still. Did that happen?
+  3. DO NOT explain it. Let them wonder.
+  4. Outside the window, the market is starting. Something falls. Laughter. A bell.
+  5. End with an open prompt: the player must choose what to do first.
+
+Rules:
+  - Name the inn and the village. Make it feel like a REAL place with texture and smell.
+  - Do NOT mention cards, Arcana, the void, or any system names.
+  - 3-4 paragraphs max. Grounded. Curious. Real.
+
+[TUTORIAL CONTROL — PHASE 1: AWAKENING]
+TUTORIAL PHASE 1 — AWAKENING
+The player has just woken up in a small room at the Broken Lantern Inn in Elaris Hollow. They feel disoriented. A strange dream lingers — fragments of cards, light, and voices. DO NOT explain any mechanics. Describe only the immediate environment: the rough wooden walls, morning light through a cracked shutter, the smell of woodsmoke, and a distant sound from outside. End with a prompt that makes the player want to step outside.
+ONCE THE PLAYER LEAVES THE INN OR GOES OUTSIDE: set needs_arbiter=true and issue the arbiter_instruction: 'advance tutorial phase'.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-02T02:26:11.397032] LLM CALL END (Run: 019de553-a6de-7083-b2f7-8ac872751267)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+Morning light slips through the cracked shutter of the Broken Lantern Inn and lands across your face. You blink awake on a straw mattress that crackles under your weight. The dream that clung to you seconds ago is already dissolving, leaving only the taste of ash and a faint ringing in your ears.
+
+You sit up. Rough pine walls sweat last night’s hearth-smoke. A clay cup waits on the bedside table, half-full of water gone flat. You reach for it. The cup skates two finger-widths toward you, then stops the instant your knuckles brush the rim. You stare. It sits motionless, as if it never moved.
+
+Boots clomp in the alley below. A woman hawks eggs, her voice rising over iron cart wheels and the yap of someone’s dog. Something wooden topples, followed by bright laughter and the single clang of a handbell. The day outside is already trading, bargaining, living.
+
+The blanket slides off as you swing your legs to the floor. Your clothes are where you left them, still smelling of last night’s rain. Whatever just happened with the cup can wait. The market is awake, and so are you.
+
+================================================================================
+
+
+================================================================================
+[2026-05-02T02:26:55.409942] LLM CALL START (Run: 019de554-8771-7ca1-9fec-15496398fe3e)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+CRITICAL RULE: You do NOT rely on chat memory for facts. You ONLY rely on the structured SCENE CONTEXT JSON.
+If an NPC, location, quest, or item is not present in the SCENE CONTEXT, it does NOT exist.
+NEVER invent locations, NPCs, items, or quest progress. All must come from the provided context.
+
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy transfer must happen OR if a game state event occurs (movement, combat victory, item delivery, trade, resuming travel, canceling travel, meeting an NPC, advancing tutorial)
+  arbiter_instruction (str|null): instruction for Arbiter. e.g. 'Transfer 50 upright from Merchant to Player', 'Move player to Whispering Forest Edge', 'advance tutorial phase', 'mark npc Oren as met'
+  location_name   (str|null)  : explicit location name the player intends to target
+  item_name       (str|null)  : explicit item name the player interacts with
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+PERSONA AGENT RULES:
+  • Only set needs_persona=true for an NPC who is explicitly PRESENT in the current scene context.
+  • NEVER invoke an NPC that is not listed in the nearby_npcs array.
+  • During tutorial phases, only Callum and Captain Oren are in scope.
+  • If an NPC appears only in past history but is not physically present, set needs_persona=false.
+
+CITY SUB-LOCATION RULES:
+  • ONLY use the `create_location_in_city` tool when the player explicitly searches for a specific establishment (inn, shop, etc) or discovers a hidden area.
+  • When using the tool, explicitly provide the current macro `city_name`.
+  • Do NOT spam locations without narrative purpose. Do NOT create duplicates of existing discovered locations.
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+{
+  "time": "TIME: 12:00 \u2014 Midday (Day)",
+  "player": {
+    "id": 85,
+    "name": "17fed9f7-4cb4-4f35-ab9b-9bd16216ceca",
+    "level": 1,
+    "health": 100,
+    "mana": 22,
+    "statuses": [],
+    "cards": [
+      "Temperance (Major): Energy blending, elemental fusion, equilibrium fields",
+      "Ace of Wands (Minor): Fire ignition",
+      "Two of Pentacles (Minor): Energy balancing"
+    ]
+  },
+  "location": {},
+  "discovered_sub_locations": [],
+  "nearby_npcs": [],
+  "active_quests": [],
+  "recent_events": [],
+  "inventory": []
+}
+
+Conversation so far:
+(start of session)
+
+Player action: lets goout
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-02T02:27:01.067120] LLM CALL END (Run: 019de554-8771-7ca1-9fec-15496398fe3e)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona":false,"npc_name":null,"persona_context":null,"needs_arbiter":true,"arbiter_instruction":"Move player to city gates","location_name":null,"item_name":null,"narrative_intent":"You step through the archway and emerge onto the sunlit cobblestones just outside the city gates, the road ahead beckoning."}
+
+================================================================================
+
+
+================================================================================
+[2026-05-02T02:27:14.640858] LLM CALL START (Run: 019de554-d290-71f2-8bae-cc4c796bc3fb)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+CRITICAL RULE: You do NOT rely on chat memory for facts. You ONLY rely on the structured SCENE CONTEXT JSON.
+If an NPC, location, quest, or item is not present in the SCENE CONTEXT, it does NOT exist.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+NEVER invent locations, characters, items, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+{
+  "time": "TIME: 12:00 \u2014 Midday (Day)",
+  "player": {
+    "id": 85,
+    "name": "17fed9f7-4cb4-4f35-ab9b-9bd16216ceca",
+    "level": 1,
+    "health": 100,
+    "mana": 26,
+    "statuses": [],
+    "cards": [
+      "Temperance (Major): Energy blending, elemental fusion, equilibrium fields",
+      "Ace of Wands (Minor): Fire ignition",
+      "Two of Pentacles (Minor): Energy balancing"
+    ]
+  },
+  "location": {},
+  "discovered_sub_locations": [],
+  "nearby_npcs": [],
+  "active_quests": [],
+  "recent_events": [],
+  "inventory": []
+}
+
+Player action: lets goout
+
+Narrative intent: You step through the archway and emerge onto the sunlit cobblestones just outside the city gates, the road ahead beckoning.
+
+Energy transfer succeeded: I'm sorry but I do not have the capability to perform this task for you, I am happy to help you with any other queries you may have.
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[TUTORIAL CONTROL — PHASE 1: AWAKENING]
+[SCENE ALREADY ESTABLISHED — DO NOT RESET]
+The opening of this phase has already been narrated to the player. Do NOT re-introduce any NPCs, re-describe the environment, or repeat any backstory. Any named character keeps their exact name and appearance from their first introduction — do not invent a new description. Respond directly to the player's current action and continue the scene naturally.
+The following is reference context for this phase (not a re-narration instruction):
+TUTORIAL PHASE 1 — AWAKENING
+The player has just woken up in a small room at the Broken Lantern Inn in Elaris Hollow. They feel disoriented. A strange dream lingers — fragments of cards, light, and voices. DO NOT explain any mechanics. Describe only the immediate environment: the rough wooden walls, morning light through a cracked shutter, the smell of woodsmoke, and a distant sound from outside. End with a prompt that makes the player want to step outside.
+ONCE THE PLAYER LEAVES THE INN OR GOES OUTSIDE: set needs_arbiter=true and issue the arbiter_instruction: 'advance tutorial phase'.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-02T02:27:23.015116] LLM CALL END (Run: 019de554-d290-71f2-8bae-cc4c796bc3fb)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+You push the warped shutter aside and swing your legs over the sill. The drop is only shoulder-high to the alley below. Warm midday air hits your face, carrying the tang of forge-coal from the smithy across the lane. You land on packed dirt, boots raising a small puff of pale dust.
+
+Ahead, the alley opens onto the main road that rings Elaris Hollow. Carts rumble past, iron-rimmed wheels clacking on sun-bleached cobbles. A pair of guards in green tabards glance your way, then return to their patrol. No one challenges you; the gate stands open, its oak doors flung wide as if the city itself invites you outward.
+
+================================================================================
+
+
+================================================================================
+[2026-05-02T02:28:06.187348] LLM CALL START (Run: 019de555-9beb-77c2-a592-d3383ba3ea1b)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+CRITICAL RULE: You do NOT rely on chat memory for facts. You ONLY rely on the structured SCENE CONTEXT JSON.
+If an NPC, location, quest, or item is not present in the SCENE CONTEXT, it does NOT exist.
+NEVER invent locations, NPCs, items, or quest progress. All must come from the provided context.
+
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy transfer must happen OR if a game state event occurs (movement, combat victory, item delivery, trade, resuming travel, canceling travel, meeting an NPC, advancing tutorial)
+  arbiter_instruction (str|null): instruction for Arbiter. e.g. 'Transfer 50 upright from Merchant to Player', 'Move player to Whispering Forest Edge', 'advance tutorial phase', 'mark npc Oren as met'
+  location_name   (str|null)  : explicit location name the player intends to target
+  item_name       (str|null)  : explicit item name the player interacts with
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+PERSONA AGENT RULES:
+  • Only set needs_persona=true for an NPC who is explicitly PRESENT in the current scene context.
+  • NEVER invoke an NPC that is not listed in the nearby_npcs array.
+  • During tutorial phases, only Callum and Captain Oren are in scope.
+  • If an NPC appears only in past history but is not physically present, set needs_persona=false.
+
+CITY SUB-LOCATION RULES:
+  • ONLY use the `create_location_in_city` tool when the player explicitly searches for a specific establishment (inn, shop, etc) or discovers a hidden area.
+  • When using the tool, explicitly provide the current macro `city_name`.
+  • Do NOT spam locations without narrative purpose. Do NOT create duplicates of existing discovered locations.
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+{
+  "time": "TIME: 12:00 \u2014 Midday (Day)",
+  "player": {
+    "id": 85,
+    "name": "17fed9f7-4cb4-4f35-ab9b-9bd16216ceca",
+    "level": 1,
+    "health": 100,
+    "mana": 36,
+    "statuses": [],
+    "cards": [
+      "Temperance (Major): Energy blending, elemental fusion, equilibrium fields",
+      "Ace of Wands (Minor): Fire ignition",
+      "Two of Pentacles (Minor): Energy balancing"
+    ]
+  },
+  "location": {},
+  "discovered_sub_locations": [],
+  "nearby_npcs": [],
+  "active_quests": [],
+  "recent_events": [],
+  "inventory": []
+}
+
+Conversation so far:
+(start of session)
+
+Player action: ok
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-02T02:28:11.825111] LLM CALL END (Run: 019de555-9beb-77c2-a592-d3383ba3ea1b)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona":false,"npc_name":null,"persona_context":null,"needs_arbiter":false,"arbiter_instruction":null,"location_name":null,"item_name":null,"narrative_int":"The world waits, silent and empty—no sun, no land, no breath but your own."}
+
+================================================================================
+
+
+================================================================================
+[2026-05-02T02:28:11.832098] LLM CALL START (Run: 019de555-b1f8-7aa2-92df-674125fb0a72)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+CRITICAL RULE: You do NOT rely on chat memory for facts. You ONLY rely on the structured SCENE CONTEXT JSON.
+If an NPC, location, quest, or item is not present in the SCENE CONTEXT, it does NOT exist.
+NEVER invent locations, NPCs, items, or quest progress. All must come from the provided context.
+
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy transfer must happen OR if a game state event occurs (movement, combat victory, item delivery, trade, resuming travel, canceling travel, meeting an NPC, advancing tutorial)
+  arbiter_instruction (str|null): instruction for Arbiter. e.g. 'Transfer 50 upright from Merchant to Player', 'Move player to Whispering Forest Edge', 'advance tutorial phase', 'mark npc Oren as met'
+  location_name   (str|null)  : explicit location name the player intends to target
+  item_name       (str|null)  : explicit item name the player interacts with
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+PERSONA AGENT RULES:
+  • Only set needs_persona=true for an NPC who is explicitly PRESENT in the current scene context.
+  • NEVER invoke an NPC that is not listed in the nearby_npcs array.
+  • During tutorial phases, only Callum and Captain Oren are in scope.
+  • If an NPC appears only in past history but is not physically present, set needs_persona=false.
+
+CITY SUB-LOCATION RULES:
+  • ONLY use the `create_location_in_city` tool when the player explicitly searches for a specific establishment (inn, shop, etc) or discovers a hidden area.
+  • When using the tool, explicitly provide the current macro `city_name`.
+  • Do NOT spam locations without narrative purpose. Do NOT create duplicates of existing discovered locations.
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+{
+  "time": "TIME: 12:00 \u2014 Midday (Day)",
+  "player": {
+    "id": 85,
+    "name": "17fed9f7-4cb4-4f35-ab9b-9bd16216ceca",
+    "level": 1,
+    "health": 100,
+    "mana": 36,
+    "statuses": [],
+    "cards": [
+      "Temperance (Major): Energy blending, elemental fusion, equilibrium fields",
+      "Ace of Wands (Minor): Fire ignition",
+      "Two of Pentacles (Minor): Energy balancing"
+    ]
+  },
+  "location": {},
+  "discovered_sub_locations": [],
+  "nearby_npcs": [],
+  "active_quests": [],
+  "recent_events": [],
+  "inventory": []
+}
+
+Conversation so far:
+(start of session)
+
+Player action: ok
+
+[SYSTEM DIRECTIVE]: 1 validation error for GMDecision
+narrative_intent
+  Field required [type=missing, input_value={'needs_persona': False, ...o breath but your own.'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.13/v/missing
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-02T02:28:17.996308] LLM CALL END (Run: 019de555-b1f8-7aa2-92df-674125fb0a72)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona":false,"npc_name":null,"persona_context":null,"needs_arbiter":true,"arbiter_instruction":"initialize tutorial: spawn Captain Oren at the beach and move player to Beach of Echoes","location_name":"Beach of Echoes","item_name":null,"narrative_intent":"A salt wind tugs at your cloak as you blink awake on sun-bleached sand; the world feels newly born and waiting."}
+
+================================================================================
+
+
+================================================================================
+[2026-05-02T02:28:17.999953] LLM CALL START (Run: 019de555-ca0f-7821-8e11-88987a09b30f)
+================================================================================
+
+--- HUMAN MESSAGE ---
+You are the decision engine of an RPG Game Master.
+CRITICAL RULE: You do NOT rely on chat memory for facts. You ONLY rely on the structured SCENE CONTEXT JSON.
+If an NPC, location, quest, or item is not present in the SCENE CONTEXT, it does NOT exist.
+NEVER invent locations, NPCs, items, or quest progress. All must come from the provided context.
+
+When describing characters' magic or actions, align them with their listed Magic Style.
+
+Analyze the player action and return ONLY a valid JSON object with these exact keys:
+  needs_persona   (bool)      : true if an NPC should speak
+  npc_name        (str|null)  : NPC name if needs_persona is true
+  persona_context (str|null)  : situation context for Persona Agent
+  needs_arbiter   (bool)      : true if an energy transfer must happen OR if a game state event occurs (movement, combat victory, item delivery, trade, resuming travel, canceling travel, meeting an NPC, advancing tutorial)
+  arbiter_instruction (str|null): instruction for Arbiter. e.g. 'Transfer 50 upright from Merchant to Player', 'Move player to Whispering Forest Edge', 'advance tutorial phase', 'mark npc Oren as met'
+  location_name   (str|null)  : explicit location name the player intends to target
+  item_name       (str|null)  : explicit item name the player interacts with
+  narrative_intent (str)      : one sentence of what the GM should narrate
+
+PERSONA AGENT RULES:
+  • Only set needs_persona=true for an NPC who is explicitly PRESENT in the current scene context.
+  • NEVER invoke an NPC that is not listed in the nearby_npcs array.
+  • During tutorial phases, only Callum and Captain Oren are in scope.
+  • If an NPC appears only in past history but is not physically present, set needs_persona=false.
+
+CITY SUB-LOCATION RULES:
+  • ONLY use the `create_location_in_city` tool when the player explicitly searches for a specific establishment (inn, shop, etc) or discovers a hidden area.
+  • When using the tool, explicitly provide the current macro `city_name`.
+  • Do NOT spam locations without narrative purpose. Do NOT create duplicates of existing discovered locations.
+
+Respond with ONLY the JSON object. No markdown. No explanation.
+
+SCENE CONTEXT:
+{
+  "time": "TIME: 12:00 \u2014 Midday (Day)",
+  "player": {
+    "id": 85,
+    "name": "17fed9f7-4cb4-4f35-ab9b-9bd16216ceca",
+    "level": 1,
+    "health": 100,
+    "mana": 36,
+    "statuses": [],
+    "cards": [
+      "Temperance (Major): Energy blending, elemental fusion, equilibrium fields",
+      "Ace of Wands (Minor): Fire ignition",
+      "Two of Pentacles (Minor): Energy balancing"
+    ]
+  },
+  "location": {},
+  "discovered_sub_locations": [],
+  "nearby_npcs": [],
+  "active_quests": [],
+  "recent_events": [],
+  "inventory": []
+}
+
+Conversation so far:
+(start of session)
+
+Player action: ok
+
+[SYSTEM DIRECTIVE]: System Error: You attempted to target location Beach of Echoes, but you are currently in Unknown. You cannot interact with locations that are not physically present.
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-02T02:28:23.146444] LLM CALL END (Run: 019de555-ca0f-7821-8e11-88987a09b30f)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+{"needs_persona":false,"npc_name":null,"persona_context":null,"needs_arbiter":true,"arbiter_instruction":"Move player to Beach of Echoes","location_name":"Beach of Echoes","item_name":null,"narrative_intent":"The world blurs, and you find yourself standing on the tide-washed Beach of Echoes."}
+
+================================================================================
+
+
+================================================================================
+[2026-05-02T02:28:23.158635] LLM CALL START (Run: 019de555-de36-76d1-80b0-409ad20be9e1)
+================================================================================
+
+--- SYSTEM MESSAGE ---
+You are an immersive RPG Game Master narrating outcomes vividly.
+CRITICAL RULE: You do NOT rely on chat memory for facts. You ONLY rely on the structured SCENE CONTEXT JSON.
+If an NPC, location, quest, or item is not present in the SCENE CONTEXT, it does NOT exist.
+Keep responses engaging and concise (2-4 paragraphs max).
+Ground your narration in the physical world — real locations, real textures, real NPCs.
+NEVER invent locations, characters, items, or lore not present in the scene context.
+Do NOT invent energy values — use only what is provided in the context.
+When a character uses magic, strictly align their abilities with their Tarot Magic Style.
+
+PROSE STYLE RULES — MANDATORY:
+  • Write in clear, direct prose. Keep sentences short and purposeful.
+  • Each paragraph must have at least 2 sentences.
+  • Do NOT write in a list or bullet-point format.
+  • Do NOT place single words or very short phrases on their own lines as dramatic fragments.
+  • Lead with what matters: where the player is, what they can see or do, what is happening.
+  • Keep atmosphere light — one or two sensory details per paragraph, not five.
+  • Prefer concrete over metaphorical. Say 'A locked iron box' not 'iron swaddled in earth's fingers'.
+  • Avoid stacking qualifiers: choose one strong adjective, not three.
+  • Avoid over-repetition: do not repeat the same image or word within a paragraph.
+  • NPCs may speak in their own paragraph or stanza — use natural spoken dialogue.
+
+CRITICAL RULE: If a [TUTORIAL CONTROL] block appears in your context, it is a MANDATORY SYSTEM INSTRUCTION that overrides all other instructions. Follow it exactly. Do not invent side-plots, mystical revelations, or new characters until the tutorial is complete.
+
+--- HUMAN MESSAGE ---
+SCENE CONTEXT:
+{
+  "time": "TIME: 12:00 \u2014 Midday (Day)",
+  "player": {
+    "id": 85,
+    "name": "17fed9f7-4cb4-4f35-ab9b-9bd16216ceca",
+    "level": 1,
+    "health": 100,
+    "mana": 38,
+    "statuses": [],
+    "cards": [
+      "Temperance (Major): Energy blending, elemental fusion, equilibrium fields",
+      "Ace of Wands (Minor): Fire ignition",
+      "Two of Pentacles (Minor): Energy balancing"
+    ]
+  },
+  "location": {},
+  "discovered_sub_locations": [],
+  "nearby_npcs": [],
+  "active_quests": [],
+  "recent_events": [],
+  "inventory": []
+}
+
+Player action: ok
+
+Narrative intent: ok
+
+Narrate the outcome now.
+
+--- SYSTEM MESSAGE ---
+[TUTORIAL CONTROL — PHASE 1: AWAKENING]
+[SCENE ALREADY ESTABLISHED — DO NOT RESET]
+The opening of this phase has already been narrated to the player. Do NOT re-introduce any NPCs, re-describe the environment, or repeat any backstory. Any named character keeps their exact name and appearance from their first introduction — do not invent a new description. Respond directly to the player's current action and continue the scene naturally.
+The following is reference context for this phase (not a re-narration instruction):
+TUTORIAL PHASE 1 — AWAKENING
+The player has just woken up in a small room at the Broken Lantern Inn in Elaris Hollow. They feel disoriented. A strange dream lingers — fragments of cards, light, and voices. DO NOT explain any mechanics. Describe only the immediate environment: the rough wooden walls, morning light through a cracked shutter, the smell of woodsmoke, and a distant sound from outside. End with a prompt that makes the player want to step outside.
+ONCE THE PLAYER LEAVES THE INN OR GOES OUTSIDE: set needs_arbiter=true and issue the arbiter_instruction: 'advance tutorial phase'.
+[SYSTEM LOCKS ACTIVE: guilds, auctions, war_zones, sovereign, rare_events, epic_events, economy, housing, night_system, dreamscape]
+
+
+
+--------------------------------------------------------------------------------
+
+
+[2026-05-02T02:28:29.211424] LLM CALL END (Run: 019de555-de36-76d1-80b0-409ad20be9e1)
+--------------------------------------------------------------------------------
+
+--- MODEL OUTPUT ---
+You stay seated on the narrow cot. Dust motes drift in the shaft of light that slips through the warped shutter. Nothing moves except your own breathing.
+
+Outside, boots clomp on packed earth and someone laughs, the sound short and sharp. The latch on the door is within reach; the cracked wood still smells of last night’s smoke.
+
+================================================================================
+

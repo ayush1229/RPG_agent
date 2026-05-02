@@ -4,6 +4,10 @@ Run once after applying the sequential-interview fix.
 
     uv run python reset_prologue.py
 """
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import json, sqlite3
 conn = sqlite3.connect("tarot.db")
 c = conn.cursor()

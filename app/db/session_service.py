@@ -98,13 +98,22 @@ def load_user_state(
 
     if not user_session:
         # New player — create a blank TarotEntity
-        entity = TarotEntity(entity_name=user_id)
+        from app.db.models import CitySubLocation
+        loc = session.exec(select(Location).where(Location.name == "Ardent Hollow")).first()
+        sub = session.exec(select(CitySubLocation).where(CitySubLocation.name == "Broken Lantern Inn")).first()
+        
+        entity = TarotEntity(
+            entity_name=f"Player_{user_id[:8]}",
+            current_location_id=loc.id if loc else None,
+            sub_location_id=sub.id if sub else None
+        )
         session.add(entity)
         session.flush()
 
         user_session = UserSession(
             user_id=user_id,
             entity_id=entity.id,
+            last_location_id=loc.id if loc else None
         )
         session.add(user_session)
         session.commit()
